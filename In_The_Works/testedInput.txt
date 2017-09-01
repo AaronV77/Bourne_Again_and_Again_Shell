@@ -1,0 +1,12 @@
+help aaron uid aaron pid aaron ppid aaron = help uid pid ppid
+help aaron prompt aaron = help prompt aaron
+help > help = (nothing)
+aaron > help = (nothing)
+help aaron > aaron help = help help
+setenv aaron aaron = setenv aaron aaron
+< aaron help help < aaron = help < aaron help
+help | help
+< aaron help help < aaron help < = seg fault
+help < = (nothing)
+help help <a
+

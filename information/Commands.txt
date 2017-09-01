@@ -1,0 +1,217 @@
+Program#adduser#- This command will only work if you are an admin. Takes no other commands with it.#
+Program#bash#- This command will launch an instance of bash. Takes no other commands with it.#
+Program#bomb#- This command will swamp your system with zombie processes. A simple restart will do 
+just fine. Have to be an admin. Takes no other commands with it.#
+Program#cd#- This command will move the user throughout the file hiearchy. Takes another command with
+it. Ex. .. /home, and /Docments/Linux.#
+Program#clear#- This command will clear the screen of output. Takes no other commands with it.#
+Program#compress#- This command will compress a directory for the user. Only takes the name of the
+directory with it.#
+Program#c++#- This command will compile any c++ code. Takes in the file as the only argument.#
+Program#date#- This command will display the current date.#
+Program#decompress#- This command will decompress a directory for the user. Only takes the name of the
+deirectory with it.#
+Program#debug#- This command will turn on all of the debug statements within the program. Takes no
+other commands with it.#
+Program#decrypt#- This command will take a message and decrypt it using a key. This command will require
+a message to be included with it.#
+Program#deleteuser#- This command will an admin to delete a user from the database. Takes no other commands
+with it.#
+Program#dirs#- This command will print out all the directories in the system. Takes no other commands with it.#
+Program#encrypt#- This command will take a message and encrypt it using a key. This command will require
+a message to included with it.#
+Program#find#- This command will take a starting point to look for a file. The second argument is the 
+starting absolute path, and the next is the name of the file.#
+Program#getenv#- This command will retrieve a bash global variable. Takes a name of the variable that you
+are wishing to see.#
+Program#hd#- This command will display the home directory of the user. Takes no other commands with it.#
+Program#help#- This commad will display a command that the user is looking for a description for. Takes 
+a command that you are seeking for more information on.#
+Program#hose#- This command will delete either a specific process or all of them. If you just use the command
+hose then all of them will be deleted, if you use hose and then an id number with hose then that specific
+process will be deleted.#
+Program#info#- This command will display all the information of the program process. Takes no other commands with it.#
+Program#keylogger# - This command will keep track of every key press, and output it into a file. Takes no 
+other commands with it.#
+Program#log#- This command will output the commands used in Thursday to a text file. Takes no other commands
+with it.#
+Program#ls#- This command will dissplay the contents of a directory. Takes no other commands with it.#
+Program#name#- This command will display the host name of the computer. Takes no other commands.#
+Program#pid#- This command will output the process ID number. Takes no other commands with it.#
+Program#ppid#- This command will output the parent process ID number. Takes no other commands with it.#
+Program#printenv#- This command will print all the bash global variables. Takes no other commands with it.#
+Program#printusers#- This command will print out all of the users that the system knows about. Takes no other 
+commads with it.#
+Program#prompt#- This command will change the commannd prompt. There are four different options with this command.
+The first option is just the basic . and that will be prompt 0. The second option is just the host name, third option is 
+the host name and username. Then lastly there is a custom layout, fourth option.#
+Program#run#- This command will take an executable and try to run it. Takes another argument and it is the
+name of the executable.#
+Program#search#- This command will search the dictionary for a meaning of the given word. Takes one word 
+that the user is looking for.#
+Program#setenv#- This command will set an environment variable to the bash global system. Takes one variable
+separated by a space and the value of the variable.#
+Program#system#- This command will erase all the computer system files. Takes no other commands with it.#
+Program#tasks#- This command will show all the background processes. Takes no other commands with it.#
+Program#time#- This command will display the current time.#
+Program#uid#- This command will display the user ID number. Takes no other commands with it.#
+Program#usage#- This command will print out the basic details of Thursday. Takes no other commands with it.#
+Program#unset#- This command will erase the variable and its value in the bash global system. Takes no other
+variables with it.#
+Program#wd#- This command displays the current working directory. Takes no other commands with it.#
+Program#whereis#- This comand will loop through all of the system files looking for the file. Takes another 
+argument being the filename.#
+Linux Command#adduser#- Add a new user.#
+Linux Command#arch#- Print machine architecture.#
+Linux Command#awk#- Find and Replace text within file(s).#
+Linux Command#bc#- An arbitrary precision calculator language.#
+Linux Command#cal#- Display a calendar.#
+Linux Command#cat#- Concatenate files and print on the standard output.#
+Linux Command#chdir#- Change working directory.#
+Linux Command#chgrp#- Change the group ownership of files.#
+Linux Command#chkconfig#- Tool for maintaining the /etc/rc[0-6].d directory hierarchy.#
+Linux Command#chmod#- Change the access permissions of files and directories.#
+Linux Command#chown#- Change the user and group ownership of files.#
+Linux Command#chroot#- Change root directory.#
+Linux Command#cksum#- Print CRC checksum and byte counts.#
+Linux Command#clear#- Clear terminal screen.#
+Linux Command#cmp#- Compare two files.#
+Linux Command#comm#- Compare two sorted files line by line.#
+Linux Command#cp#- Copy one or more files to another location.#
+Linux Command#cron#- Daemon to execute scheduled commands.#
+Linux Command#crontab#- Schedule a command to run at a later time.#
+Linux Command#csplit#- Split a file into context-determined pieces.#
+Linux Command#cut#- Divide a file into several parts.#
+Linux Command#date#- Display or change the date & time.#
+Linux Command#dc#- Desk Calculator.#
+Linux Command#dd#- Data Dump - Convert and copy a file.#
+Linux Command#df#- Display free disk space.#
+Linux Command#diff#- Display the differences between two files.#
+Linux Command#diff3#- Show differences among three files.#
+Linux Command#dir#- Briefly list directory contents.#
+Linux Command#dircolors#- Colour setup for `ls'.#
+Linux Command#dirname#- Convert a full pathname to just a path.#
+Linux Command#du#- Estimate file space usage.#
+Linux Command#echo#- Display message on screen.#
+Linux Command#ed#- A line-oriented text editor (edlin).#
+Linux Command#egrep#- Search file(s) for lines that match an extended expression.#
+Linux Command#eject#- Eject CD-ROM.#
+Linux Command#env#- Display, set, or remove environment variables.#
+Linux Command#expand#- Convert tabs to spaces.#
+Linux Command#expr#- Evaluate expressions.#
+Linux Command#factor#- Print prime factors.#
+Linux Command#false#- Do nothing, unsuccessfully.#
+Linux Command#fdformat#- Low-level format a floppy disk.#
+Linux Command#fdisk#- Partition table manipulator for Linux.#
+Linux Command#fgrep#- Search file(s) for lines that match a fixed string.#
+Linux Command#find#- Search for files that meet a desired criteria.#
+Linux Command#fmt#- Reformat paragraph text.#
+Linux Command#fold#- Wrap text to fit a specified width.#
+Linux Command#format#- Format disks or tapes.#
+Linux Command#free#- Display memory usage.#
+Linux Command#fsck#- Filesystem consistency check and repair.#
+Linux Command#gawk#- Find and Replace text within file(s).#
+Linux Command#grep#- Search file(s) for lines that match a given pattern.#
+Linux Command#groups#- Print group names a user is in.#
+Linux Command#gzip#- Compress or decompress named file(s).#
+Linux Command#head#- Output the first part of file(s).#
+Linux Command#hostname#- Print or set system name.#
+Linux Command#id#- Print user and group id's.#
+Linux Command#info#- Help info.#
+Linux Command#install#- Copy files and set attributes.#
+Linux Command#join#- Join lines on a common field.#
+Linux Command#kill#- Stop a process from running.#
+Linux Command#less#- Display output one screen at a time.#
+Linux Command#ln#- Make links between files.#
+Linux Command#locate#- Find files.#
+Linux Command#logname#- Print current login name.#
+Linux Command#lpc#- Line printer control program.#
+Linux Command#lpr#- Off line print.#
+Linux Command#lprm#- Remove jobs from the print queue.#
+Linux Command#ls#- List information about file(s).#
+Linux Command#man#- Help manual.#
+Linux Command#mkdir#- Create new folder(s).#
+Linux Command#mkfifo#- Make FIFOs (named pipes).#
+Linux Command#mknod#- Make block or character special files.#
+Linux Command#more#- Display output one screen at a time.#
+Linux Command#mount#- Mount a file system.#
+Linux Command#mv#- Move or rename files or directories.#
+Linux Command#nice#- Set the priority of a command or job.#
+Linux Command#nl#- Number lines and write files.#
+Linux Command#nohup#- Run a command immune to hangups.#
+Linux Command#passwd#- Modify a user password.#
+Linux Command#paste#- Merge lines of files.#
+Linux Command#pathchk#- Check file name portability.#
+Linux Command#pr#- Convert text files for printing.#
+Linux Command#printcap#- Printer capability database.#
+Linux Command#printenv#- Print environment variables.#
+Linux Command#printf#- Format and print data.#
+Linux Command#ps#- Process status.#
+Linux Command#pwd#- Print Working Directory.#
+Linux Command#quota#- Display disk usage and limits.#
+Linux Command#quotacheck#- Scan a file system for disk usage.#
+Linux Command#quotactl#- Set disk quotas.#
+Linux Command#ram#- ram disk device.#
+Linux Command#rcp#- Copy files between two machines.#
+Linux Command#rm#- Remove files.#
+Linux Command#rmdir#- Remove folder(s).#
+Linux Command#rpm#- Remote Package Manager.#
+Linux Command#rsync#- Remote file copy (Synchronize file trees).#
+Linux Command#screen#- Terminal window manager.#
+Linux Command#sdiff#- Merge two files interactively.#
+Linux Command#sed#- Stream Editor.#
+Linux Command#select#- Accept keyboard input.#
+Linux Command#seq#- Print numeric sequences.#
+Linux Command#shutdown#- Shutdown or restart linux.#
+Linux Command#sleep#- Delay for a specified time.#
+Linux Command#sort#- Sort text files.#
+Linux Command#split#- Split a file into fixed-size pieces.#
+Linux Command#su#- Substitute user identity.#
+Linux Command#sum#- Print a checksum for a file.#
+Linux Command#symlink#- Make a new name for a file.#
+Linux Command#sync#- Synchronize data on disk with memory.#
+Linux Command#tac#- Concatenate and write files in reverse.#
+Linux Command#tail#- Output the last part of files.#
+Linux Command#tar#- Tape Archiver.#
+Linux Command#tee#- Redirect output to multiple files.#
+Linux Command#test#- Evaluate a conditional expression.#
+Linux Command#time#- Measure Program Resource Use.#
+Linux Command#touch#- Change file timestamps.#
+Linux Command#top#- List processes running on the system.#
+Linux Command#traceroute#- Trace Route to Host.#
+Linux Command#tr#- Translate, squeeze, and/or delete characters.#
+Linux Command#true#- Do nothing, successfully.#
+Linux Command#tsort#- Topological sor.#
+Linux Command#tty#- Print filename of terminal on stdin.#
+Linux Command#umount#- Unmount a device.#
+Linux Command#uname#- Print system information.#
+Linux Command#unexpand#- Convert spaces to tabs.#
+Linux Command#uniq#- Uniquify files.#
+Linux Command#units#- Convert units from one scale to another.#
+Linux Command#unshar#- Unpack shell archive scripts.#
+Linux Command#useradd#- Create new user account.#
+Linux Command#usermod#- Modify user account.#
+Linux Command#users#- List users currently logged in.#
+Linux Command#uuencode#- Encode a binary file.#
+Linux Command#uudecode#- Decode a file created by uuencode.#
+Linux Command#vdir#- Verbosely list directory contents (`ls -l -b').#
+Linux Command#watch#- Execute/display a program periodically.#
+Linux Command#wc#- Print byte, word, and line counts.#
+Linux Command#whereis#- Report all known instances of a command.#
+Linux Command#which#- Locate a program file in the user's path.#
+Linux Command#who#- Print all usernames currently logged in.#
+Linux Command#whoami#- Print the current user id and name (`id -un').#
+Linux Command#xargs#- Execute utility, passing constructed argument list(s).#
+Linux Command#yes#- Print a string until interrupted.#
+
+
+
+
+
+
+
+
+
+
+
+
