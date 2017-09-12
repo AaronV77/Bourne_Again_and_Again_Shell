@@ -72,8 +72,6 @@ int main (int argc, char * argv[], char *envp[])
 									BoolVar = 0;
 								else 
 									BoolVar = 1;
-								Color::Modifier lightCyan(Color::FG_LIGHT_CYAN, BoolVar);								//Display the color cyan if the switch is either on or off.
-								Color::Modifier def(Color::FG_DEFAULT,BoolVar);											//Display the default color if the switch is either on or off.
 								returnNumber = 0;																		//Reset the return number for the loop.
 							}
 							cout << lightCyan << home.PromptDisplay() << def;											//Display the prompt.
@@ -97,59 +95,44 @@ int main (int argc, char * argv[], char *envp[])
 						break;
 					case 153: 																							//Delete key.
 						if (LeftAndRightIterator != 0) {
-							for (int d = 0; d < strlen(theCommands); d++) {													//Loop through the number of characters currently being typed.
-								printf("\b \b");																			//Deletes a character on the current line and moves the pointer back one.
-								LeftAndRightIterator--;																		//Decrement the left and right iterator.
+							for (int d = 0; d < strlen(theCommands); d++) {												//Loop through the number of characters currently being typed.
+								printf("\b \b");																		//Deletes a character on the current line and moves the pointer back one.
+								LeftAndRightIterator--;																	//Decrement the left and right iterator.
 							}
 						}
 						memset(theCommands, 0, sizeof(theCommands));													//Reset the input stream.
 						break;
-					case 195: 																							//When the up arrow key is pressed.
-						if (incomingCommands.size() == 0) {																//Check to see if the vector is empty													
-							Color::Modifier lightCyan(Color::FG_LIGHT_CYAN, BoolVar);									//Display the color cyan if the switch is either on or off.
-							Color::Modifier def(Color::FG_DEFAULT,BoolVar);												//Display the default color if the switch is either on or off.
-							cout << lightCyan << home.PromptDisplay() << def;	
-						} else {																					
-							if (UpAndDownIterator >= 0) {																//Check to make sure the iterator is above or equal to 0.
-								printf("%c[2K", 27);																	//Clear the current terminal line.
-								Color::Modifier lightCyan(Color::FG_LIGHT_CYAN, BoolVar);								//Display the color cyan if the switch is either on or off.
-								Color::Modifier def(Color::FG_DEFAULT,BoolVar);											//Display the default color if the switch is either on or off.
-								cout << "\r" << lightCyan << home.PromptDisplay()<< def << incomingCommands[UpAndDownIterator];
-								memset(theCommands, 0, sizeof(theCommands));
-								strcpy(theCommands, strdup(incomingCommands[UpAndDownIterator]));
-								LeftAndRightIterator = strlen(theCommands);
-								UpAndDownIterator--; 																	//Since we push commands from the end of the vector we want to move down the vector to get to the old commands.
-							} else {
-								UpAndDownIterator = 0;
-							}
+					case 195: 																							//When the up arrow key is pressed.																				
+						if (UpAndDownIterator > 0) {																	//Check to make sure the iterator is above  0.
+							printf("%c[2K", 27);																		//Clear the current terminal line.
+							cout << "\r" << lightCyan << home.PromptDisplay()<< def << incomingCommands[UpAndDownIterator]; //Print the previous command out.
+							memset(theCommands, 0, sizeof(theCommands));												//Reset the pointer.
+							strcpy(theCommands, strdup(incomingCommands[UpAndDownIterator]));
+							LeftAndRightIterator = strlen(theCommands);
+							if (UpAndDownIterator != 0)
+								UpAndDownIterator--; 																		//Since we push commands from the end of the vector we want to move down the vector to get to the old commands.
+						} else {
+							UpAndDownIterator = 0;
 						}
 						break;
 					case 198: 																							//Down arrow key.
-						if (incomingCommands.size() == 0) {
-							Color::Modifier lightCyan(Color::FG_LIGHT_CYAN, BoolVar);									//Display the color cyan if the switch is either on or off.
-							Color::Modifier def(Color::FG_DEFAULT,BoolVar);												//Display the default color if the switch is either on or off.
-							cout << lightCyan << home.PromptDisplay() << def;
-						} else {
-							
+						
+						if (UpAndDownIterator < incomingCommands.size()) {
 							UpAndDownIterator++; 
-							if (UpAndDownIterator < incomingCommands.size()) {
-								printf("%c[2K", 27);
-								Color::Modifier lightCyan(Color::FG_LIGHT_CYAN, BoolVar);								//Display the color cyan if the switch is either on or off.
-								Color::Modifier def(Color::FG_DEFAULT,BoolVar);											//Display the default color if the switch is either on or off.
-								cout << "\r" << lightCyan << home.PromptDisplay()<< def << incomingCommands[UpAndDownIterator];
-								memset(theCommands, 0, sizeof(theCommands)); 
-								strcpy(theCommands, strdup(incomingCommands[UpAndDownIterator]));
-								LeftAndRightIterator = strlen(theCommands);
-							} else {
-								for (int d = 0; d < strlen(theCommands); d++) {													//Loop through the number of characters currently being typed.
-									printf("\b \b");																			//Deletes a character on the current line and moves the pointer back one.
-									LeftAndRightIterator--;																		//Decrement the left and right iterator.
-								}
-								memset(theCommands, 0, sizeof(theCommands));													//Reset the input stream.
-								UpAndDownIterator = incomingCommands.size();
-								UpAndDownIterator--;
-							} 
-						}
+							printf("%c[2K", 27);
+							cout << "\r" << lightCyan << home.PromptDisplay()<< def << incomingCommands[UpAndDownIterator];
+							memset(theCommands, 0, sizeof(theCommands)); 
+							strcpy(theCommands, strdup(incomingCommands[UpAndDownIterator]));
+							LeftAndRightIterator = strlen(theCommands);
+						} else {
+							for (int d = 0; d < strlen(theCommands); d++) {												//Loop through the number of characters currently being typed.
+								printf("\b \b");																		//Deletes a character on the current line and moves the pointer back one.
+								LeftAndRightIterator--;																	//Decrement the left and right iterator.
+							}
+							memset(theCommands, 0, sizeof(theCommands));												//Reset the input stream.
+							UpAndDownIterator = incomingCommands.size();
+							UpAndDownIterator--;
+						} 
 						break;
 					case 201:																							//Right arrow key.
 
