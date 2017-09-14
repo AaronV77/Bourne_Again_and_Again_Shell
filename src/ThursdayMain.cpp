@@ -12,9 +12,6 @@ int Searching(vector<char*> systemCommands, char * item);
 
 int main (int argc, char * argv[], char *envp[])
 {
-	/*-------------------------------------------------------------------
-	Note: This function
-	--------------------------------------------------------------------*/	
 	vector<char*> systemCommands;																						//Used to store the system commmands that will be used to check against the incoming commands.
 	vector<char*> incomingInput;									
 	vector<char*> incomingCommands;																						//Used to store the incoming commands from the user and will be checked.
@@ -30,6 +27,7 @@ int main (int argc, char * argv[], char *envp[])
 	char * currentPath = (char*)malloc(120);																			//Used to store the current path that the system is in.
 	char * homeDestination = (char*)malloc(120);																		//Used to store the location of the system.
 	char * informationDestination = (char*)malloc(120);																	
+	char * resetArguments[2] = { (char*)"reset", NULL };																	//Is a char array used to give to the ExectureFile method to be able to reset the screen.
 	struct termios oldattr, newattr;																					//Setup terminal variables.
 	
 	Thursday home;																										//Create an instance of the class.
@@ -43,129 +41,126 @@ int main (int argc, char * argv[], char *envp[])
 
 	systemCommands = LoadSystemCommands(systemCommands, currentPath, informationDestination, homeDestination, &home);	//Call the method to load in all the system commands that the program is allowed to use.
 	
-	while (1) {																											//Loop for indeffinately.
-		if (home.Login() == 1) {																						//Have the user be able to login, else close the program.
-			cout << lightCyan << home.PromptDisplay() << def;															//Print basic prompt out.
-			cin.ignore();																								//Clear the stream from the login input.																			
-			while (returnNumber == 0) {																					//Loop until the user wants to logout.						
-				tcgetattr(STDIN_FILENO, &oldattr);																		//Get the terminal setting for standard in.				
-				newattr = oldattr;																						//Save the settings to a different terminal variable.
-				newattr.c_lflag &= ~( ICANON | ECHO );																	//Turn off the echo feature and line editing to still occur.
-				tcsetattr(STDIN_FILENO, TCSANOW, &newattr);																//Set the new settings to the terminal.
-				characterNumber = getche();																				//Retrieve the character that was typed and send back the ascii value.
-				tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);																//Set the terminal to the old settings.
-				character = Utilities::int_to_char(characterNumber);													//Send the number to our utilities to get the actual letter / character back.
+	while (1) {																										//Loop for indeffinately.
+		home.ExecuteFile((char*)"reset", resetArguments);
+		cout << lightCyan << home.PromptDisplay() << def;															//Print basic prompt out.																	
+		while (returnNumber == 0) {																					//Loop until the user wants to logout.						
+			tcgetattr(STDIN_FILENO, &oldattr);																		//Get the terminal setting for standard in.				
+			newattr = oldattr;																						//Save the settings to a different terminal variable.
+			newattr.c_lflag &= ~( ICANON | ECHO );																	//Turn off the echo feature and line editing to still occur.
+			tcsetattr(STDIN_FILENO, TCSANOW, &newattr);																//Set the new settings to the terminal.
+			characterNumber = getche();																				//Retrieve the character that was typed and send back the ascii value.
+			tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);																//Set the terminal to the old settings.
+			character = Utilities::int_to_char(characterNumber);													//Send the number to our utilities to get the actual letter / character back.
 
-				switch(characterNumber) {																				//Use a switch statment to do specific actions for certain characters.
-					case 10: 																							//When an enter key was pressed.
-						if (theCommands != NULL) {																		//Make sure that the char pointer is not empty / NULL.
-							incomingInput = ArgumentChecker(systemCommands, strdup(theCommands), currentPath, informationDestination);	//Check the incoming arguments from the user.
-							returnNumber = home.SearchCommands(envp, incomingInput);									//Send the commands in the incomingInput vector to the search commands method.
-							incomingCommands.push_back(strdup(theCommands));											//Store the old commands in this vector.				
-							incomingInput.clear();																		//Clear the vector after processing.					
-							if (returnNumber == 1) {																	//If the user wants to log out.	
-								memset(character, 0, sizeof(character));												//Clear the character pointer.
-								memset(theCommands, 0, sizeof(theCommands));											//Clear theCommands pointer.
-								break;																					//Leave the loop
-							} else if (returnNumber == 2) {																//Toggle the color on and off.
-								if (BoolVar == 1)
-									BoolVar = 0;
-								else 
-									BoolVar = 1;
-								returnNumber = 0;																		//Reset the return number for the loop.
-							}
-							cout << lightCyan << home.PromptDisplay() << def;											//Display the prompt.
+			switch(characterNumber) {																				//Use a switch statment to do specific actions for certain characters.
+				case 10: 																							//When an enter key was pressed.
+					if (theCommands != NULL) {																		//Make sure that the char pointer is not empty / NULL.
+						incomingInput = ArgumentChecker(systemCommands, strdup(theCommands), currentPath, informationDestination);	//Check the incoming arguments from the user.
+						returnNumber = home.SearchCommands(envp, incomingInput);									//Send the commands in the incomingInput vector to the search commands method.
+						incomingCommands.push_back(strdup(theCommands));											//Store the old commands in this vector.				
+						incomingInput.clear();																		//Clear the vector after processing.					
+						if (returnNumber == 1) {																	//If the user wants to log out.	
+							memset(character, 0, sizeof(character));												//Clear the character pointer.
+							memset(theCommands, 0, sizeof(theCommands));											//Clear theCommands pointer.
+							break;																					//Leave the loop
+						} else if (returnNumber == 2) {																//Toggle the color on and off.
+							if (BoolVar == 1)
+								BoolVar = 0;
+							else 
+								BoolVar = 1;
+							returnNumber = 0;																		//Reset the return number for the loop.
 						}
-						UpAndDownIterator = incomingCommands.size();													//Set the up and down iterator to zero.
-						UpAndDownIterator--;		
-						LeftAndRightIterator = 0;														
-						memset(character, 0, sizeof(character));														//Clear the character pointer.
-						memset(theCommands, 0, sizeof(theCommands));													//Clear theCommands pointer.
-						break;																							//Break out of the switch staatement.
-					case 127: 																							//Backspace character.
-						if (LeftAndRightIterator > 0) {																	//Delete the characters in the pointer, but no further than what was typed.
-							printf("\b \b");																			//Deletes a character on the current line and moves the pointer back one.
-							if (strlen(theCommands) == 1)																//If the size of the char pointer is equal to the size of 1.
-								memset(theCommands, 0, sizeof(theCommands));											//Reset the char pointer.
+						cout << lightCyan << home.PromptDisplay() << def;											//Display the prompt.
+					}
+					UpAndDownIterator = incomingCommands.size();													//Set the up and down iterator to zero.
+					UpAndDownIterator--;		
+					LeftAndRightIterator = 0;														
+					memset(character, 0, sizeof(character));														//Clear the character pointer.
+					memset(theCommands, 0, sizeof(theCommands));													//Clear theCommands pointer.
+					break;																							//Break out of the switch staatement.
+				case 127: 																							//Backspace character.
+					if (LeftAndRightIterator > 0) {																	//Delete the characters in the pointer, but no further than what was typed.
+						printf("\b \b");																			//Deletes a character on the current line and moves the pointer back one.
+						if (strlen(theCommands) == 1)																//If the size of the char pointer is equal to the size of 1.
+							memset(theCommands, 0, sizeof(theCommands));											//Reset the char pointer.
 
-							if (strlen(theCommands) != 0)																//If the char pointer size is not equal to zero.
-								strcpy(theCommands, strndup(theCommands, (strlen(theCommands) - 1)));					//Strndup will decrement the size of a char pointer and then strcpy will copy it to the char pointer.				
-							LeftAndRightIterator--;																			
+						if (strlen(theCommands) != 0)																//If the char pointer size is not equal to zero.
+							strcpy(theCommands, strndup(theCommands, (strlen(theCommands) - 1)));					//Strndup will decrement the size of a char pointer and then strcpy will copy it to the char pointer.				
+						LeftAndRightIterator--;																			
+					}
+					break;
+				case 153: 																							//Delete key.
+					if (LeftAndRightIterator != 0) {
+						for (int d = 0; d < strlen(theCommands); d++) {												//Loop through the number of characters currently being typed.
+							printf("\b \b");																		//Deletes a character on the current line and moves the pointer back one.
+							LeftAndRightIterator--;																	//Decrement the left and right iterator.
 						}
-						break;
-					case 153: 																							//Delete key.
-						if (LeftAndRightIterator != 0) {
-							for (int d = 0; d < strlen(theCommands); d++) {												//Loop through the number of characters currently being typed.
-								printf("\b \b");																		//Deletes a character on the current line and moves the pointer back one.
-								LeftAndRightIterator--;																	//Decrement the left and right iterator.
-							}
+					}
+					memset(theCommands, 0, sizeof(theCommands));													//Reset the input stream.
+					break;
+				case 195: 																							//When the up arrow key is pressed.																				
+					if (UpAndDownIterator > 0) {																	//Check to make sure the iterator is above  0.
+						printf("%c[2K", 27);																		//Clear the current terminal line.
+						cout << "\r" << lightCyan << home.PromptDisplay()<< def << incomingCommands[UpAndDownIterator]; //Reset the output and pring the colored prompt and print out the previous command.
+						memset(theCommands, 0, sizeof(theCommands));												//Reset the pointer.
+						strcpy(theCommands, strdup(incomingCommands[UpAndDownIterator]));							//Copy the previous command to the theCommands pointer.
+						LeftAndRightIterator = strlen(theCommands);													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
+						if (UpAndDownIterator != 0)
+							UpAndDownIterator--; 																	//Since we push commands from the end of the vector we want to move down the vector to get to the old commands.
+					} else {
+						UpAndDownIterator = 0;
+					}
+					break;
+				case 198: 																							//Down arrow key.
+					if (UpAndDownIterator < incomingCommands.size()) {
+						UpAndDownIterator++; 																		//Increment the iterator to grab the previous called command.			
+						printf("%c[2K", 27);																		//Clear the printed terminal line.
+						cout << "\r" << lightCyan << home.PromptDisplay()<< def << incomingCommands[UpAndDownIterator]; //Reset the output and pring the colored prompt and print out the previous command.
+						memset(theCommands, 0, sizeof(theCommands));												//Reset the pointer.
+						strcpy(theCommands, strdup(incomingCommands[UpAndDownIterator]));							//Copy the previous command to the theCommands pointer.
+						LeftAndRightIterator = strlen(theCommands);													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
+					} else {																						//If we hit the very top of the vector then we want to clear the termina input just like bash.
+						for (int d = 0; d < strlen(theCommands); d++) {												//Loop through the number of characters currently being typed.
+							printf("\b \b");																		//Deletes a character on the current line and moves the pointer back one.
+							LeftAndRightIterator--;																	//Decrement the left and right iterator.
 						}
-						memset(theCommands, 0, sizeof(theCommands));													//Reset the input stream.
-						break;
-					case 195: 																							//When the up arrow key is pressed.																				
-						if (UpAndDownIterator > 0) {																	//Check to make sure the iterator is above  0.
-							printf("%c[2K", 27);																		//Clear the current terminal line.
-							cout << "\r" << lightCyan << home.PromptDisplay()<< def << incomingCommands[UpAndDownIterator]; //Print the previous command out.
-							memset(theCommands, 0, sizeof(theCommands));												//Reset the pointer.
-							strcpy(theCommands, strdup(incomingCommands[UpAndDownIterator]));
-							LeftAndRightIterator = strlen(theCommands);
-							if (UpAndDownIterator != 0)
-								UpAndDownIterator--; 																		//Since we push commands from the end of the vector we want to move down the vector to get to the old commands.
-						} else {
-							UpAndDownIterator = 0;
-						}
-						break;
-					case 198: 																							//Down arrow key.
-						
-						if (UpAndDownIterator < incomingCommands.size()) {
-							UpAndDownIterator++; 
-							printf("%c[2K", 27);
-							cout << "\r" << lightCyan << home.PromptDisplay()<< def << incomingCommands[UpAndDownIterator];
-							memset(theCommands, 0, sizeof(theCommands)); 
-							strcpy(theCommands, strdup(incomingCommands[UpAndDownIterator]));
-							LeftAndRightIterator = strlen(theCommands);
-						} else {
-							for (int d = 0; d < strlen(theCommands); d++) {												//Loop through the number of characters currently being typed.
-								printf("\b \b");																		//Deletes a character on the current line and moves the pointer back one.
-								LeftAndRightIterator--;																	//Decrement the left and right iterator.
-							}
-							memset(theCommands, 0, sizeof(theCommands));												//Reset the input stream.
-							UpAndDownIterator = incomingCommands.size();
-							UpAndDownIterator--;
-						} 
-						break;
-					case 201:																							//Right arrow key.
+						memset(theCommands, 0, sizeof(theCommands));												//Reset the input stream.
+						UpAndDownIterator = incomingCommands.size();
+						UpAndDownIterator--;
+					} 
+					break;
+				case 201:																							//Right arrow key.
 
-						if (LeftAndRightIterator < strlen(theCommands)) {												
-							printf ("\033[C"); 
-							LeftAndRightIterator++;	
-						}	
-						break;
-					case 204: 																							//Left arrow key.																							
-						if (LeftAndRightIterator <= strlen(theCommands) && LeftAndRightIterator > 0) {																	
-							printf ("\033[D");
-							LeftAndRightIterator--;
-						}	 
-						break;
-					default: 																							//Catch every other character.
-						if (characterNumber < 195 || characterNumber > 204) {
-							strcat(theCommands, strdup(character));
-							LeftAndRightIterator++;
-						}
-						break;
-				}
-				if (incomingCommands.size() > 100) {
-					size = incomingCommands.size();
-					incomingCommands.erase(incomingCommands.begin()+size);
-				}	
-				characterNumber = 0;
+					if (LeftAndRightIterator < strlen(theCommands)) {												
+						printf ("\033[C"); 
+						LeftAndRightIterator++;	
+					}	
+					break;
+				case 204: 																							//Left arrow key.																							
+					if (LeftAndRightIterator <= strlen(theCommands) && LeftAndRightIterator > 0) {																	
+						printf ("\033[D");
+						LeftAndRightIterator--;
+					}	 
+					break;
+				default: 																							//Catch every other character.
+					if (characterNumber < 195 || characterNumber > 204) {
+						strcat(theCommands, strdup(character));
+						LeftAndRightIterator++;
+					}
+					break;
 			}
-			returnNumber = 0;
-		} else {
-			home.SetupAndCloseSystem(2);
-			return 0;
+			if (incomingCommands.size() > 100) {
+				size = incomingCommands.size();
+				incomingCommands.erase(incomingCommands.begin()+size);
+			}	
+			characterNumber = 0;
 		}
+		returnNumber = 0;
 	}
+	
+	home.SetupAndCloseSystem(2);
+
 	return 0;
 }
 

@@ -45,8 +45,8 @@ Thursday::Thursday() {
 	pid = getpid();									//Gets the process id for the process and saves it to an int variable.
 	ppid = getppid();								//Gets the parent process id for the process and saves it to an int variable.
 	uid = getuid();									//Gets the user id for the process and saves it to an int variable.
-	userPromptNumber = 0;							//For displaying the prompt and which one to display.
-	userNumber = 0;									//Used to asscoiate what the user id is.						
+	userPromptNumber = 3;							//For displaying the prompt and which one to display.
+	userNumber = 1;									//Used to asscoiate what the user id is.						
 	userKey = 0;									//The users current key to encrypt with.
 	/*--------------------------------------------------------------------*/
 	SetupAndCloseSystem(1);							//Will load the users, the environment, and path into vectors.
@@ -1122,7 +1122,7 @@ void Thursday::SetupAndCloseSystem(int number) {
 		
 		while (!UsersInput.eof()) {																						//Loops until the end of the file.
 			UsersInput.getline(inputStream, 100);																		//Gets each line of content in the file.
-			inputStream = Cryptography(2, 20, inputStream);													//Decrypts the contents of the file and saves it to inputStream.
+			inputStream = Cryptography(2, 20, inputStream);																//Decrypts the contents of the file and saves it to inputStream.
 			if ((unsigned)strlen(inputStream) > 1)																		//If the incoming user has a length greater than one.
 				UsersVector.push_back(strdup(inputStream));																//Stores it into the user vector.
 		}	
@@ -1160,7 +1160,7 @@ void Thursday::SetupAndCloseSystem(int number) {
 		}
 			
 		for (int i = 0; i < UsersVector.size(); i++) {																	//Loops until the end of the vector.
-			inputStream = Cryptography(1, 20, UsersVector[i]);													//Encrypts the users and saves it to the inputStream.
+			inputStream = Cryptography(1, 20, UsersVector[i]);															//Encrypts the users and saves it to the inputStream.
 			if (strcmp(UsersVector[i], " ") || strcmp(UsersVector[i], "") || UsersVector[i] == NULL)					//Checks to see if the inputstreamm is not empty and NULL.
 				UsersInput << inputStream << endl;																		//Stores it into the user vector.
 		}
