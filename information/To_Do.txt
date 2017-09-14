@@ -26,3 +26,5 @@ Make the help and search command the same thing.
 Get the environment file and commands working.
 Have the user be able to change the color of the output.
 When ls is used make it use a specific color for each type of file.
+On a mv or cp command, have an option to take you to that directory as well.
+Try to get ctrl + other key to work like ctrl + c does.

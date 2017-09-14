@@ -268,7 +268,7 @@ void Thursday::DirectoryChange(char * desiredPath, int number) {
 
 void Thursday::DirectoryDelete(char* dirname) {
 	/*------------------------------------------------------------------
-	Note: This method it will recursively delete all the files within a folder
+	Note: This method will recursively delete all the files within a folder
 	* and then delete the folder at the end.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
