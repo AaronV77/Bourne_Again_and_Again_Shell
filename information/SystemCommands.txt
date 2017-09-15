@@ -18,6 +18,7 @@ find#2#
 hd#0#
 help#1#
 info#0#
+login#0#
 logout#0#
 ls#0#
 make#0#

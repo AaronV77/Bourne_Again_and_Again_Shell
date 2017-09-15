@@ -578,7 +578,7 @@ void Thursday::Help(char * argument) {
 	return;
 }
 
-int Thursday::Login() {
+void Thursday::Login() {
 	/*------------------------------------------------------------------
 	Note: This method gets the user credentials and checks the credentials
 	* to what is saved in the system. If the credentials are correct then
@@ -650,19 +650,18 @@ int Thursday::Login() {
 		cout << "Password: ";
 		cin >> thePassword;
 		if (!strcmp(thePassword, "exit") || !strcmp(thePassword, "Exit") || !strcmp(thePassword, "EXIT"))		//Check to see if exit was entered if so then leave.
-			return 0;																							//Exit call and will leave the program.
+			return;																							//Exit call and will leave the program.
 		thePassword = Cryptography(3, 0, thePassword);															//Uppdercase the incoming password.
 		thePassword = Cryptography(1, userKey, thePassword);													//Decrypt the password.
-		cout << endl;
 		tcsetattr(STDIN_FILENO, TCSANOW, &oldt);																//Apply the old settings to standard in. 
 		if (!strcmp(thePassword, userPassword)) {																//Compare the incoming password and the one from the file, if the same it will go in.
 			ExecuteFile(reset, resetArguments);																	//Reset the screen on the terminal.
-			cout << endl;
 			DirectoryChange(homeDestination, 0);																//Go back to the home directory.
 			thePassword = NULL; free(thePassword);				
 			input = NULL; free(input);
 			login = NULL; free(login);
-			return 1;
+			cin.ignore();
+			return;
 		} else {
 			errorCode = 2;																						//Set the errorCode and display the error message and try grabbing the password again.
 		}
@@ -984,9 +983,19 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput) {
 					cout << '\t' << '\t' << "The parent process ID is: " << ppid << endl;
 					cout << '\t' << '\t' << "The user's name is: " << userName << endl;
 					UserInformation(1);
-				} else if (!strcmp("logout", incomingInput[i])) {				
+				} else if (!strcmp("login", incomingInput[i])) {
+					Login();
+				} else if (!strcmp("logout", incomingInput[i])) {
+					if (userKey != 0) {
+						cout << "check1" << endl;
+						userKey = 0;	
+						userPromptNumber = 3;
+						userNumber = 1;
+						memset(userPassword, 0, sizeof userPassword);
+						memset(userName, 0, sizeof userName);
+						memset(userPrompt, 0, sizeof userPrompt);
+					}
 					ExecuteFile(reset, resetArguments);										
-					return 1;
 				} else if (!strcmp(incomingInput[i], "ls")) {
 					cout << endl;
 					strcpy(random, "");

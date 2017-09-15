@@ -52,7 +52,6 @@ int main (int argc, char * argv[], char *envp[])
 			characterNumber = getche();																				//Retrieve the character that was typed and send back the ascii value.
 			tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);																//Set the terminal to the old settings.
 			character = Utilities::int_to_char(characterNumber);													//Send the number to our utilities to get the actual letter / character back.
-
 			switch(characterNumber) {																				//Use a switch statment to do specific actions for certain characters.
 				case 10: 																							//When an enter key was pressed.
 					if (theCommands != NULL) {																		//Make sure that the char pointer is not empty / NULL.

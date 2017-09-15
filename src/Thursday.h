@@ -51,7 +51,7 @@ public:
 	void ExecuteFile(char * incomingCommand, char * args[]);
 	void Help(char * argument);
 	void KillPID(int number, int PID);
-	int Login();	
+	void Login();	
 	void NothingFound(char * argument);
 	void Pipeline(char * argument, char * argument2);
 	void PromptChange(char * argument);

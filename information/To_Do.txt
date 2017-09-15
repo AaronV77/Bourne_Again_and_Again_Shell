@@ -1,7 +1,7 @@
 
-Make a login command, put it into the SystemCommands.txt, and the search commands method.
-Change the logout command to just exit the user and back to home.
-Change the main file so that when logout is used it changes back to the normal input.
+
+
+
 Make sure that pointers are being taken care of and deleted.
 Get rid of the command interpreter that we have now, and replace it with a system that takes the pre-defined commands that we can allow for right now.
 	- If it is in our vector and has a proper nubmer of options next to it. Don't add to our system.
@@ -28,3 +28,13 @@ Have the user be able to change the color of the output.
 When ls is used make it use a specific color for each type of file.
 On a mv or cp command, have an option to take you to that directory as well.
 Try to get ctrl + other key to work like ctrl + c does.
+Make an environment for each user.
+
+
+Done...
+Make a login command, put it into the SystemCommands.txt, and the search commands method.
+Change the logout command to just exit the user and back to home.
+Change the main file so that when logout is used it changes back to the normal input.
+
+
+
