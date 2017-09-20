@@ -1636,6 +1636,7 @@ int Thursday::ArgumentChecker(char * theCommands, char * envp[]) {
 			cout << "Check2" << endl;	
 			strcpy(argument, FileChecker(strdup(command)));									//Send it to our command finder.
 			cout << "Arg: " << strlen(argument) << " Command: " << strlen(command) << endl;
+			cout << "Arg: " << argument << " Command: " << command << endl;
 			if (strcmp(argument, command)) {												//If file checker found the binary it will return the path, so lets check to see if the two char pointers are different.
 				cout << "FUCK" << endl;
 				if (iterator2 != 0)	{														//Check to see that the first command is not getting an empty 0 in the front.
