@@ -59,7 +59,7 @@ public:
 	void PromptChange(char * argument);
 	char * PromptDisplay();
 	void Search(char * argument);
-	int SearchCommands(char * envp[], vector<char*>incomingInput);
+	int SearchCommands(char * envp[], vector<char*>incomingInput, int signal);
 	int SearchOperators();
 	void SetupAndCloseSystem(int number);
 	char * StackPop();
@@ -98,8 +98,6 @@ private:
 	char * userPrompt;
 	
 	char stackArray[MAX][200];
-    //~ vector<pid_t> ChildPID;
-    //~ vector<char*> ChildCommand;	
     vector<char*> Environment;
     vector<char*> PathVector;
     vector<char*> SystemCommands;

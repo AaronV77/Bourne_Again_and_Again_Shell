@@ -21,14 +21,14 @@ Thursday::Thursday() {
 	userName = (char*)malloc(50);					//The userName pointer saves the users username.
 	userPrompt = (char*)malloc(50);					//The userPrompt pointer is for users custom prompt option.
 	//--------------------------------------------------------------------
-	homeDestination = getcwd(path, MAX_SIZE);											//Uses a C function to get the current path and set it to the current path pointer.
+	homeDestination = strdup(getcwd(path, MAX_SIZE));											//Uses a C function to get the current path and set it to the current path pointer.
 	strcat(homeDestination, "/..");														//Appending /.. to the current path pointer to go a directory back.
 	DirectoryChange(homeDestination, 0);												//Call a Library mehtod to move the system back a directory.
-	strcpy(homeDestination, currentPath);
-	strcpy(dictionaryDestination, currentPath);
-	strcpy(informationDestination, currentPath);
-	strcpy(profileDestination, currentPath);
-	strcpy(srcDestination, currentPath);
+	strcpy(homeDestination, strdup(currentPath));
+	strcpy(dictionaryDestination, strdup(currentPath));
+	strcpy(informationDestination, strdup(currentPath));
+	strcpy(profileDestination, strdup(currentPath));
+	strcpy(srcDestination, strdup(currentPath));
 	//--------------------------------------------------------------------
 	strcat(dictionaryDestination, "/Dictionary-1.2");
 	strcat(informationDestination, "/information");
@@ -244,25 +244,29 @@ void Thursday::Destruction(int number) {
 }
 
 void Thursday::DirectoryChange(char * desiredPath, int number) {
-	/*------------------------------------------------------------------
-	Note: This method 
-	--------------------------------------------------------------------*/
     if (strcmp(currentPath, desiredPath) && (unsigned)strlen(desiredPath) > 0) {		//Check to see if the current path is not the same with desired path that the system wants to move into.
-		strcpy(currentPath, desiredPath);												//Copy the new path that we are moving to, to the current path.
 		if (number == 0) {																//If I want there to be error statments or not.
 			if (chdir(desiredPath) == -1) {												//Make the directory change.
 				perror("\t \t ChDir: ");												//Output an error if there was a problem making the directory jump.
 				strcpy(currentPath, getcwd(path, MAX_SIZE));							//If there was a problem then we want our actual path that the system is in.
-			}					
+			} else {
+				memset(currentPath, 0, sizeof currentPath);
+				strcpy(currentPath, getcwd(path, MAX_SIZE));	
+			}		
 		} else {
 			if (chdir(desiredPath) == -1) {												//Make the directory change.
 				strcpy(currentPath, getcwd(path, MAX_SIZE));							//If there was a problem then we want our actual path that the system is in.
 				errorSwitch = 1;														//Set our error switch if we have a permission issue so that the dfs algorithm doesn't re-look at the directory again and get stuck in a loop.
+			} else {
+				strcpy(currentPath, strdup(getcwd(path, MAX_SIZE)));	
 			}
 		}
 	} else {
-		if (number == 0)																//If I want the system to output an error message or not.
-			cout << '\t' << '\t' << "There was an issue moving to the desired directory." << endl;		
+		if (number == 0) {																//If I want the system to output an error message or not.
+			cout << '\t' << '\t' << "There was an issue moving to the desired directory." << endl;	
+			cout << '\t' << '\t' << "CurrentPath: " << currentPath << endl;	
+			cout << '\t' << '\t' << "DesiredPath: " << desiredPath << endl;	
+		}
 	}
 	return;
 }
@@ -830,7 +834,7 @@ void Thursday::Search(char * argument) {
 	return;
 }
 
-int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput) {
+int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int signal) {
 	/*------------------------------------------------------------------
 	Note: This method takes in the vector filled with pre-approved commands
 	* that are coming from the main. If the command that you are looking for
@@ -848,16 +852,18 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput) {
 	int size = incomingInput.size();
 	int fillerVariable = 0;									//This is so I don't have keep creating variables.
 	int characterValue = 0;									//To grab the ascii value of the first character in the command.								
+    int i = 0;
     char random[100] = "";
     char random2[100] = "";
     char thePath[100] = "";									//Just a copy of the current path.
     strcpy(thePath, currentPath);							//Copy the current path over.
 	char * resetArguments[2] = { strdup(reset), NULL };		//Char array to be able to reset the terminal screen.
 	char * arguments[20];									//Char array for storing arguments to pass along to the ExecutionFile method.
-	/*--------------------------------------------------------------------*/
-	for (int i = 0; i < incomingInput.size(); i++) {											//Loop through the incoming commands from the user.		
-		cout << "Searching: " << incomingInput[i] << endl;
-		characterValue = incomingInput[i][0];													//Grab the ascii value of the first chararcter of the current command.
+
+
+	
+	characterValue = incomingInput[i][0];													//Grab the ascii value of the first chararcter of the current command.
+	if ( signal == 0 ) {
 		if (characterValue >= 97 && characterValue <= 108) {									//If the command is within A - L (a - l).
 			if (characterValue >= 97 && characterValue <= 102) {								//If the command is within A - F (a - f).
 				if (!strcmp(incomingInput[i], "adduser")) {
@@ -969,17 +975,6 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput) {
 				} else if (!strcmp(incomingInput[i], "help")) {
 					i++;
 					Help(incomingInput[i]);
-				} else if (!strcmp(incomingInput[i], "hose")) {
-					//~ i++;
-					//~ if (i == size) {
-						//~ KillPID(1, 1);
-					//~ } else {
-						//~ int pid = atoi(incomingInput[i]);	
-						//~ if (pid != 0)
-							//~ KillPID(1, pid);
-						//~ else
-							//~ KillPID(2, pid);
-					//~ } 
 				} else if (!strcmp(incomingInput[i], "info")) {
 					cout << '\t' << '\t' << "The user ID is: " << uid << endl;
 					cout << '\t' << '\t' << "The process ID is: " << pid << endl;
@@ -990,7 +985,6 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput) {
 					Login();
 				} else if (!strcmp("logout", incomingInput[i])) {
 					if (userKey != 0) {
-						cout << "check1" << endl;
 						userKey = 0;	
 						userPromptNumber = 3;
 						userNumber = 1;
@@ -1077,21 +1071,22 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput) {
 					DepthFirstSearch(random, incomingInput[i+1], 1, 1);
 					cout << endl;
 					i++;
-				} else {
-					int returnNumber = 0;
-					int a = 0;																	//Initialize the iterator outside the loop so that I can NULL terminate the array after the loop.
-					for (a = 0; a < size; a++)													//Loop through the given size of the vector.
-						arguments[a] = incomingInput[a];										//Place all the arguments, even the command in the array.
-					arguments[a++] = NULL;														//NULL terminate the array for execution.
-					returnNumber = ExecuteFile(incomingInput[i], arguments); 									//Pass the incoming command and the array filled with arguments.
-					i = size;																	//Move the loop iterator to the end.
-					return returnNumber;
 				}
 			}
 		}
-	}									
+		if ( signal == 1 ) {
+			int returnNumber = 0;
+			int a = 0;																	//Initialize the iterator outside the loop so that I can NULL terminate the array after the loop.
+			for (a = 0; a < size; a++)													//Loop through the given size of the vector.
+				arguments[a] = incomingInput[a];										//Place all the arguments, even the command in the array.
+			arguments[a++] = NULL;														//NULL terminate the array for execution.
+			returnNumber = ExecuteFile(incomingInput[i], arguments); 									//Pass the incoming command and the array filled with arguments.
+			i = size;																	//Move the loop iterator to the end.
+			return returnNumber;
+		}
+	}
+								
 	/*--------------------------------------------------------------------*/
-	//This will have to get changed and moved.
 	if (myColorSwitch == 1)													//If the switch is on, return 2 so that the color is turned off.
 		return 2;
 	/*--------------------------------------------------------------------*/
@@ -1583,249 +1578,177 @@ void Thursday::UserUtilities(int number) {
 int Thursday::ArgumentChecker(char * theCommands, char * envp[]) {
 	
 	char * input = strtok(theCommands, " ");
+	char * inputCheck = (char*)malloc(120);
 	char * argument = (char*)malloc(120);
-	char * command = (char*)malloc(120);
-	int target = 0, max = 0, min = 0;
-	int check1 = 0, check2 = 0;
-	int iterator = 0, iterator2 = 0;
-	int boolSwitch = 0;
-	int updateFile = 0;
-	int length = 0;
-	vector<char*> commandsArguments;
-	vector<char*> goodCommands;
+	char character;
+	int length = 0, target = 0, iterator = 0, updateFile = 0;
+	int semiSwitch = 0, commandSwitch = 0, argumentSwitch = 0;
+	int min = 0, max = 0;
+	int check1 = 0;
 	vector<char*> badCommands;
+	vector<char*> commandArguments;
+	vector<char*> goodCommands;
 	vector<char*> temp;
 	
-	while (input != NULL) {																	//Loop through the tokens for the char pointer.
+	while (input != NULL) {
+		inputCheck = strtok(NULL, " ");
 		length = strlen(input);
-		length--;
-		char character = input[length];
-		char * ptr = &character;
-		if ( !strcmp(ptr, ";") ) {
-			cout << "Length: " << length << endl;
-			strcpy(command, strndup(input, length));
-			check2 = 1;
-			cout << "Command1: " << command << endl;
-		} else {
-			strcpy(command, input);
-			cout << "Command2: " << command << endl;
+		character = input[length - 1];
+		if ( character == ';' ) {
+			strcpy(input, strndup(input, (length - 1)));
+			semiSwitch = 1;
 		}
 		
-		for (int i = 0; i < SystemCommands.size(); i++) {									//Loop through the vector seeing if the input is an already known system command.	
-			if (!strcmp(SystemCommands[i], command)) {										//See if the incoming command is the in the systemcommands vector.
-				cout << "Check1: " << command << endl;
-				if (iterator2 != 0)	{														//Check to see that the first command is not getting an empty 0 in the front.
-					commandsArguments.push_back(Utilities::int_to_string(iterator));		//Store the number of arguments that came after the previous found command.
-					for (int e = 0; e < temp.size(); e++)									//Loop through the stored arguments for the previous command.
-						commandsArguments.push_back(temp[e]);								//Push each argument into the vector for the previous command.
-					temp.clear();															//Clear the temp vector.
+		if ( commandSwitch == 0 ) {
+			commandSwitch = 1;
+			for (int a = 0; a < SystemCommands.size(); a++) {	
+				if (!strcmp(SystemCommands[a], input)) {
+					target = 1;
+					commandArguments.push_back(Utilities::int_to_string(target));
+					commandArguments.push_back(strdup(input));
+					a++;
+					commandArguments.push_back(SystemCommands[a]);
+					a++;
+					commandArguments.push_back(SystemCommands[a]);
+					a++;
+					break;	
+				}																
+			}
+			
+			if ( target == 0 ) {
+				strcpy(argument, FileChecker(strdup(input)));
+				if (strcmp(argument, input)) {
+					target = 2;
+					commandArguments.push_back(Utilities::int_to_string(target));
+					commandArguments.push_back(strdup(input));
+					commandArguments.push_back(Utilities::int_to_string(0));
+					commandArguments.push_back(Utilities::int_to_string(0));
+					memset(argument, 0, sizeof argument);
+					break;
 				}
-				check1 = 1;																	//Let our system know that it was in the file and we already know about the command.
-				commandsArguments.push_back(Utilities::int_to_string(check1));				//Make this our first element for the command, this will allow the system to knwo that we already have it.
-				commandsArguments.push_back(strdup(command));										//Store the acutal command that is comming through.
-				i++;																		//Increment the iterator for the systemcommands vector.
-				commandsArguments.push_back(SystemCommands[i]);								//Store and grab the min arguments for the command.
-				i++;																		//Increment the iterator for the systemcommands vector.
-				commandsArguments.push_back(SystemCommands[i]);								//Store and grab the max arguments for the command.
-				iterator = 0;
-				break;	
-			}																
-		}
-		
-		if (check1 == 0) {																	//Check to see if it was not found in the system commands vector.
-			cout << "Check2" << endl;	
-			strcpy(argument, FileChecker(strdup(command)));									//Send it to our command finder.
-			cout << "Arg: " << strlen(argument) << " Command: " << strlen(command) << endl;
-			cout << "Arg: " << argument << " Command: " << command << endl;
-			if (strcmp(argument, command)) {												//If file checker found the binary it will return the path, so lets check to see if the two char pointers are different.
-				cout << "FUCK" << endl;
-				if (iterator2 != 0)	{														//Check to see that the first command is not getting an empty 0 in the front.
-					commandsArguments.push_back(Utilities::int_to_string(iterator));		//Store the number of arguments that came after the previous found command.
-					for (int e = 0; e < temp.size(); e++)									//Loop through the stored arguments for the previous command.
-						commandsArguments.push_back(temp[e]);								//Push each argument into the vector for the previous command.
-					temp.clear();															//Clear the temp vector.
-				}
-				target = 2;																	//Let our system know that the command was found in the binaries and that we still need to update our file.
-				commandsArguments.push_back(Utilities::int_to_string(check1));				//Make this our first element for the command, this will allow the system to knwo that we already have it.
-				commandsArguments.push_back(strdup(command));										//Store the acutal command that is comming through.	
-				commandsArguments.push_back(Utilities::int_to_string(0));					//Store and grab the min arguments for the command.
-				commandsArguments.push_back(Utilities::int_to_string(0));					//Store and grab the max arguments for the command.
-				iterator = 0;
-				memset(argument, 0, sizeof argument);
+			}
+			
+			if ( target == 0 ) {
+				target = 3;
+				commandArguments.push_back(Utilities::int_to_string(target));
+				commandArguments.push_back(strdup(input));
+				commandArguments.push_back(Utilities::int_to_string(0));
+				commandArguments.push_back(Utilities::int_to_string(0));
 				break;
 			}
-		}
-		cout << "HERE" << endl;
-		cout << check1 << " " << check2 << endl;
-		if (check1 == 0 && check2 == 1) {
-			if (iterator2 != 0)	{															//Check to see that the first command is not getting an empty 0 in the front.
-				commandsArguments.push_back(Utilities::int_to_string(iterator));			//Store the number of arguments that came after the previous found command.
-				for (int e = 0; e < temp.size(); e++)										//Loop through the stored arguments for the previous command.
-					commandsArguments.push_back(temp[e]);									//Push each argument into the vector for the previous command.
-				temp.clear();																//Clear the temp vector.
+			
+			if ( semiSwitch == 1 || inputCheck == NULL ) {
+				commandArguments.push_back(Utilities::int_to_string(0));
 			}
-			target = 3;
-			commandsArguments.push_back(Utilities::int_to_string(target));					//Make this our first element for the command, this will allow the system to knwo that we already have it.
-			commandsArguments.push_back(strdup(command));											//Store the acutal command that is comming through.	
-			commandsArguments.push_back(Utilities::int_to_string(0));						//Store and grab the min arguments for the command.
-			commandsArguments.push_back(Utilities::int_to_string(0));						//Store and grab the max arguments for the command.
+		}
+		
+		if ( argumentSwitch == 1 ) {
+			iterator++;
+			temp.push_back(strdup(input));
+			if ( semiSwitch == 1 || inputCheck == NULL) {
+				commandArguments.push_back(Utilities::int_to_string(iterator++));
+				for (int b = 0; b < temp.size(); b++)
+					commandArguments.push_back(strdup(temp[b]));
+			}
+		}
+		
+		if ( semiSwitch == 1 ) {
+			commandSwitch = 0;
+			argumentSwitch = 0;
+			semiSwitch = 0;
 			iterator = 0;
-			check2 = 0;
-			break;
-		}	
-		
-		cout << "CHECK1: " << check1 << endl;		
-		if (check1 == 0) {																	//If the command was not found in our vector or os binaries.
-			cout << "Check3" << endl;
-			temp.push_back(strdup(command));
-			iterator++;																		//Increment our iterator so that we can associate the number of arguments with the command.
-		}
-		
-		iterator2++;
-		check1 = 0, check2 = 0;																			//Reset our target statment.
-		input = strtok(NULL, " ");															//Grab the next input from our stream.
-		memset(command, 0, sizeof command);
-		
-	}
-	
-	if (temp.size() == 0) {
-		cout << "Check4" << endl;
-		commandsArguments.push_back(Utilities::int_to_string(0));
-	} else {
-		cout << "Check5" << endl;
-		commandsArguments.push_back(Utilities::int_to_string(temp.size()));
-		for (int l = 0; l < temp.size(); l++) {
-			cout << "Arguments: " << temp[l] << endl;
-			commandsArguments.push_back(temp[l]);
-		}
-	}		
-		
-	iterator = 0;																			//Reset the iterator for future use.
-	target = 0;																				//Reset our target for future use.
-	cout << "Size: " << commandsArguments.size() << endl;
-	for (int l = 0; l < commandsArguments.size(); l++) {
-		cout << "Our commands: " << commandsArguments[l] << endl;
-	}	
-	
-	for (int i = 0; i < commandsArguments.size(); i++) {									//Iterate through the commands vector that we just created.
-		cout << "In the loop: " << i << endl;
-		cout << "?: " << commandsArguments[i] << endl;
-		cout << "?: " << Utilities::string_to_int(commandsArguments[i]) << endl;
-		if ( Utilities::string_to_int(commandsArguments[i]) == 1 ) {						//Check to see if our first argument is in our system.
-			i++;
-			strcpy(argument, commandsArguments[i]);											//Grab our command.
-			cout << "Argumenmt: " << argument << endl;
-			i++;																			//Increment our iterator.
-			min = Utilities::string_to_int(commandsArguments[i]);							//Grab our minimum argument number.
-			cout << "Min: " << min << endl;
-			i++;																			//Increment our iterator.
-			max = Utilities::string_to_int(commandsArguments[i]);							//Grab our maximum argument number.
-			cout << "Max: " << max << endl;
-			i++;																			//Increment our iterator.																
-			target = Utilities::string_to_int(commandsArguments[i]);						//Grab the number of arguments that came with the command.					
-			cout << "# of Arguments: " << target << endl;
-			i++;
-			if (target >= max && target <= min) {											//Check to see if the target is within our max and min values.
-				cout << "Target: " << target << endl;
-				goodCommands.push_back(Utilities::int_to_string(target+1));					//Store our target into the vector for sending to search commands.
-				goodCommands.push_back(strdup(argument));											//Store our command.
-				cout << "Being stored: " << argument << endl;
-				
-				for (int a = i; a < (target+i); a++) {											//Loop starting out where our for loop left off, add the number of arguments with the iterator.
-					cout << "Pushed: " << commandsArguments[a] << endl;
-					goodCommands.push_back(commandsArguments[a]);							//Grab our arguments.
-				}
-			} else if (target < min || target > max ) {
-				//~ target++;																	//Increment the number of our target so that we include the command itself.
-				//~ badCommands.push_back(Utilities::int_to_string(target));					//Store our target into the vector for sending to search commands.
-				//~ badCommands.push_back(argument);											//Store our command.
-				//~ for (int a = i; a < (target+i); a++)										//Loop starting out where our for loop left off, add the number of arguments with the iterator.
-					//~ badCommands.push_back(commandsArguments[a]);							//Grab our arguments.
-			}
-			target--;
-			i += target;
-			for (int l = 0; l < goodCommands.size(); l++) 
-				cout << l << " " << goodCommands[l] << endl;			
-			cout << "The for loop iterator: " << i << endl;
-			memset(argument, 0, sizeof argument);
+			target = 0;
+			temp.clear();
 		} else {
-			//~ i++;
-			//~ strcpy(argument, commandsArguments[i]);											//Grab our command.
-			//~ cout << "Argumenmt2: " << argument << endl;
-			//~ i++;																			//Increment our iterator.
-			//~ min = Utilities::string_to_int(commandsArguments[i]);							//Grab our minimum argument number.
-			//~ cout << "Min2: " << min << endl;
-			//~ i++;																			//Increment our iterator.
-			//~ max = Utilities::string_to_int(commandsArguments[i]);							//Grab our maximum argument number.
-			//~ cout << "Max2: " << max << endl;
-			//~ i++;																			//Increment our iterator.																
-			//~ target = Utilities::string_to_int(commandsArguments[i]);						//Grab the number of arguments that came with the command.					
-			//~ cout << "# of Arguments2: " << target << endl;
-			//~ if (target >= max && target <= min) {											//Check to see if the target is within our max and min values.
-				//~ target++;																	//Increment the number of our target so that we include the command itself.
-				//~ badCommands.push_back(Utilities::int_to_string(target));					//Store our target into the vector for sending to search commands.
-				//~ badCommands.push_back(strdup(argument));											//Store our command.
-				//~ cout << "Being stored2: " << argument << endl;
-				//~ for (int a = i; a < (target+i); a++)										//Loop starting out where our for loop left off, add the number of arguments with the iterator.
-					//~ goodCommands.push_back(commandsArguments[a]);							//Grab our arguments.
-			//~ } else if (target < min || target > max ) {
-				//~ target++;																	//Increment the number of our target so that we include the command itself.
-				//~ badCommands.push_back(Utilities::int_to_string(target));					//Store our target into the vector for sending to search commands.
-				//~ badCommands.push_back(argument);											//Store our command.
-				//~ for (int a = i; a < (target+i); a++)										//Loop starting out where our for loop left off, add the number of arguments with the iterator.
-					//~ badCommands.push_back(commandsArguments[a]);							//Grab our arguments.
-			//~ }
-			//~ for (int l = 0; l < badCommands.size(); l++) 
-				//~ cout << l << " " << badCommands[l] << endl;			
-			//~ cout << "The for loop iterator: " << i << endl;
-			//memset(argument, 0, sizeof argument);
+			argumentSwitch = 1;
+		}
+		
+		if ( inputCheck != NULL) {
+			strcpy(input, inputCheck);
+		} else {
+			break;
 		}
 	}
 
-	temp.clear();
-	cout << "Check6" << endl;
-	int h = 0;
-	for (int c = 0; c < goodCommands.size(); c++) {
-		cout << goodCommands[c] << endl;
-		target = Utilities::string_to_int(goodCommands[c]);
-		cout << "Target2: " << target << endl;
+	if ( commandArguments.size() == 4 ) 
+		commandArguments.push_back(Utilities::int_to_string(0));
+					
+	for (int c = 0; c < commandArguments.size(); c++) {
+		if ( Utilities::string_to_int(commandArguments[c]) == 1 )
+			check1 = 1;
 		c++;
+		strcpy(argument, commandArguments[c]);
+		c++;
+		min = Utilities::string_to_int(commandArguments[c]);
+		c++;
+		max = Utilities::string_to_int(commandArguments[c]);
+		c++;														
+		target = Utilities::string_to_int(commandArguments[c]);				
+		c++;
+		if ( check1 == 1 ) {
+			if (target >= max && target <= min) {
+				goodCommands.push_back(Utilities::int_to_string(target+1));
+				goodCommands.push_back(strdup(argument));
+				for (int d = 0; d < target; d++) {
+					goodCommands.push_back(commandArguments[c]);
+					c++;
+				}	
+				c--;
+			} else if (target < min || target > max ) {
+				badCommands.push_back(Utilities::int_to_string(target+1));
+				badCommands.push_back(argument);
+				for (int e = 0; e < target; e++) {
+					badCommands.push_back(commandArguments[c]);
+					c++;
+				}
+				c--;
+			}
+		} else {
+			badCommands.push_back(Utilities::int_to_string(target+1));
+			badCommands.push_back(argument);
+			for (int f = 0; f < target; f++) {
+				badCommands.push_back(commandArguments[c]);
+				c++;
+			}
+			c--;
+		}
+		check1 = 0;		
+		memset(argument, 0, sizeof argument);
+	}
+	
+	temp.clear();
+	int h = 0;
+	for (int g = 0; g < goodCommands.size(); g++) {
+		target = Utilities::string_to_int(goodCommands[g]);
+		g++;
 		while (h < target) {
-			temp.push_back(strdup(goodCommands[c]));
-			cout << "Storing: " << goodCommands[c] << endl;
-			c++;
+			temp.push_back(strdup(goodCommands[g]));
+			g++;
 			h++;
 		}
-		c--;
-		cout << " _________________ " << endl;
+		g--;
 		h = 0;
-		for (int l = 0; l < temp.size(); l++) 
-			cout << l << " " << temp[l] << endl;
-		SearchCommands(envp, temp);
+		SearchCommands(envp, temp, 0);
 		temp.clear();
 	}
 	
-	//Need to do something different between having the command but different max and min, vs not having the command.
-	//~ h = 0;
-	//~ for (int c = 0; c < badCommands.size(); c++) {
-		//~ cout << "Outgoing Target2: " << target << endl;
-		//~ target = Utilities::string_to_int(badCommands[c]);
-		//~ c++;
-		//~ while (h < target) {
-			//~ temp.push_back(strdup(badCommands[c]));
-			//~ cout << "Storing2: " << badCommands[c] << endl;
-			//~ c++;
-			//~ h++;
-		//~ }
-		//~ h = 0;
-		//~ updateFile = SearchCommands(envp, temp);
-		//~ cout << "Execution Return: " << updateFile << endl;
-		//~ if (updateFile == 1) {
-				//~ //Update the file if this command executed correctly.
-		//~ }
-		
-		//~ temp.clear();
-	//~ }
+	h = 0;
+	for (int i = 0; i < badCommands.size(); i++) {
+		target = Utilities::string_to_int(badCommands[i]);
+		i++;
+		while (h < target) {
+			temp.push_back(strdup(badCommands[i]));
+			i++;
+			h++;
+		}
+		h = 0;
+		updateFile = SearchCommands(envp, temp, 1);
+		if (updateFile == 1) {
+				//Update the file if this command executed correctly.
+		}
+		temp.clear();
+	}
+	
 	
 	return 0;
 }
@@ -1836,8 +1759,7 @@ void Thursday::LoadSystemCommands() {
 	int number = 0;
 	string input = "";
 
-	DirectoryChange(informationDestination, 0);
-	strcpy(currentPath, informationDestination);
+	DirectoryChange(strdup(informationDestination), 0);
 	/*--------------------------------------------------------------------*/
 	ifstream InputData;
 	InputData.open(filename);
@@ -1854,8 +1776,7 @@ void Thursday::LoadSystemCommands() {
         }
     }
 	/*--------------------------------------------------------------------*/
-	DirectoryChange(homeDestination, 0);
-	strcpy(currentPath, homeDestination);
+	DirectoryChange(strdup(homeDestination), 0);
 	
     incoming = NULL; free(incoming);
 	filename = NULL; free(filename);

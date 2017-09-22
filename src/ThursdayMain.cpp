@@ -35,7 +35,7 @@ int main (int argc, char * argv[], char *envp[])
 	strcat(informationDestination, "/information");																		//Add the infromation directory to the information destination.
 	
 	while (1) {																										//Loop for indeffinately.
-		home.ExecuteFile((char*)"reset", resetArguments);
+		//home.ExecuteFile((char*)"reset", resetArguments);
 		cout << lightCyan << home.PromptDisplay() << def;															//Print basic prompt out.																	
 		while (returnNumber == 0) {																					//Loop until the user wants to logout.						
 			
@@ -97,21 +97,21 @@ int main (int argc, char * argv[], char *envp[])
 					}
 					memset(theCommands, 0, sizeof(theCommands));													//Reset the input stream.
 					break;
-				case 195: 																							//When the up arrow key is pressed.																				
-					if (UpAndDownIterator > 0) {																	//Check to make sure the iterator is above  0.
+				case 195: 																							//Up arrow key																			
+					if (UpAndDownIterator >= 0 && incomingCommands.size() != 0) {																	//Check to make sure the iterator is above  0.
 						printf("%c[2K", 27);																		//Clear the current terminal line.
 						cout << "\r" << lightCyan << home.PromptDisplay()<< def << incomingCommands[UpAndDownIterator]; //Reset the output and pring the colored prompt and print out the previous command.
 						memset(theCommands, 0, sizeof(theCommands));												//Reset the pointer.
 						strcpy(theCommands, strdup(incomingCommands[UpAndDownIterator]));							//Copy the previous command to the theCommands pointer.
 						LeftAndRightIterator = strlen(theCommands);													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
-						if (UpAndDownIterator != 0)
+						if (UpAndDownIterator > 0)
 							UpAndDownIterator--; 																	//Since we push commands from the end of the vector we want to move down the vector to get to the old commands.
 					} else {
 						UpAndDownIterator = 0;
 					}
 					break;
 				case 198: 																							//Down arrow key.
-					if (UpAndDownIterator < incomingCommands.size()) {
+					if (UpAndDownIterator < (incomingCommands.size() - 1) && incomingCommands.size() != 0) {
 						UpAndDownIterator++; 																		//Increment the iterator to grab the previous called command.			
 						printf("%c[2K", 27);																		//Clear the printed terminal line.
 						cout << "\r" << lightCyan << home.PromptDisplay()<< def << incomingCommands[UpAndDownIterator]; //Reset the output and pring the colored prompt and print out the previous command.
@@ -142,7 +142,7 @@ int main (int argc, char * argv[], char *envp[])
 					}	 
 					break;
 				default: 																							//Catch every other character.
-					if (characterNumber == 60 || characterNumber == 62 || characterNumber == 124)						//Look for any > < | operator.
+					if (characterNumber == 60 || characterNumber == 62 || characterNumber == 124)					//Look for any > < | operator.
 						operatorSwitch = 1;
 
 					if (characterNumber < 195 || characterNumber > 204) {											//Look for any letter between a - z.
