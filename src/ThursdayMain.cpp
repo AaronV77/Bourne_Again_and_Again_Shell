@@ -35,7 +35,7 @@ int main (int argc, char * argv[], char *envp[])
 	strcat(informationDestination, "/information");																		//Add the infromation directory to the information destination.
 	
 	while (1) {																										//Loop for indeffinately.
-		//home.ExecuteFile((char*)"reset", resetArguments);
+		home.ExecuteFile((char*)"reset", resetArguments);
 		cout << lightCyan << home.PromptDisplay() << def;															//Print basic prompt out.																	
 		while (returnNumber == 0) {																					//Loop until the user wants to logout.						
 			

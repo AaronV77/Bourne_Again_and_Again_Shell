@@ -48,6 +48,7 @@ public:
 	void DisplayCommands();
 	void DisplayDirectories(char * searchWord, int number, int theSwitch); 
 	char * FileChecker(char * argument);	
+	vector<char*> FileLoader(vector<char*> incomingVector, char * fileName, int signal);
 	void EnvironmentUtilites(int Number);
 	int ExecuteFile(char * incomingCommand, char * args[]);
 	void Help(char * argument);
@@ -100,7 +101,8 @@ private:
 	char stackArray[MAX][200];
     vector<char*> Environment;
     vector<char*> PathVector;
-    vector<char*> SystemCommands;
+    vector<char*> ThursdayCommands;
+    vector<char*> OSCommands;
 	vector<char*> UsersVector;
     
 };

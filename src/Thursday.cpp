@@ -49,8 +49,7 @@ Thursday::Thursday() {
 	userNumber = 1;									//Used to asscoiate what the user id is.						
 	userKey = 0;									//The users current key to encrypt with.
 	/*--------------------------------------------------------------------*/
-	SetupAndCloseSystem(1);							//Will load the users, the environment, and path into vectors.
-	LoadSystemCommands();
+	SetupAndCloseSystem(1);							//Will load the thursday and os commands, users, the environment, and path into vectors.
 	/*--------------------------------------------------------------------*/	
 }
 
@@ -66,7 +65,9 @@ Thursday::~Thursday() {
 	userPassword = NULL; free(userPassword);
 	userName = NULL; free(userName);
 	userPrompt = NULL; free(userPrompt);
-	reset = NULL; free(reset);	
+	reset = NULL; free(reset);
+	ThursdayCommands.clear();
+	OSCommands.clear();	
 }
 
 void Thursday::CompressAndDecompress(int Number, char * argument) {
@@ -75,7 +76,7 @@ void Thursday::CompressAndDecompress(int Number, char * argument) {
 	* compress and decompress directories. 
 	--------------------------------------------------------------------*/
     if (debugSwitch == true) 
-        cout << '\t' << '\t' << "Mission - You are in the MakeMyDirectory Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are in the CompressAndDecompress method." << endl;
 	/*--------------------------------------------------------------------*/ 
 	char * arguments[5];												//Stores the arguments inorder to compress and decompress.			
 	char * path;														//Stores the location of the binaries for tgz.
@@ -103,7 +104,7 @@ void Thursday::CompressAndDecompress(int Number, char * argument) {
 	free(path); free(fileName);
    	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the Packaging Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are leaving the CompressAndDecompress method." << endl;
 	/*--------------------------------------------------------------------*/
 	return;
 }
@@ -117,7 +118,7 @@ char * Thursday::Cryptography(int number, int key, char * message) {
 	* on how I encrypt the information.
 	--------------------------------------------------------------------*/	
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are in the Cryptography Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are in the Cryptography method." << endl;
 	/*--------------------------------------------------------------------*/ 
 	char output[100] = "";
 	char * theString = (char*)message;
@@ -163,10 +164,10 @@ char * Thursday::Cryptography(int number, int key, char * message) {
 			strcat(output, Utilities::int_to_char(input));
 		}	
 	}
-	theString = NULL; free(theString);
 	/*--------------------------------------------------------------------*/
+	theString = NULL; free(theString);
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the Cryptography Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are leaving the Cryptography method." << endl;
 	/*--------------------------------------------------------------------*/
 	return strdup(output);
 }
@@ -175,15 +176,18 @@ void Thursday::DepthFirstSearch(char * path, char * command, int number, int the
 	/*-------------------------------------------------------------------
 	Note: This method 
 	--------------------------------------------------------------------*/ 
+    if (debugSwitch == 1) 
+        cout << '\t' << '\t' << "Mission - You are in the DepthFirstSearch method." << endl;
+	/*--------------------------------------------------------------------*/ 
 	char * input = (char*)malloc(300);
-	/*--------------------------------------------------------------------*/  
-	if (chdir(path) == -1) {																//Make sure that the given path is absolute.	
-		strcpy(path, "/");																	//If not replace the path with the backslash and start from the beginning.
+ 
+	if (chdir(path) == -1) {																	//Make sure that the given path is absolute.	
+		strcpy(path, "/");																		//If not replace the path with the backslash and start from the beginning.
 		cout << '\t' << '\t' << "The path given is not absolute replacing with / (backslash) instead." << endl << endl;
-	} else {																				//If it is, change back to the current path that the system is in.
+	} else {																					//If it is, change back to the current path that the system is in.
 		chdir(currentPath);
 	}
-	/*--------------------------------------------------------------------*/ 
+
     StackPush(strdup(path)); 																	//Put the starting internet into the stack.
     while(currentPosition != -1) {																//Loop until the current position in the statc is negative.
 		strcpy(input, StackPop());																//Pop off the last element in the stack.
@@ -203,7 +207,12 @@ void Thursday::DepthFirstSearch(char * path, char * command, int number, int the
 		if (number != 0) 																		//For the wheris and find command, and not for the dirs command.
 			cout << '\t' << '\t' << "The file could not be found in the starting directory." << endl;
 	}
+	/*--------------------------------------------------------------------*/ 
+	/*--------------------------------------------------------------------*/ 
 	input = NULL; free(input);
+    if (debugSwitch == 1) 
+        cout << '\t' << '\t' << "Mission - You are in the DepthFirstSearch method." << endl;
+	/*--------------------------------------------------------------------*/ 
     return;
 }
 
@@ -244,6 +253,12 @@ void Thursday::Destruction(int number) {
 }
 
 void Thursday::DirectoryChange(char * desiredPath, int number) {
+	/*-------------------------------------------------------------------
+	Note: This method 
+	--------------------------------------------------------------------*/ 
+    if (debugSwitch == 1) 
+        cout << '\t' << '\t' << "Mission - You are in the DirectoryChange method." << endl;
+	/*--------------------------------------------------------------------*/ 
     if (strcmp(currentPath, desiredPath) && (unsigned)strlen(desiredPath) > 0) {		//Check to see if the current path is not the same with desired path that the system wants to move into.
 		if (number == 0) {																//If I want there to be error statments or not.
 			if (chdir(desiredPath) == -1) {												//Make the directory change.
@@ -268,6 +283,10 @@ void Thursday::DirectoryChange(char * desiredPath, int number) {
 			cout << '\t' << '\t' << "DesiredPath: " << desiredPath << endl;	
 		}
 	}
+	/*--------------------------------------------------------------------*/ 
+    if (debugSwitch == 1) 
+        cout << '\t' << '\t' << "Mission - You are in the DirectoryChange method." << endl;
+	/*--------------------------------------------------------------------*/ 
 	return;
 }
 
@@ -277,7 +296,7 @@ void Thursday::DirectoryDelete(char* dirname) {
 	* and then delete the folder at the end.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-		cout << '\t' << '\t' << "Mission - You are  in the DirectoryDelete Method." << endl;
+		cout << '\t' << '\t' << "Mission - You are  in the DirectoryDelete method." << endl;
  	/*--------------------------------------------------------------------*/
 	DIR *dp;
 	struct dirent *ep;
@@ -303,10 +322,10 @@ void Thursday::DirectoryDelete(char* dirname) {
 		perror ("Couldn't open the directory");									//Print out a statement if the directory was NULL.
 	}
  	/*--------------------------------------------------------------------*/
+ 	remove(dirname);															//Remove the directory from the hiearchy. 
 	if (debugSwitch == 1)
-		cout << '\t' << '\t' << "Mission - You are leaving the DirectoryDelete Method." << endl;
+		cout << '\t' << '\t' << "Mission - You are leaving the DirectoryDelete method." << endl;
  	/*--------------------------------------------------------------------*/
-	remove(dirname);															//Remove the directory from the hiearchy. 
 	return;
 }
 
@@ -315,7 +334,7 @@ void Thursday::DisplayCommands() {
 	Note: This method displays all the commands at once for the system.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-		cout << '\t' << '\t' << "Mission - You are  in the Display Commands Method." << endl;
+		cout << '\t' << '\t' << "Mission - You are  in the DisplayCommands method." << endl;
  	/*--------------------------------------------------------------------*/
  	int length = 0;
  	char * output = (char*)malloc(450);
@@ -352,7 +371,7 @@ void Thursday::DisplayCommands() {
 	}	
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the DisplayCommands Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are leaving the DisplayCommands method." << endl;
 	/*--------------------------------------------------------------------*/
 	return;
 }
@@ -361,11 +380,14 @@ void Thursday::DisplayDirectories(char * searchWord, int number, int theSwitch) 
 	/*-------------------------------------------------------------------
 	Note: This method 
 	--------------------------------------------------------------------*/
+    if (debugSwitch == 1) 
+        cout << '\t' << '\t' << "Mission - You are in the DisplayDirectories method." << endl;
+	/*--------------------------------------------------------------------*/ 
 	struct stat s;
 	char * addedPath = (char*)malloc(300);
     DIR * dir = opendir(".");
     dirent * entry;
-	/*--------------------------------------------------------------------*/   
+
     if (NULL==dir) {
 		if (number != 0)
 			perror("\t \t LS File Failure: ");
@@ -401,7 +423,11 @@ void Thursday::DisplayDirectories(char * searchWord, int number, int theSwitch) 
         if (closedir(dir) == -1)														//make sure that we can close the directory that we are looking at.
             perror("\t \t LS File Closing Failure: ");									//Print an error if we cannot close the directory.
     }
+    /*--------------------------------------------------------------------*/ 
     addedPath = NULL; free(addedPath);
+    if (debugSwitch == 1) 
+        cout << '\t' << '\t' << "Mission - You are in the DirectoryChange method." << endl;
+	/*--------------------------------------------------------------------*/ 
     return;
 } 
 
@@ -413,7 +439,7 @@ void Thursday::EnvironmentUtilites(int Number) {
 	* are the global variables are for the system alone. After 
 	--------------------------------------------------------------------*/		
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are in the BashEnvironmentUtilites Method in the Library." << endl;
+        cout << '\t' << '\t' << "Mission - You are in the EnvironmentUtilites method." << endl;
 	/*--------------------------------------------------------------------*/ 
 	char * variableName = (char*)malloc(100);											//Used to get the name of the global variable.
 	char * value = (char*)malloc(300);													//Used to get the value of the global variable.	
@@ -463,10 +489,10 @@ void Thursday::EnvironmentUtilites(int Number) {
 		cout << '\t' << '\t' << "There is an issue with either arguemnt that was given." << endl;
     }
 	/*--------------------------------------------------------------------*/
-    if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the BashEnvironmentUtilities Method." << endl;
-	/*--------------------------------------------------------------------*/	
 	SetupAndCloseSystem(2);																//Update the file that stores all of the environment variables.
+    if (debugSwitch == 1) 
+        cout << '\t' << '\t' << "Mission - You are in the EnvironmentUtilites method." << endl;
+	/*--------------------------------------------------------------------*/	
 	return;		
 }
 
@@ -479,16 +505,17 @@ int Thursday::ExecuteFile(char * incomingCommand, char * arguments[]) {
 	* into the background.
 	--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are in the ExecuteFile Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are in the ExecuteFile method." << endl;
 	/*--------------------------------------------------------------------*/    
     pid_t pid;																	//Create a data type to store a process number.
-	/*--------------------------------------------------------------------*/
 	incomingCommand = FileChecker(incomingCommand);								//Send the incoming command to find in the location of the binary in the system. Will either return just the command or the location path.
+	cout << "Here" << endl;
 	pid = fork();																//Create another process.
 	if (pid == 0) {																//If the process is the child.
-		if (execv(incomingCommand, arguments) == -1)							//Execute with the given command / location path, and char array of arguments.
+		if (execv(incomingCommand, arguments) == -1) {							//Execute with the given command / location path, and char array of arguments.
 			perror("\n\t\tSomething went with the compiler: ");					//If there is an error a messeage will be printed.
 			return 0;
+		}
 	} else {
 		if (commandSwitch == false) {											//If the running in the back ground command is false.
 			waitpid(pid, NULL, 0);												//Wait for the process to finish executing.
@@ -499,7 +526,7 @@ int Thursday::ExecuteFile(char * incomingCommand, char * arguments[]) {
 	}
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the ExecuteFile Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are leaving the ExecuteFile method." << endl;
 	/*--------------------------------------------------------------------*/
     return 1;
 }
@@ -513,23 +540,26 @@ char * Thursday::FileChecker(char * argument) {
 	* then the incoming command will be just returned.
 	--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are in the File Checker Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are in the FileChecker method." << endl;
 	/*--------------------------------------------------------------------*/ 
-	char * incomingArgument = (char*)malloc(100);								
+	char * incomingArgument = (char*)malloc(120);								
 	/*--------------------------------------------------------------------*/ 	
 	for (int i = 0; i < PathVector.size(); i++) {								//Loop through the path vector containing all the different locations commands and binaries.
 		strcpy(incomingArgument, PathVector[i]);								//Add one of the predefined locations to the pointer.
 		strcat(incomingArgument, "/");											//Add a back slash.
 		strcat(incomingArgument, argument);										//Add the command to the pointer to complete the path.
+		cout << "Argument: " << incomingArgument << endl;
 		if (access(incomingArgument, F_OK) == 0) {								//Use a c function to check if the path is an actual location.
+			
+			cout << "In here" << endl;
 			return incomingArgument;											//Return the working path.
 		}
 	}
 	/*--------------------------------------------------------------------*/ 
-    if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the File Checker Method." << endl;
-	/*--------------------------------------------------------------------*/  
 	incomingArgument = NULL;
+    if (debugSwitch == 1) 
+        cout << '\t' << '\t' << "Mission - You are leaving the FileChecker method." << endl;
+	/*--------------------------------------------------------------------*/  
 	return argument;															//If there was no path found then just return the incoming command.
 }
 
@@ -540,7 +570,7 @@ void Thursday::Help(char * argument) {
 	* goes for all the commands for this program and everything for linux.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-		cout << '\t' << '\t' << "Mission - You are  in the Help Method." << endl;
+		cout << '\t' << '\t' << "Mission - You are  in the Help method." << endl;
  	/*--------------------------------------------------------------------*/
  	int mySwitch = 0;
 	char * type = (char*)malloc(15);
@@ -579,7 +609,7 @@ void Thursday::Help(char * argument) {
 	free(definition); free(type); free(word); free(fileName);
    	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the GetUserHomeDirectoryPath Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are leaving the GetUserHomeDirectoryPath method." << endl;
 	/*--------------------------------------------------------------------*/
 	return;
 }
@@ -593,7 +623,7 @@ void Thursday::Login() {
 	* information folder.
 	--------------------------------------------------------------------*/	
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are in the Login Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are in the Login method." << endl;
 	/*--------------------------------------------------------------------*/
     char * thePassword = (char*)malloc(50);				//Used to only store the password that is coming from the file and user.
     char * login = (char*)malloc(50);					//Used to only store the login that is coming from the user.				
@@ -703,7 +733,7 @@ void Thursday::PromptChange(char * argument) {
 	* and display that prompt until changed again.
 	--------------------------------------------------------------------*/	
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are in the PromptChange Method." << endl;  
+        cout << '\t' << '\t' << "Mission - You are in the PromptChange method." << endl;  
 	/*--------------------------------------------------------------------*/
 	int promptNumber = string_to_int(argument);													//Converts the incoming char pointer and makes it a number
     if (promptNumber >= 0 || promptNumber <= 4) {												//Check to see if the number is between the systems range.		
@@ -713,7 +743,7 @@ void Thursday::PromptChange(char * argument) {
 	}
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the PromptChange Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are leaving the PromptChange method." << endl;
 	/*--------------------------------------------------------------------*/
     return;
     
@@ -726,9 +756,8 @@ char * Thursday::PromptDisplay() {
 	* his is the most often used method in this program to keep checking. 
 	--------------------------------------------------------------------*/	
     if (debugSwitch == 1)
-        cout << '\t' << '\t' << "Mission - You are in the PromptDisplay Method." << endl;  
+        cout << '\t' << '\t' << "Mission - You are in the PromptDisplay method." << endl;  
  	/*--------------------------------------------------------------------*/
-    BackgroundProcess(1, 0, NULL);					//Checking if any background processes are done.
 	char thePath[80] = "";							//A place to store the prompt that will be displayed.
 	if (userPromptNumber == 0) {					//The default option for a prompt.
 		strcpy(thePath, ".");
@@ -748,7 +777,7 @@ char * Thursday::PromptDisplay() {
 	}
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the CheckBGProcesses Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are leaving the PromptDisplay method." << endl;
 	/*--------------------------------------------------------------------*/
     return strdup(thePath);
 }
@@ -764,12 +793,12 @@ void Thursday::Search(char * argument) {
 	* the main.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-		cout << '\t' << '\t' << "Mission - You are  in the Search Method." << endl;
+		cout << '\t' << '\t' << "Mission - You are  in the Search method." << endl;
  	/*--------------------------------------------------------------------*/	
 	char * word = (char*)malloc(100);
-	char * definition = (char*)malloc(800);
-	char * letter = (char*)malloc(100);
-	string input = "";
+	char * definition = (char*)malloc(1000);
+	char * fileName = (char*)malloc(120);
+	char letter[5] = {};
 	char output[800] = "";
 	char searchWord[50] = "";
 	int length = 0;
@@ -795,17 +824,20 @@ void Thursday::Search(char * argument) {
         return;
     }
     
-    strcpy(letter, informationDestination);
-    strcat(letter, "/");
-	strcat(letter, ".txt");
-	ifstream InputData;
-	InputData.open(letter);
-	if (!InputData)
-		cout << '\t' << '\t' << "There was an error opening the file in the Library Search Method." << endl;
+    strcpy(fileName, dictionaryDestination);
+    strcat(fileName, "/");
+    strcat(fileName, letter);
+	strcat(fileName, ".txt");
 
+	ifstream InputData;
+	InputData.open(fileName);
+	if (!InputData) {
+		cout << '\t' << '\t' << "There was an error opening the file in the Search method." << endl;
+		return;
+	}
 	while (!InputData.eof()) {
 		InputData.getline(word, 100, '#');
-		InputData.getline(definition, 800, '#');
+		InputData.getline(definition, 1000, '#');
 		//~ //--------------------------------------------------------------
 		strcpy(word, Utilities::string_checker(word,0));
 		strcpy(definition, Utilities::string_checker(definition,0));
@@ -829,7 +861,7 @@ void Thursday::Search(char * argument) {
 		cout << '\t' << '\t' << "Nothing found in our database!" << endl;
    	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the Search Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are leaving the Search method." << endl;
 	/*--------------------------------------------------------------------*/
 	return;
 }
@@ -846,22 +878,23 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 	* proper if statment.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-			cout << '\t' << '\t' << "Mission - You are in the SearchCommands Method." << endl;
+			cout << '\t' << '\t' << "Mission - You are in the SearchCommands method." << endl;
  	/*--------------------------------------------------------------------*/
-	int myColorSwitch = 0;									//To switch the colors on and off.
-	int size = incomingInput.size();
-	int fillerVariable = 0;									//This is so I don't have keep creating variables.
-	int characterValue = 0;									//To grab the ascii value of the first character in the command.								
-    int i = 0;
-    char random[100] = "";
-    char random2[100] = "";
-    char thePath[100] = "";									//Just a copy of the current path.
-    strcpy(thePath, currentPath);							//Copy the current path over.
-	char * resetArguments[2] = { strdup(reset), NULL };		//Char array to be able to reset the terminal screen.
+								
+	 
+    
 	char * arguments[20];									//Char array for storing arguments to pass along to the ExecutionFile method.
-
-
+    char * fileName = (char*)malloc(120);
+	char random[100];
+    int characterValue = 0;									//To grab the ascii value of the first character in the command.
+    int i = 0;
+    int key = 0;
+    int size = incomingInput.size();
+    
+	char * resetArguments[2] = { strdup(reset), NULL };		//Char array to be able to reset the terminal screen.
 	
+	vector<char*> temp;
+	cout << "Signal: " << signal << endl;
 	characterValue = incomingInput[i][0];													//Grab the ascii value of the first chararcter of the current command.
 	if ( signal == 0 ) {
 		if (characterValue >= 97 && characterValue <= 108) {									//If the command is within A - L (a - l).
@@ -879,7 +912,6 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 					i++;
 					if (size > 1) {												
 						if (!strcmp(incomingInput[i], "/" )) {									
-							strcat(random, "/");												//If the command is just cd /, then we just want the backslash.
 							DirectoryChange(random, 0);
 						} else {
 							strcpy(random, currentPath);										//If the command is just cd src, then we want to appended the backslash to the currentpath along with the src.
@@ -894,7 +926,7 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 					for (int b = 0; b < 60; b++)
 						cout << endl;
 				} else if (!strcmp(incomingInput[i], "color")) {				
-					myColorSwitch = 1;	
+	
 				} else if (!strcmp(incomingInput[i], "commands")) {
 					DisplayCommands();
 				} else if (!strcmp(incomingInput[i], "compress")) {
@@ -916,37 +948,30 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 					i++;
 					CompressAndDecompress(1, incomingInput[i]);
 				} else if (!strcmp(incomingInput[i], "decrypt")) {
-					char * message = (char*)malloc(100); int key = 0;
-					cout << '\t' << '\t' << "Please enter your message: "; cin.getline(message, 100);	//Get the message from the user.
+					i++;
 					cout << '\t' << '\t' << "Please enter your key: ";
 					while(!(cin>>key)) {																//Loop until an actual encryption key is a number.
 						cout << '\t' << '\t' << "Must be a number: ";
 						cin.clear();
 						cin.ignore(100,'\n');
 					}
-					cout << '\t' << '\t' << Cryptography(1, key, message) << endl;						//Display the message from the Cryptography method.		
-					message = NULL;	free(message);
+					cout << '\t' << '\t' << Cryptography(2, key, strdup(incomingInput[i])) << endl;		//Display the message from the Cryptography method.		
 				} else if (!strcmp(incomingInput[i], "deleteuser")) {
 					UserUtilities(2);
 				} else if (!strcmp(incomingInput[i], "dirs")) {	
-					strcpy(random, "/");
-					strcpy(random2, "&&&&&");
-					DepthFirstSearch(random, random2, 0, 0);
+					DepthFirstSearch((char*)"/", (char*)"&&&&&", 0, 0);
 				} else if (!strcmp(incomingInput[i], "encrypt")) {
-					char * message = (char*)malloc(100); int key = 0;
-					cout << '\t' << '\t' << "Please enter your message: "; cin.getline(message, 100);	//Get the message from the user.
+					i++;
 					cout << '\t' << '\t' << "Please enter your key: ";
 					while(!(cin>>key)) {																//Loop until an actual encryption key is a number.
 						cout << '\t' << '\t' << "Must be a number: ";
 						cin.clear();
 						cin.ignore(100,'\n');
 					}
-					cout << '\t' << '\t' << Cryptography(1, key, message) << endl;						//Display the message from the Cryptography method.		
-					message = NULL;	free(message);	
+					cout << '\t' << '\t' << Cryptography(1, key, strdup(incomingInput[i])) << endl;		//Display the message from the Cryptography method.		
 				} else if (!strcmp(incomingInput[i], "exit")) {	
 					ExecuteFile(reset, resetArguments);	
 					SetupAndCloseSystem(2);
-					reset = NULL; free(reset);
 					exit(0);
 				} else if (!strcmp(incomingInput[i], "find")) {	
 					i++;
@@ -959,13 +984,6 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 					}
 					cout << endl;
 					i++;
-				} else {
-					int a = 0;																	//Initialize the iterator outside the loop so that I can NULL terminate the array after the loop.
-					for (a = 0; a < size; a++)													//Loop through the given size of the vector.
-						arguments[a] = incomingInput[a];										//Place all the arguments, even the command in the array.
-					arguments[a++] = NULL;														//NULL terminate the array for execution.
-					ExecuteFile(incomingInput[i], arguments); 									//Pass the incoming command and the array filled with arguments.
-					i = size;																	//Move the loop iterator to the end.
 				}
 			} else {																			//If the command is within G - L (g - l).											
 				if (!strcmp(incomingInput[i], "getenv")) {
@@ -998,13 +1016,6 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 					strcpy(random, "");
 					DisplayDirectories(random, 1, 1); 
 					cout << endl;
-				} else {
-					int a = 0;																	//Initialize the iterator outside the loop so that I can NULL terminate the array after the loop.
-					for (a = 0; a < size; a++)													//Loop through the given size of the vector.
-						arguments[a] = incomingInput[a];										//Place all the arguments, even the command in the array.
-					arguments[a++] = NULL;														//NULL terminate the array for execution.
-					ExecuteFile(incomingInput[i], arguments); 									//Pass the incoming command and the array filled with arguments.
-					i = size;																	//Move the loop iterator to the end.
 				}
 			}
 		} else if (characterValue >= 109 && characterValue <= 122) {							//If the command is within M - Z (m - z).
@@ -1042,18 +1053,9 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 					Search(incomingInput[i]);
 				} else if (!strcmp(incomingInput[i], "setenv")) {
 					EnvironmentUtilites(1);
-				} else {
-					int a = 0;																	//Initialize the iterator outside the loop so that I can NULL terminate the array after the loop.
-					for (a = 0; a < size; a++)													//Loop through the given size of the vector.
-						arguments[a] = incomingInput[a];										//Place all the arguments, even the command in the array.
-					arguments[a++] = NULL;														//NULL terminate the array for execution.
-					ExecuteFile(incomingInput[i], arguments); 									//Pass the incoming command and the array filled with arguments.
-					i = size;																	//Move the loop iterator to the end.
 				}
 			} else {																			//If the command is within T - Z (t - z).
-				if (!strcmp(incomingInput[i], "tasks")) {
-					BackgroundProcess(2, 0, NULL); 
-				} else if (!strcmp(incomingInput[i], "time")) {	
+				if (!strcmp(incomingInput[i], "time")) {	
 					cout << '\t' << '\t' << Utilities::date(8) << endl;
 				} else if (!strcmp(incomingInput[i], "uid")) {
 					cout << '\t' << '\t' << "The user ID is: " << getuid() << endl;
@@ -1062,7 +1064,9 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 				} else if (!strcmp(incomingInput[i], "updateuser")) {
 					UserUtilities(4);
 				} else if (!strcmp(incomingInput[i], "usage")) {
-					Usage();
+					strcpy(fileName, strdup(informationDestination));
+					strcat(fileName, "/Usage.txt");
+					temp = FileLoader(temp, fileName, 1);
 				} else if (!strcmp(incomingInput[i], "wd")) {
 					cout << '\t' << '\t' << "The current directory is: " << currentPath << endl;
 				} else if (!strcmp(incomingInput[i], "whereis")) {
@@ -1074,24 +1078,24 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 				}
 			}
 		}
-		if ( signal == 1 ) {
-			int returnNumber = 0;
-			int a = 0;																	//Initialize the iterator outside the loop so that I can NULL terminate the array after the loop.
-			for (a = 0; a < size; a++)													//Loop through the given size of the vector.
-				arguments[a] = incomingInput[a];										//Place all the arguments, even the command in the array.
-			arguments[a++] = NULL;														//NULL terminate the array for execution.
-			returnNumber = ExecuteFile(incomingInput[i], arguments); 									//Pass the incoming command and the array filled with arguments.
-			i = size;																	//Move the loop iterator to the end.
-			return returnNumber;
-		}
+	} else if ( signal == 1 ) {
+		int returnNumber = 0;
+		int a = 0;																	//Initialize the iterator outside the loop so that I can NULL terminate the array after the loop.
+		for (a = 0; a < size; a++)													//Loop through the given size of the vector.
+			arguments[a] = incomingInput[a];										//Place all the arguments, even the command in the array.
+		arguments[a++] = NULL;														//NULL terminate the array for execution.
+		returnNumber = ExecuteFile(incomingInput[i], arguments); 									//Pass the incoming command and the array filled with arguments.
+		i = size;																	//Move the loop iterator to the end.
+		return returnNumber;
 	}
-								
 	/*--------------------------------------------------------------------*/
-	if (myColorSwitch == 1)													//If the switch is on, return 2 so that the color is turned off.
-		return 2;
-	/*--------------------------------------------------------------------*/
+	fileName = NULL; free(fileName);
+	for (int a = 0; a < 20; a++) {
+		arguments[a] = NULL;
+		free(arguments[a]);
+	}
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the SearchCommands Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are leaving the SearchCommands method." << endl;
 	/*--------------------------------------------------------------------*/
     return 0;
 }
@@ -1104,75 +1108,66 @@ void Thursday::SetupAndCloseSystem(int number) {
 	* any system exits or updates to the vectors are printed to the files.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-			cout << '\t' << '\t' << "Mission - You are in the SetupAndCloseSystem Method." << endl;
+			cout << '\t' << '\t' << "Mission - You are in the SetupAndCloseSystem method." << endl;
  	/*--------------------------------------------------------------------*/
-	char * globalVarPath = (char*)malloc(150);			//Used for opening the global variable file.
-	char * usersVarPath = (char*)malloc(150);			//Used for opening the users variable file.
-	char * inputStream = (char*)malloc(100);			//Used for storing each line of content in the file.
-	char * inputStream2 = (char*)malloc(100);			//Used for storing each line of content in the file.
-	char * globalFileName = (char*)malloc(100);			//Char pointer for opening the global text file.
-	char * usersFileName = (char*)malloc(100);			//Used for the path / file name for opening.
-	strcpy(globalFileName, informationDestination);		//Saves the path to the information directory to the filename.
-	strcpy(usersFileName, profileDestination);
+	char * globalFileName = (char*)malloc(120);												//Allocate memory for filenames and adding the correct paths to get to the files.
+	char * usersFileName = (char*)malloc(120);
+	char * thursdayCommandsFileName = (char*)malloc(120);
+	char * osCommandsFileName = (char*)malloc(120);
+	char * input = (char*)malloc(120);
+	strcpy(thursdayCommandsFileName, strdup(informationDestination));
+	strcpy(osCommandsFileName, strdup(informationDestination));
+	strcpy(globalFileName, strdup(informationDestination));
+	strcpy(usersFileName, strdup(profileDestination));
 	strcat(globalFileName, "/GlobalVariables.txt");		
-	strcat(usersFileName, "/Users.txt");			
-
-	if (number == 1) {
-		ifstream GlobalInput;
-		ifstream UsersInput;																						
-		UsersInput.open(usersFileName);													
-		GlobalInput.open(globalFileName);																				
-		if (!UsersInput) {
-			cout << '\t' << '\t' << "There was an error opening the file in the SetupAndCloseSystem - 1." << endl;
-			return;
-		} else if (!GlobalInput) {
-			cout << '\t' << '\t' << "There was an error opening the file in the SetupAndCloseSystem - 2." << endl;
-			return;	
-		}
+	strcat(usersFileName, "/Users.txt");	
+	strcat(thursdayCommandsFileName, "/ThursdayCommands.txt");
+	strcat(osCommandsFileName, "/OSCommands.txt");
+	vector<char*> temp;
+	if ( number == 1) {
+		ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);			//Loads the Thursday Commands
+		OSCommands = FileLoader(OSCommands, osCommandsFileName, 0);								//Loads the operating system commmands
 		
-		while (!UsersInput.eof()) {																						//Loops until the end of the file.
-			UsersInput.getline(inputStream, 100);																		//Gets each line of content in the file.
-			inputStream = Cryptography(2, 20, inputStream);																//Decrypts the contents of the file and saves it to inputStream.
-			if ((unsigned)strlen(inputStream) > 1)																		//If the incoming user has a length greater than one.
-				UsersVector.push_back(strdup(inputStream));																//Stores it into the user vector.
+		temp = FileLoader(temp, usersFileName, 0);												//Get the users.
+		for (int a = 0; a < temp.size(); a++) {													//Loops until the end of the file.
+			input = Cryptography(2, 20, strdup(temp[a]));										//Decrypts the contents of the file and saves it to inputStream.
+			if ((unsigned)strlen(input) > 1)													//If the incoming user has a length greater than one.
+				UsersVector.push_back(strdup(input));											//Stores it into the user vector.
+			memset(input, 0, sizeof input);
 		}	
+		temp.clear();
 		
-		while (!GlobalInput.eof()) {																					//Loops until the end of the file.
-			GlobalInput.getline(inputStream2, 100, '#');																//Gets the name of the environment variable.														
-			if ((unsigned)strlen(inputStream2) > 1)																		//If the incoming variable is greater than one.
-				Environment.push_back(strdup(inputStream2));															//Put the variable into the Environment vector.
-			if (!strcmp(inputStream2, "PATH")) {																		//If the variable matches with PATH.
-				GlobalInput.getline(inputStream2, 100, '#');															//If PATH was found, grab the next incoming variable.
-				if ((unsigned)strlen(inputStream2) > 1)																	//If the variable length is greater than one.
-					Environment.push_back(strdup(inputStream2));														//Put the variable into the environment.
-				char * pathTokens = strtok(inputStream2, ":");															//Tokenize the variable of the predetermined paths, when PATH was found.
-				while (pathTokens != NULL) {																			//Loop through until there are no more tokens.
-					PathVector.push_back(pathTokens);																	//Store one of the paths into the path vector.
-					pathTokens = strtok(NULL, ":");																		//Grab the next token.
-				}	
-			} else {
-				GlobalInput.getline(inputStream2, 100, '#');															//Gets the contents of the environment variable.
-				if ((unsigned)strlen(inputStream2) > 1)																	//If the incoming variable is greater than one.
-					Environment.push_back(strdup(inputStream2));														//Put the variable into the Environment vector.
-			}															
-		}
+		temp = FileLoader(temp, globalFileName, 0);												//Get the environment variables.
+		for (int b = 0; b < temp.size(); b++) {													//Loop through the temp vector.
+			if ((unsigned)strlen(temp[b]) > 1) {												//If the incoming variable is greater than one.
+				Environment.push_back(strdup(temp[b]));											//Put the variable into the Environment vector.
+				if (!strcmp(temp[b], "PATH")) {													//If the variable matches with PATH.
+					b++;
+					char * pathTokens = strtok(temp[b], ":");									//Tokenize the variable of the predetermined paths, when PATH was found.
+					while (pathTokens != NULL) {												//Loop through until there are no more tokens.
+						PathVector.push_back(strdup(pathTokens));								//Store one of the paths into the path vector.
+						pathTokens = strtok(NULL, ":");											//Grab the next token.
+					}	
+				}
+			}														
+		}	
 	} else if (number == 2) {
 		fstream GlobalInput;
 		fstream UsersInput;																						
 		UsersInput.open(usersFileName);																					//Opens the stream for the user file.
 		GlobalInput.open(globalFileName);																				//Opens the stream for the global file.
 		if (!UsersInput) {
-			cout << '\t' << '\t' << "There was an error opening the file in the SetupAndCloseSystem - 3." << endl;
+			cout << '\t' << '\t' << "There was an error opening the file in the SetupAndCloseSystem method - 3." << endl;
 			return;
 		} else if (!GlobalInput) {
-			cout << '\t' << '\t' << "There was an error opening the file in the SetupAndCloseSystem - 4." << endl;
+			cout << '\t' << '\t' << "There was an error opening the file in the SetupAndCloseSystem method- 4." << endl;
 			return;	
 		}
 			
 		for (int i = 0; i < UsersVector.size(); i++) {																	//Loops until the end of the vector.
-			inputStream = Cryptography(1, 20, UsersVector[i]);															//Encrypts the users and saves it to the inputStream.
+			input = Cryptography(1, 20, UsersVector[i]);																//Encrypts the users and saves it to the inputStream.
 			if (strcmp(UsersVector[i], " ") || strcmp(UsersVector[i], "") || UsersVector[i] == NULL)					//Checks to see if the inputstreamm is not empty and NULL.
-				UsersInput << inputStream << endl;																		//Stores it into the user vector.
+				UsersInput << input << endl;																			//Stores it into the user vector.
 		}
 		
 		for (int i = 0; i < Environment.size(); i++) {																	//Loops until the end of the vector.
@@ -1185,8 +1180,14 @@ void Thursday::SetupAndCloseSystem(int number) {
 		PathVector.clear();
 	}	
 	/*--------------------------------------------------------------------*/
+	temp.clear();
+	input = NULL; free(input);
+	globalFileName = NULL; free(globalFileName);
+	usersFileName = NULL; free(usersFileName);
+	thursdayCommandsFileName = NULL; free(thursdayCommandsFileName);
+	osCommandsFileName = NULL; free(osCommandsFileName);	
 	if (debugSwitch == 1)
-			cout << '\t' << '\t' << "Mission - You are leaving the SetupAndCloseSystem Method." << endl;
+			cout << '\t' << '\t' << "Mission - You are leaving the SetupAndCloseSystem method." << endl;
  	/*--------------------------------------------------------------------*/
 	return;
 }
@@ -1195,6 +1196,9 @@ char * Thursday::StackPop() {
 	/*-------------------------------------------------------------------
 	Note: This method 
 	--------------------------------------------------------------------*/
+    if (debugSwitch == 1) 
+        cout << '\t' << '\t' << "Mission - You are leaving the StackPop method." << endl;
+	/*--------------------------------------------------------------------*/
     if (currentPosition != -1) {
 		char * outcomingValue = (char*)malloc(300);
 		strcpy(outcomingValue, stackArray[currentPosition]);
@@ -1208,48 +1212,20 @@ void Thursday::StackPush(char * incomingPath) {
 	/*-------------------------------------------------------------------
 	Note: This method 
 	--------------------------------------------------------------------*/
+    if (debugSwitch == 1) 
+        cout << '\t' << '\t' << "Mission - You are leaving the StackPush method." << endl;
+	/*--------------------------------------------------------------------*/
     currentPosition++;
     if (currentPosition < MAX) {
 		strcpy(stackArray[currentPosition] , incomingPath);
     } else {
         currentPosition--;
     }
-    return;
-}
-
-void Thursday::Usage() {
-	/*------------------------------------------------------------------
-	Note: This method will print out the basic information of the system
-	* and how to go about getting help if any user is stuck on the commands.
-	--------------------------------------------------------------------*/	
-	if (debugSwitch == 1)
-		cout << '\t' << '\t' << "Mission - You are  in the Usage Method." << endl;
- 	/*--------------------------------------------------------------------*/
-	char * input = (char*)malloc(150);
-	char * fileName = (char*)malloc(150);
-	strcpy(fileName, informationDestination);
-	strcat(fileName, "/Usage.txt");
- 	/*--------------------------------------------------------------------*/
-	ifstream InputData;
-	InputData.open(fileName);
-	if (!InputData) {
-		cout << '\t' << '\t' << "There was an error opening the file in the Library Usage Method." << endl;
-		return;
-	}
-	while (!InputData.eof()) {												//Loop through the file.
-		InputData.getline(input, 150);										//Get each line in the file.
-		strcpy(input, Utilities::string_checker(input, 0));					//Check for any special characters in the input.
-		cout << '\t' << input << endl;										//Print the output.
-	}
-	cout << endl;
-	
-	fileName = NULL; free(fileName);
-	input = NULL; free(input);
-   	/*--------------------------------------------------------------------*/
-    if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the Usage Method." << endl;
 	/*--------------------------------------------------------------------*/
-	return;
+    if (debugSwitch == 1) 
+        cout << '\t' << '\t' << "Mission - You are leaving the StackPush method." << endl;
+	/*--------------------------------------------------------------------*/
+    return;
 }
 
 void Thursday::UserInformation(int number) {
@@ -1259,8 +1235,8 @@ void Thursday::UserInformation(int number) {
 	* just the home directory is printed out or all the information is then 
 	* displayed.
 	--------------------------------------------------------------------*/
-    if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are in the GetUserHomeDirectoryPath Method." << endl;
+    if (debugSwitch == 1)
+        cout << '\t' << '\t' << "Mission - You are in the UserInformation method." << endl;
 	/*--------------------------------------------------------------------*/
 	int i = getuid();							//Returns the user id.
     passwd * CurrUser;							//Creates a passwd structure pointer.
@@ -1287,7 +1263,7 @@ void Thursday::UserInformation(int number) {
 	free(UserName); free(Password); free(Shell); free(Directory);
    	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the GetUserHomeDirectoryPath Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are leaving the UserInformation method." << endl;
 	/*--------------------------------------------------------------------*/
     return;
 }
@@ -1298,7 +1274,7 @@ void Thursday::UserUtilities(int number) {
 	* allowed to use this method. 
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-		cout << '\t' << '\t' << "Mission - You are in the UserUtilities Method." << endl;
+		cout << '\t' << '\t' << "Mission - You are in the UserUtilities method." << endl;
 	/*--------------------------------------------------------------------*/
 	char * currName = (char*)malloc(100);
 	char * currPass = (char*)malloc(100);
@@ -1601,15 +1577,29 @@ int Thursday::ArgumentChecker(char * theCommands, char * envp[]) {
 		
 		if ( commandSwitch == 0 ) {
 			commandSwitch = 1;
-			for (int a = 0; a < SystemCommands.size(); a++) {	
-				if (!strcmp(SystemCommands[a], input)) {
+			for (int a = 0; a < ThursdayCommands.size(); a++) {	
+				if (!strcmp(ThursdayCommands[a], input)) {
 					target = 1;
 					commandArguments.push_back(Utilities::int_to_string(target));
 					commandArguments.push_back(strdup(input));
 					a++;
-					commandArguments.push_back(SystemCommands[a]);
+					commandArguments.push_back(strdup(ThursdayCommands[a]));
 					a++;
-					commandArguments.push_back(SystemCommands[a]);
+					commandArguments.push_back(strdup(ThursdayCommands[a]));
+					a++;
+					break;	
+				}																
+			}
+
+			for (int a = 0; a < OSCommands.size(); a++) {	
+				if (!strcmp(OSCommands[a], input)) {
+					target = 2;
+					commandArguments.push_back(Utilities::int_to_string(target));
+					commandArguments.push_back(strdup(input));
+					a++;
+					commandArguments.push_back(strdup(OSCommands[a]));
+					a++;
+					commandArguments.push_back(strdup(OSCommands[a]));
 					a++;
 					break;	
 				}																
@@ -1618,7 +1608,7 @@ int Thursday::ArgumentChecker(char * theCommands, char * envp[]) {
 			if ( target == 0 ) {
 				strcpy(argument, FileChecker(strdup(input)));
 				if (strcmp(argument, input)) {
-					target = 2;
+					target = 3;
 					commandArguments.push_back(Utilities::int_to_string(target));
 					commandArguments.push_back(strdup(input));
 					commandArguments.push_back(Utilities::int_to_string(0));
@@ -1629,7 +1619,7 @@ int Thursday::ArgumentChecker(char * theCommands, char * envp[]) {
 			}
 			
 			if ( target == 0 ) {
-				target = 3;
+				target = 4;
 				commandArguments.push_back(Utilities::int_to_string(target));
 				commandArguments.push_back(strdup(input));
 				commandArguments.push_back(Utilities::int_to_string(0));
@@ -1677,7 +1667,7 @@ int Thursday::ArgumentChecker(char * theCommands, char * envp[]) {
 		if ( Utilities::string_to_int(commandArguments[c]) == 1 )
 			check1 = 1;
 		c++;
-		strcpy(argument, commandArguments[c]);
+		strcpy(argument, strdup(commandArguments[c]));
 		c++;
 		min = Utilities::string_to_int(commandArguments[c]);
 		c++;
@@ -1696,7 +1686,7 @@ int Thursday::ArgumentChecker(char * theCommands, char * envp[]) {
 				c--;
 			} else if (target < min || target > max ) {
 				badCommands.push_back(Utilities::int_to_string(target+1));
-				badCommands.push_back(argument);
+				badCommands.push_back(strdup(argument));
 				for (int e = 0; e < target; e++) {
 					badCommands.push_back(commandArguments[c]);
 					c++;
@@ -1705,7 +1695,7 @@ int Thursday::ArgumentChecker(char * theCommands, char * envp[]) {
 			}
 		} else {
 			badCommands.push_back(Utilities::int_to_string(target+1));
-			badCommands.push_back(argument);
+			badCommands.push_back(strdup(argument));
 			for (int f = 0; f < target; f++) {
 				badCommands.push_back(commandArguments[c]);
 				c++;
@@ -1731,7 +1721,8 @@ int Thursday::ArgumentChecker(char * theCommands, char * envp[]) {
 		SearchCommands(envp, temp, 0);
 		temp.clear();
 	}
-	
+	for (int b = 0; b < badCommands.size(); b++) 
+		cout << badCommands[b] << endl;
 	h = 0;
 	for (int i = 0; i < badCommands.size(); i++) {
 		target = Utilities::string_to_int(badCommands[i]);
@@ -1753,330 +1744,43 @@ int Thursday::ArgumentChecker(char * theCommands, char * envp[]) {
 	return 0;
 }
 
-void Thursday::LoadSystemCommands() {
-    char * incoming = (char*)malloc(100);	 
-	char * filename = (char*)"SystemCommands.txt";
-	int number = 0;
-	string input = "";
-
-	DirectoryChange(strdup(informationDestination), 0);
-	/*--------------------------------------------------------------------*/
-	ifstream InputData;
-	InputData.open(filename);
-	if (!InputData) {
-		cout << '\t' << '\t' << "There was an error opening the file in LoadSystemCommands." << endl;
-    } else {
-        while (!InputData.eof()) {
-            getline(InputData, input, '#');
-            incoming = strdup(input.c_str());
-            incoming = Utilities::string_checker(incoming, 0);
-            
-            if(strcmp(incoming, ""))
-                SystemCommands.push_back(incoming); 
-        }
-    }
-	/*--------------------------------------------------------------------*/
-	DirectoryChange(strdup(homeDestination), 0);
-	
-    incoming = NULL; free(incoming);
-	filename = NULL; free(filename);
-
-	return;
-}
-
-
-
-void Thursday::BackgroundProcess(int number, int thePid, char * command) {
-	/*-------------------------------------------------------------------
-	Note: This method creates a back ground process if the number is zero
-	* and checks to see if any of the processes that were
-	* stored in the vector have finsihed executing. If they have finished
-	* then the method will erase them or display an error output message. 
-	* Uses waitpid to take th PID number, and check the system.
-	--------------------------------------------------------------------*/
-    //~ if (debugSwitch == 1) 
-        //~ cout << '\t' << '\t' << "Mission - You are in the BackgroundProcess Method." << endl;
-	//~ /*--------------------------------------------------------------------*/
-    //~ pid_t pid;
-    //~ int status;
-	//~ /*--------------------------------------------------------------------*/
-	//~ if ( number == 0) {
-		//~ ChildPID.push_back(thePid);
-		//~ ChildCommand.push_back(command);
-	//~ } else if (number == 1) { 
-		//~ for (int i = 0; i < ChildPID.size(); i++) {
-			//~ pid = waitpid(0, &status, WNOHANG);
-			//~ if (pid == ChildPID[i]) {
-				//~ ChildPID.erase(ChildPID.begin()+i);
-				//~ ChildCommand.erase(ChildCommand.begin()+i);
-			//~ } else if (pid == -1) {
-				//~ cout << '\t' << '\t' << "There was an issue with PID: "<< pid << ", erasing now" << endl;
-				//~ ChildPID.erase(ChildPID.begin()+i);
-				//~ ChildCommand.erase(ChildCommand.begin()+i);
-			//~ } else {
-				//~ if (commandSwitch == true) {
-					//~ cout << endl << endl;
-					//~ /*-------------------------------------------------------------------------------------------*/
-					//~ cout << '\t' << '\t' << "WIFCONTINUED - status - " << WIFCONTINUED(status) << endl;
-					//~ /*-------------------------------------------------------------------------------------------*/
-					//~ if (WIFEXITED(status))
-						//~ cout << '\t' << '\t' << "Child exited with a (WIFEXITED) - status of " << WEXITSTATUS(status) << endl;
-					//~ else 
-						//~ cout << '\t' << '\t' << "child did not exit successfully with (WIFEXITED) - Option - 1." << endl;
-					//~ /*-------------------------------------------------------------------------------------------*/
-					//~ if(WIFSIGNALED(status))
-						//~ cout << '\t' << '\t' << "Child exited with a (WIFSIGNALED - WTERMSIG) - status of " << WTERMSIG(status) << endl;
-					//~ else 
-						//~ cout << '\t' << '\t' << "child did not exit successfully with (WIFSIGNALED - WTERMSIG) - Option - 2." << endl;
-					//~ /*-------------------------------------------------------------------------------------------*/
-					//~ if (WIFSIGNALED(status))
-						//~ cout << '\t' << '\t' << "Child exited with a (WIFSIGNALED - WCOREDUMP) - status of " << WCOREDUMP(status) << endl;
-					//~ else 
-						//~ cout << '\t' << '\t' << "child did not exit successfully withy (WIFSIGNALED - WCOREDUMP) - Option - 3." << endl;
-					//~ /*-------------------------------------------------------------------------------------------*/
-					//~ if (WIFSTOPPED(status))
-						//~ cout << '\t' << '\t' << "Child exited with a (WIFSTOPPED) - status of " << WSTOPSIG(status) << endl;
-					//~ else 
-						//~ cout << '\t' << '\t' << "child did not exit successfully with (WIFSTOPPED) - Option - 4." << endl;
-					//~ /*-------------------------------------------------------------------------------------------*/
-					//~ cout << endl << endl;
-				//~ }
-			//~ }
-		//~ }
-	//~ } else if (number == 2) {
-		//~ if (ChildPID.size() == 0) 
-			//~ cout << '\t' << '\t' << "There are are no background processes." << endl;
-			
-		//~ for (int i = 0; i < ChildPID.size(); i++)
-			//~ cout << ChildPID[i] << "  " << ChildCommand[i] << endl;
-	//~ }
-	
-	//~ /*--------------------------------------------------------------------*/
-    //~ if (debugSwitch == 1) 
-        //~ cout << '\t' << '\t' << "Mission - You are leaving the BackgroundProcess Method." << endl;
-	//~ /*--------------------------------------------------------------------*/
-	
-    return;
-}
-
-void Thursday::KillPID(int number, int PID) {
-	/*-------------------------------------------------------------------
-	Note: This method has two options, the first option kills all the background
-	* processes that this program has created. The second only will kill
-	* a certain process of the users choice.
-	--------------------------------------------------------------------*/
-    //~ if (debugSwitch == 1) 
-        //~ cout << '\t' << '\t' << "Mission - You are in the KillPID Method." << endl;
-	//~ /*--------------------------------------------------------------------*/    
-	
-	//~ if (number == 1) {
-		//~ for (int i = 0; i < ChildPID.size(); i++) 
-			//~ kill(ChildPID[i], SIGKILL);
-		//~ ChildPID.clear();
-		//~ ChildCommand.clear();
-	//~ } else if (number == 2) {
-		//~ for (int i = 0; i < ChildPID.size(); i++) {
-			//~ if (ChildPID[i] == PID) {
-				//~ kill(ChildPID[i], SIGKILL);
-				//~ ChildPID.erase(ChildPID.begin()+(i));
-				//~ ChildCommand.erase(ChildCommand.begin()+(i));
-			//~ }
-		//~ }
-	//~ }
-	
-	//~ /*--------------------------------------------------------------------*/
-    //~ if (debugSwitch == 1) 
-        //~ cout << '\t' << '\t' << "Mission - You are leaving the KillPID Method." << endl;
-	//~ /*--------------------------------------------------------------------*/
-	
-	return;	
-}
-
-void Thursday::Pipeline(char * argument, char * argument2) {
-	/*------------------------------------------------------------------
-	Note: This method sends the StandardOut/In methods one of the given
-	* arguments, an empty argument, and then the file. The first 
-	* argument is execute and the output is put into the file. Then the
-	* second argument is given to standard in, along with an empty argument,
-	* and the file aswell. The argument is executed and is given the contents
-	* in the file passed to it.
-	--------------------------------------------------------------------*/	
+vector<char*> Thursday::FileLoader(vector<char*> incomingVector, char * fileName, int signal) { 
+ 	/*--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-		cout << '\t' << '\t' << "Mission - You are in the Pile Method." << endl;
+		cout << '\t' << '\t' << "Mission - You are  in the FileLoader Method." << endl;
  	/*--------------------------------------------------------------------*/
- 	
-    //~ char * empty = NULL;
-    //~ char * argument3 = (char*)"pipeFile.txt";
-	//~ /*--------------------------------------------------------------------*/
-	//~ StandardOut(argument, empty, argument3);
-	//~ StandardIn(argument2, empty, argument3);
+	char * input = (char*)malloc(150);
+
+	ifstream InputData;
+	InputData.open(fileName);
 	
-	//~ argument3 = NULL;
-	//~ free(argument3);
-	//~ free(empty);
-	
-	/*--------------------------------------------------------------------*/
+	if (!InputData) {
+		cout << '\t' << '\t' << "There was an error opening the file in the FileLoader Method." << endl;
+		return incomingVector;
+	}
+	if ( signal == 0) {
+		while (!InputData.eof()) {
+			InputData.getline(input, 150, '#');
+			strcpy(input, strdup(Utilities::string_checker(input, 0)));
+			if (strlen(input) > 0)
+				incomingVector.push_back(strdup(input));
+			}
+	} else if ( signal == 1) {
+		while (!InputData.eof()) {
+			InputData.getline(input, 150, '#');
+			strcpy(input, strdup(Utilities::string_checker(input, 0)));
+			if (strlen(input) > 0)
+				incomingVector.push_back(strdup(input));
+		}
+	}
+   	/*--------------------------------------------------------------------*/
+	input = NULL; free(input);
+	fileName = NULL; free(fileName);
     if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the Pipe Method." << endl;
+        cout << '\t' << '\t' << "Mission - You are leaving the FileLoader Method." << endl;
 	/*--------------------------------------------------------------------*/
-	
-	return;
+	return incomingVector;
 }
-    
-int Thursday::SearchOperators() {
-			//~ if (!strcmp("&", incomingInput[i])) {							//Check for the no wait symbol.
-				//~ commandSwitch = 1;											//Turn on the command switch for the no wait symbol.
-				//~ incomingInput.erase(incomingInput.begin()+(i));				//Erase the symbol from the vector.
-			//~ } else 
-	//~ if ((!strcmp("<", UserCommands[i])) || (!strcmp(">", UserCommands[i])) || (!strcmp("|", UserCommands[i]))) {
-		//~ if (size >= 3) {
-			//~ //In replace of standard IN
-			//~ if (!strcmp("<", UserCommands[i])) {
-				//~ int currentLocation = i;
-				//~ if ((i != 0) && (i == size)) {
-					//~ cout << '\t' << '\t' << "Invalid" << endl;
-					//~ UserCommands.erase(UserCommands.begin()+(i));
-				//~ } else {
-					//~ StandardIn(UserCommands[i-1], UserCommands[i+1], empty);
-				//~ }
-			//~ // In replace of standard OUT
-			//~ } else if (!strcmp(">", UserCommands[i])) {
-				//~ cout << "Were in here" << endl;
-				//~ if ((i != 0) && (i == size)) {
-					//~ cout << '\t' << '\t' << "Invalid" << endl;
-					//~ UserCommands.erase(UserCommands.begin()+(i));
-				//~ } else {
-					//~ StandardOut(UserCommands[i-1], UserCommands[i+1], empty);
-				//~ }
-			//~ // In replace of Pipelining
-			//~ } else if (!strcmp("|", UserCommands[i])) {
-				//~ int currentLocation = i;
-				//~ if ((i != 0) && (i == size)) {
-					//~ cout << '\t' << '\t' << "Invalid" << endl;
-					//~ UserCommands.erase(UserCommands.begin()+(i));
-				//~ } else {
-					//~ Pipeline(UserCommands[i-1], UserCommands[i+1]);
-				//~ }
-			//~ }
-		//~ } else {
-			//~ UserCommands.clear();
-			//~ cout << '\t' << '\t' << "Insufficient # of Arguments" << endl;
-		//~ }
-	//~ }
-	return 0;
-}
-
-void Thursday::StandardIn(char * argument, char * argument2, char * file) {	
-	/*------------------------------------------------------------------
-	Note: This method checks to see if the file argument is empty or not.
-	* If it does not equal " ", then it sets the file as argument2. 
-	* Argument2 would be null anyway. If the file does equal " " then 
-	* argument2 will be used. After that the program checks to see if the 
-	* files actually exist. Then Fork, close standard in, open the text file
-	* and execute. Finish the method off by getting the process stored.
-	--------------------------------------------------------------------*/	
-	if (debugSwitch == 1)
-		cout << '\t' << '\t' << "Mission - You are in the StandardIn Method." << endl;
-	/*--------------------------------------------------------------------*/
-	
-	//~ if (file != NULL)
-		//~ argument2 = file;
-	//~ /*--------------------------------------------------------------------*/
-	//~ pid_t pid, tmp;	
-	//~ int status;
-	//~ int in = 0;
-	//~ /*--------------------------------------------------------------------*/
-	//~ argument = FileChecker(argument);
-	//~ argument2 = FileChecker(argument2);	
-	//~ /*--------------------------------------------------------------------*/
-	//~ pid = fork();
-	//~ if (pid == 0) {
-		//~ close(0);
-		//~ in = open(argument2, O_RDONLY);
-		//~ if (execl(argument, argument, NULL) == -1)
-			//~ perror("Stdin Fork Failure: ");		
-	//~ } else {
-		//~ if (commandSwitch == 0)
-			//~ tmp = wait(&status);
-		//~ else
-			//~ BackgroundProcess(0, pid, argument);
-	//~ }
-	
-	//~ close(in);
-	
-	/*--------------------------------------------------------------------*/
-    if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the StandardIn Method." << endl;
-	/*--------------------------------------------------------------------*/
-    return;
-    
-}
-
-void Thursday::StandardOut(char * argument, char * argument2, char * file) { 
-	/*------------------------------------------------------------------
-	Note: This method checks to see if the file argument is empty or not.
-	* If it does not equal " ", then it sets the file as argument2. 
-	* Argument2 would be null anyway. If the file does equal " " then 
-	* argument2 will be used. After that the program checks to see if the 
-	* files actually exist. Then Fork, close standard out, open the text file
-	* and execute. Finish the method off by getting the process stored.
-	--------------------------------------------------------------------*/	
-	if (debugSwitch == 1)
-		cout << '\t' << '\t' << "Mission - You are in the StandardOut Method." << endl;	   
-	/*--------------------------------------------------------------------*/
-	
-	//~ if (file != NULL)
-		//~ argument2 = file;
-	//~ /*--------------------------------------------------------------------*/
-	//~ pid_t pid, tmp;
-	//~ int status = 0;
-	//~ int in = 0;
-	//~ bool theSwitch = false;
-	//~ char * exit = strdup("exit");
-	//~ int stdout_copy = dup(1);
-	//~ /*--------------------------------------------------------------------*/
-	//~ for (int i = 0; i < UserCommands.size(); i++) {
-		//~ if (UserCommands[i] == argument) {
-			//~ theSwitch = true;
-			//~ break;
-		//~ }
-	//~ }
-	//~ if (theSwitch == true)  {
-		//~ close(1);
-		//~ in = open(argument2, O_RDWR|O_CREAT|O_APPEND, 0600);
-		//~ SearchCommands(NULL);
-		//~ close(in);
-		//~ dup2(stdout_copy, 1);
-		//~ close(stdout_copy);
-	//~ } else {
-		//~ argument = FileChecker(argument);
-		//~ pid = fork();
-		//~ if (pid == 0) {
-			//~ close(1);
-			//~ in = open(argument2, O_RDWR|O_CREAT|O_APPEND, 0600);
-			//~ if (execl(argument, argument, NULL) == -1)
-				//~ perror("Stdout Fork Failure: ");		
-		//~ } else {
-			//~ if (commandSwitch == 0)
-				//~ tmp = wait(&status);
-			//~ else
-				//~ BackgroundProcess(0, pid, argument);	
-		//~ }
-		//~ close(in);
-	//~ }
-	//~ exit = NULL;
-	//~ free(exit);
-	
-	/*--------------------------------------------------------------------*/
-    if (debugSwitch == 1) 
-        cout << '\t' << '\t' << "Mission - You are leaving the StandardOut Method." << endl;
-	/*--------------------------------------------------------------------*/
-	
-	return;
-}
-
-
-
 
 
 

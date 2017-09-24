@@ -100,11 +100,11 @@ char * 	Utilities::string_checker(char * incomingString, int option) {
 		char input[5] = { theString[i] };
 		character = theString[i];
 		if (option == 0) {
-			if (character < 1 || character > 31) {
+			if (character > 31) {
 				strcat(output, input);
 			}
 		} else if (option == 1) {
-			if (character < 1 || character > 32) {
+			if (character > 32) {
 				strcat(output, input);
 			}
 		}
