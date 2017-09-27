@@ -25,9 +25,7 @@ int main (int argc, char * argv[], char *envp[])
 	char * resetArguments[2] = { (char*)"reset", NULL };																	//Is a char array used to give to the ExectureFile method to be able to reset the screen.
 	struct termios oldattr, newattr;																					//Setup terminal variables.
 	
-	Thursday home;																										//Create an instance of the class.
-	Color::Modifier lightCyan(Color::FG_LIGHT_CYAN, BoolVar);															//Declare the prompt color for output.
-	Color::Modifier def(Color::FG_DEFAULT,BoolVar);																		//Declare the incoming commands color for output.							
+	Thursday home;																										//Create an instance of the class.																						
 	
 	currentPath = getcwd(path, 256);																					//Get the current path of the system, which should be something like ~/Version-5.2.		
 	strcpy(homeDestination, currentPath);																				//Copy the current path to the home destination.
@@ -36,7 +34,7 @@ int main (int argc, char * argv[], char *envp[])
 	
 	while (1) {																										//Loop for indeffinately.
 		home.ExecuteFile((char*)"reset", resetArguments);
-		cout << lightCyan << home.PromptDisplay() << def;															//Print basic prompt out.																	
+		home.PromptDisplay();																						//Print basic prompt out.																	
 		while (returnNumber == 0) {																					//Loop until the user wants to logout.						
 			
 			tcgetattr(STDIN_FILENO, &oldattr);																		//Get the terminal setting for standard in.				
@@ -69,7 +67,7 @@ int main (int argc, char * argv[], char *envp[])
 								BoolVar = 1;
 							returnNumber = 0;																		//Reset the return number for the loop.
 						}
-						cout << lightCyan << home.PromptDisplay() << def;											//Display the prompt.
+						home.PromptDisplay();																		//Display the prompt.
 					}
 					UpAndDownIterator = incomingCommands.size();													//Set the up and down iterator to zero.
 					UpAndDownIterator--;		
@@ -100,7 +98,9 @@ int main (int argc, char * argv[], char *envp[])
 				case 195: 																							//Up arrow key																			
 					if (UpAndDownIterator >= 0 && incomingCommands.size() != 0) {																	//Check to make sure the iterator is above  0.
 						printf("%c[2K", 27);																		//Clear the current terminal line.
-						cout << "\r" << lightCyan << home.PromptDisplay()<< def << incomingCommands[UpAndDownIterator]; //Reset the output and pring the colored prompt and print out the previous command.
+						cout << "\r";
+						home.PromptDisplay();
+						cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
 						memset(theCommands, 0, sizeof(theCommands));												//Reset the pointer.
 						strcpy(theCommands, strdup(incomingCommands[UpAndDownIterator]));							//Copy the previous command to the theCommands pointer.
 						LeftAndRightIterator = strlen(theCommands);													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
@@ -114,7 +114,9 @@ int main (int argc, char * argv[], char *envp[])
 					if (UpAndDownIterator < (incomingCommands.size() - 1) && incomingCommands.size() != 0) {
 						UpAndDownIterator++; 																		//Increment the iterator to grab the previous called command.			
 						printf("%c[2K", 27);																		//Clear the printed terminal line.
-						cout << "\r" << lightCyan << home.PromptDisplay()<< def << incomingCommands[UpAndDownIterator]; //Reset the output and pring the colored prompt and print out the previous command.
+						cout << "\r";
+						home.PromptDisplay();
+						cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
 						memset(theCommands, 0, sizeof(theCommands));												//Reset the pointer.
 						strcpy(theCommands, strdup(incomingCommands[UpAndDownIterator]));							//Copy the previous command to the theCommands pointer.
 						LeftAndRightIterator = strlen(theCommands);													//Reset the left and right iterator so that the cursor doesn't move past the commmand.

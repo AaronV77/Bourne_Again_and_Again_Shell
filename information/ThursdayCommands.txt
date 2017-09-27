@@ -2,7 +2,7 @@ adduser#0#0#
 bash#0#0#
 bomb#0#0#
 cd#1#1#
-color#0#0#
+color#0#1#
 commands#0#0#
 compress#1#1#
 date#0#0#

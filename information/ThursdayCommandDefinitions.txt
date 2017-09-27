@@ -36,7 +36,8 @@ log#- This command will output the commands used in Thursday to a text file. Tak
 with it.#
 ls#- This command will dissplay the contents of a directory. Takes no other commands with it.#
 name#- This command will display the host name of the computer. Takes no other commands.#
-pid#- This command will output the process ID number. Takes no other commands with it.#ppid#- This command will output the parent process ID number. Takes no other commands with it.#
+pid#- This command will output the process ID number. Takes no other commands with it.#
+ppid#- This command will output the parent process ID number. Takes no other commands with it.#
 printenv#- This command will print all the bash global variables. Takes no other commands with it.#
 printusers#- This command will print out all of the users that the system knows about. Takes no other 
 commads with it.#

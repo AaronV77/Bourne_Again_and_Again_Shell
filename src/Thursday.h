@@ -38,41 +38,35 @@ public:
 	Thursday(const Thursday& otherThursday);	
 	~Thursday();
 	int ArgumentChecker(char * theCommands, char * envp[]);
-	void BackgroundProcess(int number, int thePid, char * command); 
 	void CompressAndDecompress(int Number, char * argument);
 	char * Cryptography(int number, int key, char * message);
 	void DepthFirstSearch(char * path, char * command, int number, int theSwitch);
 	void Destruction(int Number);
 	void DirectoryChange(char * desiredPath, int number);
 	void DirectoryDelete(char* dirname);
-	void DisplayCommands();
 	void DisplayDirectories(char * searchWord, int number, int theSwitch); 
 	char * FileChecker(char * argument);	
 	vector<char*> FileLoader(vector<char*> incomingVector, char * fileName, int signal);
 	void EnvironmentUtilites(int Number);
 	int ExecuteFile(char * incomingCommand, char * args[]);
 	void Help(char * argument);
-	void KillPID(int number, int PID);
 	void LoadSystemCommands();
 	void Login();	
-	void NothingFound(char * argument);
-	void Pipeline(char * argument, char * argument2);
-	void PromptChange(char * argument);
-	char * PromptDisplay();
+	void PromptDisplay();
 	void Search(char * argument);
 	int SearchCommands(char * envp[], vector<char*>incomingInput, int signal);
-	int SearchOperators();
 	void SetupAndCloseSystem(int number);
 	char * StackPop();
-	void StackPush(char * incomingPath); 
-	void StandardIn(char * argument, char * argument2, char * file);
-	void StandardOut(char * argument, char * argument2, char * file);
-	void Usage();
+	void StackPush(char * incomingPath);
 	void UserInformation(int number);
 	void UserUtilities(int number);
-		
+
+	char * Cutter(char * startpoint, char * word, int numberOfCharacters);
+	void ColorChange(char * sentence, int signal);
+	
 private:
-	int colorSwitch;
+	int BoolVar;
+	int colorOption;
 	int commandSwitch;
 	int currentPosition;	
 	int debugSwitch;
