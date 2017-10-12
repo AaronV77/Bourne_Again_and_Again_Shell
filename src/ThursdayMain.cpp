@@ -5,35 +5,33 @@ using namespace std;
 int getche(void);
 
 int main (int argc, char * argv[], char *envp[])
-{
-	vector<char*> systemCommands;																						//Used to store the system commmands that will be used to check against the incoming commands.
-	vector<char*> incomingInput;									
-	vector<char*> incomingCommands;																						//Used to store the incoming commands from the user and will be checked.
+{					
+	vector<string> incomingInput;									
+	vector<string> incomingCommands;																				//Used to store the incoming commands from the user and will be checked.
 	int BoolVar = 1;
-	int characterNumber = 0;																							//Used to store the ascii value of the character from the keyboard.
-	int LeftAndRightIterator = 0;																						//Used to keep track of where the cursor is on the screen.
-	int operatorSwitch = 0;																								//Used to let the system know that there was an operator typed.
-	int returnNumber = 0;																								//Used to control the second loop.
+	int characterNumber = 0;																						//Used to store the ascii value of the character from the keyboard.
+	int LeftAndRightIterator = 0;																					//Used to keep track of where the cursor is on the screen.
+	int operatorSwitch = 0;																							//Used to let the system know that there was an operator typed.
+	int returnNumber = 0;																							//Used to control the second loop.
 	int size = 0;
-	int UpAndDownIterator = 0;																							//Used to keep track of where the system is in the commands vector.
+	int UpAndDownIterator = 0;																						//Used to keep track of where the system is in the commands vector.
 	char path[256];
-	char * character = (char*)malloc(10);																				//Used to store the character coming from the user.
-	char * theCommands = (char*)malloc(200);																			//Used to store each character that comes from the user.
-	char * currentPath = (char*)malloc(120);																			//Used to store the current path that the system is in.
-	char * homeDestination = (char*)malloc(120);																		//Used to store the location of the system.
-	char * informationDestination = (char*)malloc(120);																	
-	char * resetArguments[2] = { (char*)"reset", NULL };																	//Is a char array used to give to the ExectureFile method to be able to reset the screen.
-	struct termios oldattr, newattr;																					//Setup terminal variables.
+	string currentPath = "";
+	string theCommands = "";
+	string homeDestination = "";
+	string informationDestination = "";
+	//char * resetArguments[2] = { (char*)"reset", NULL };															//Is a char array used to give to the ExectureFile method to be able to reset the screen.
+	struct termios oldattr, newattr;																				//Setup terminal variables.
 	
-	Thursday home;																										//Create an instance of the class.																						
+	Thursday home;																									//Create an instance of the class.																						
 	
-	currentPath = getcwd(path, 256);																					//Get the current path of the system, which should be something like ~/Version-5.2.		
-	strcpy(homeDestination, currentPath);																				//Copy the current path to the home destination.
-	strcpy(informationDestination, currentPath);																		//Copy the current path to the information destination.
-	strcat(informationDestination, "/information");																		//Add the infromation directory to the information destination.
+	currentPath = getcwd(path, 256);																				//Get the current path of the system, which should be something like ~/Version-5.2.		
+	homeDestination = currentPath;																					//Copy the current path to the home destination.
+	informationDestination = currentPath;																			//Copy the current path to the information destination.
+	informationDestination += "/information";																		//Add the infromation directory to the information destination.														
 	
 	while (1) {																										//Loop for indeffinately.
-		home.ExecuteFile((char*)"reset", resetArguments);
+		//home.ExecuteFile((char*)"reset", resetArguments);
 		home.PromptDisplay();																						//Print basic prompt out.																	
 		while (returnNumber == 0) {																					//Loop until the user wants to logout.						
 			
@@ -43,45 +41,32 @@ int main (int argc, char * argv[], char *envp[])
 			tcsetattr(STDIN_FILENO, TCSANOW, &newattr);																//Set the new settings to the terminal.
 			characterNumber = getche();																				//Retrieve the character that was typed and send back the ascii value.
 			tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);																//Set the terminal to the old settings.
-			character = Utilities::int_to_char(characterNumber);													//Send the number to our utilities to get the actual letter / character back.
 
 			switch(characterNumber) {																				//Use a switch statment to do specific actions for certain characters.
 				case 10: 																							//When an enter key was pressed.
 					if (theCommands != NULL) {																		//Make sure that the char pointer is not empty / NULL.
 						if (operatorSwitch == 0) {
-							returnNumber = home.ArgumentChecker(strdup(theCommands), envp);							//Send the commands in the incomingInput vector to the search commands method.
+							returnNumber = home.ArgumentChecker(theCommands, envp);									//Send the commands in the incomingInput vector to the search commands method.
 							operatorSwitch = 0;
 						} else {
 							cout << "\t\t Sorry I can't do anything with operators." << endl;
 						}
-						incomingCommands.push_back(strdup(theCommands));											//Store the old commands in this vector.				
+						incomingCommands.push_back(theCommands);													//Store the old commands in this vector.				
 						incomingInput.clear();																		//Clear the vector after processing.					
-						if (returnNumber == 1) {																	//If the user wants to log out.	
-							memset(character, 0, sizeof(character));												//Clear the character pointer.
-							memset(theCommands, 0, sizeof(theCommands));											//Clear theCommands pointer.
+						if (returnNumber == 1)																		//If the user wants to log out.	
 							break;																					//Leave the loop
-						} else if (returnNumber == 2) {																//Toggle the color on and off.
-							if (BoolVar == 1)
-								BoolVar = 0;
-							else 
-								BoolVar = 1;
-							returnNumber = 0;																		//Reset the return number for the loop.
-						}
 						home.PromptDisplay();																		//Display the prompt.
 					}
 					UpAndDownIterator = incomingCommands.size();													//Set the up and down iterator to zero.
 					UpAndDownIterator--;		
-					LeftAndRightIterator = 0;														
-					memset(character, 0, sizeof(character));														//Clear the character pointer.
-					memset(theCommands, 0, sizeof(theCommands));													//Clear theCommands pointer.
+					LeftAndRightIterator = 0;
 					break;																							//Break out of the switch staatement.
 				case 127: 																							//Backspace character.
 					if (LeftAndRightIterator > 0) {																	//Delete the characters in the pointer, but no further than what was typed.
 						printf("\b \b");																			//Deletes a character on the current line and moves the pointer back one.
-						if (strlen(theCommands) == 1)																//If the size of the char pointer is equal to the size of 1.
-							memset(theCommands, 0, sizeof(theCommands));											//Reset the char pointer.
-
-						if (strlen(theCommands) != 0)																//If the char pointer size is not equal to zero.
+						if (theCommands.size() == 1)																//If the size of the char pointer is equal to the size of 1.
+							theCommands = "";
+						if (theCommands.size() != 0)																//If the char pointer size is not equal to zero.
 							strcpy(theCommands, strndup(theCommands, (strlen(theCommands) - 1)));					//Strndup will decrement the size of a char pointer and then strcpy will copy it to the char pointer.				
 						LeftAndRightIterator--;																			
 					}
@@ -102,7 +87,7 @@ int main (int argc, char * argv[], char *envp[])
 						home.PromptDisplay();
 						cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
 						memset(theCommands, 0, sizeof(theCommands));												//Reset the pointer.
-						strcpy(theCommands, strdup(incomingCommands[UpAndDownIterator]));							//Copy the previous command to the theCommands pointer.
+						strcpy(theCommands, incomingCommands[UpAndDownIterator].c_str());							//Copy the previous command to the theCommands pointer.
 						LeftAndRightIterator = strlen(theCommands);													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
 						if (UpAndDownIterator > 0)
 							UpAndDownIterator--; 																	//Since we push commands from the end of the vector we want to move down the vector to get to the old commands.
