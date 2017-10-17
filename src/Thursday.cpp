@@ -270,10 +270,11 @@ int Thursday::ArgumentChecker(char * theCommands, char * envp[]) {
 	}
 	
 	/*--------------------------------------------------------------------*/
-	theCommands = NULL; free(theCommands);
-	input = NULL; free(input);
-	inputCheck = NULL; free(inputCheck);
-	argument = NULL; free(argument);
+	free(theCommands); theCommands = NULL;
+	free(input); input = NULL;
+	free(inputCheck); inputCheck = NULL;
+	free(argument); argument = NULL;
+	
 	badCommands.clear();
 	commandArguments.clear();
 	goodCommands.clear();
@@ -314,9 +315,9 @@ void Thursday::CompressAndDecompress(int Number, char * argument) {
 	}
 	ExecuteFile(path, arguments);										//Send arguments and path over to be executed.
 	/*--------------------------------------------------------------------*/ 
-	path = NULL, fileName = NULL;
-	free(path); free(fileName);
-	argument = NULL; free(argument);
+	free(path); free(fileName); free(argument);
+	path = NULL, fileName = NULL; argument = NULL;
+	
     if (debugSwitch == true) 
 		ColorChange((char*)"Mission - You are leaving the CompressAndDecompress method.", 3);
 	/*--------------------------------------------------------------------*/
@@ -376,7 +377,8 @@ char * Thursday::Cryptography(int number, int key, char * message) {
 		}	
 	}
 	/*--------------------------------------------------------------------*/
-	theString = NULL; free(theString);
+	free(theString); theString = NULL;
+	
     if (debugSwitch == true) 
 		ColorChange((char*)"Mission - You are leaving the Cryptography method.", 3);
 	/*--------------------------------------------------------------------*/
@@ -421,9 +423,10 @@ void Thursday::DepthFirstSearch(char * path, char * command, int number, int the
 			ColorChange((char*)"The file could not be found in the starting directory.", 2);
 	}
 	/*--------------------------------------------------------------------*/ 
-	input = NULL; free(input);
-	path = NULL; free(path);
-	command = NULL; free(command);
+	free(input); input = NULL;
+	free(path); path = NULL;
+	free(command); command = NULL;
+	
     if (debugSwitch == true) 
 		ColorChange((char*)"Mission - You are leaving the DepthFirstSearch method.", 3);
 	/*--------------------------------------------------------------------*/ 
@@ -538,7 +541,8 @@ void Thursday::DirectoryDelete(char* dirname) {
 	}
  	/*--------------------------------------------------------------------*/
  	remove(dirname);																//Remove the directory from the hiearchy. 
- 	dirname = NULL; free(dirname);
+ 	free(dirname); dirname = NULL;
+ 	
 	if (debugSwitch == 1)
 		ColorChange((char*)"Mission - You are leaving the DirectoryChange method.", 3);
  	/*--------------------------------------------------------------------*/
@@ -593,8 +597,9 @@ void Thursday::DisplayDirectories(char * searchWord, int number, int theSwitch) 
             ColorChange((char*)"LS File Closing Failure: ", 2);							//Print an error if we cannot close the directory.
     }
     /*--------------------------------------------------------------------*/ 
-    addedPath = NULL; free(addedPath);
-    searchWord = NULL; free(searchWord);
+    free(addedPath); addedPath = NULL;
+    free(searchWord); searchWord = NULL;
+    
     if (debugSwitch == 1) 
 		ColorChange((char*)"Mission - You are leaving the DisplayDirectories method.", 3);
 	/*--------------------------------------------------------------------*/ 
@@ -715,7 +720,9 @@ char * Thursday::FileChecker(char * argument) {
 			return incomingArgument;											//Return the working path.
 	}
 	/*--------------------------------------------------------------------*/ 
+	free(incomingArgument);
 	incomingArgument = NULL;
+	
     if (debugSwitch == 1) 
         ColorChange((char*)"Mission - You are leaving the FileChecker method.", 3);
 	/*--------------------------------------------------------------------*/  
@@ -768,10 +775,11 @@ vector<char*> Thursday::FileLoader(vector<char*> incomingVector, char * fileName
 		}
 	}
    	/*--------------------------------------------------------------------*/
-	input = NULL; free(input);
-	fileName = NULL; free(fileName);
-	word = NULL; free(word);
-	definition = NULL; free(definition);
+	free(input); input = NULL;
+	free(fileName); fileName = NULL;
+	free(word); word = NULL;
+	free(definition); definition = NULL;
+	
     if (debugSwitch == 1) 
 		ColorChange((char*)"Mission - You are leaving the FileLoader method.", 3);
 	/*--------------------------------------------------------------------*/
@@ -819,10 +827,13 @@ void Thursday::Help(char * argument) {
 	if (mySwitch != 1)
 		ColorChange((char*)"Nothing found in our database!", 2);
 	cout << endl;
-   	/*--------------------------------------------------------------------*/	
-	word = NULL; definition = NULL; type = NULL; fileName = NULL;
-	free(definition); free(type); free(word); free(fileName);
-	argument = NULL; free(argument);
+   	/*--------------------------------------------------------------------*/
+   	free(definition); definition = NULL;
+   	free(type); type = NULL;
+   	free(word); word = NULL;
+   	free(fileName);	fileName = NULL;
+   	free(argument); argument = NULL;
+   
     if (debugSwitch == 1) 
         ColorChange((char*)"Mission - You are in the ArgumentChecker method.", 3);
 	/*--------------------------------------------------------------------*/
@@ -861,9 +872,9 @@ void Thursday::Login() {
 		cout << "Login: ";
 		cin >> login;
 		if (!strcmp(login, "exit") || !strcmp(login, "Exit")) {								//Check to see if exit was entered if so then leave.
-			thePassword = NULL; free(thePassword);
-			input = NULL; free(input);
-			login = NULL; free(login);			
+			free(thePassword); thePassword = NULL;
+			free(input); input = NULL;
+			free(login); login = NULL;		
 			exit(0);																		//Exit call and will leave the program.
 		}
 			
@@ -909,9 +920,9 @@ void Thursday::Login() {
 		if (!strcmp(thePassword, userPassword)) {											//Compare the incoming password and the one from the file, if the same it will go in.
 			ExecuteFile(reset, resetArguments);												//set the screen on the terminal.
 			DirectoryChange(homeDestination, 0);											//Go back to the home directory.
-			thePassword = NULL; free(thePassword);				
-			input = NULL; free(input);
-			login = NULL; free(login);
+			free(thePassword); thePassword = NULL;
+			free(input); input = NULL;
+			free(login); login = NULL;	
 			cin.ignore();
 			return;
 		} else {
@@ -922,9 +933,9 @@ void Thursday::Login() {
 			cout << "Would you like to try a new key (0-Yes / 1-NO): ";
 			cin >> counter;
 			if (counter == 0) {																//If the user wants to re-try logging in again.
-				thePassword = NULL; free(thePassword);
-				input = NULL; free(input);
-				login = NULL; free(login);
+				free(thePassword); thePassword = NULL;
+				free(input); input = NULL;
+				free(login); login = NULL;	
 				DirectoryChange(homeDestination, 0);										//Change the directory again.
 				Login();																	//Try loging in again.
 				errorCode = 0;
@@ -970,7 +981,7 @@ void Thursday::PromptDisplay() {
 	}
 	/*--------------------------------------------------------------------*/
 	ColorChange(thePrompt, 1);
-	thePrompt = NULL; free(thePrompt);
+	free(thePrompt); thePrompt = NULL;
 	/*--------------------------------------------------------------------*/
     return;
 }
@@ -1292,7 +1303,7 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 		return returnNumber;
 	}
 	/*--------------------------------------------------------------------*/
-	fileName = NULL; free(fileName);
+	free(fileName); fileName = NULL;
 	for (int a = 0; a < 20; a++) {
 		arguments[a] = NULL;
 		free(arguments[a]);
@@ -1395,11 +1406,12 @@ void Thursday::SetupAndCloseSystem(int number) {
 	}	
 	/*--------------------------------------------------------------------*/
 	temp.clear();
-	input = NULL; free(input);
-	globalFileName = NULL; free(globalFileName);
-	usersFileName = NULL; free(usersFileName);
-	thursdayCommandsFileName = NULL; free(thursdayCommandsFileName);
-	osCommandsFileName = NULL; free(osCommandsFileName);	
+	free(input); input = NULL;
+	free(globalFileName); globalFileName = NULL;
+	free(usersFileName); usersFileName = NULL;
+	free(thursdayCommandsFileName); thursdayCommandsFileName = NULL;
+	free(osCommandsFileName); osCommandsFileName = NULL;
+		
 	if (debugSwitch == 1)
 			ColorChange((char*)"Mission - You are leaving the SetupAndCloseSystem method.", 3);
  	/*--------------------------------------------------------------------*/
@@ -1475,9 +1487,9 @@ void Thursday::UserInformation(int number) {
 		cout << '\t' << '\t' << "Shell: " << Shell << endl; 
 	}
 	/*--------------------------------------------------------------------*/ 
-	UserName = NULL, Password = NULL, Shell = NULL, Directory = NULL;
 	free(UserName); free(Password); free(Shell); free(Directory);
-   	/*--------------------------------------------------------------------*/
+	UserName = NULL, Password = NULL, Shell = NULL, Directory = NULL;
+
     if (debugSwitch == 1) 
         ColorChange((char*)"Mission - You are leaving the UserInformation method.", 3);
 	/*--------------------------------------------------------------------*/
@@ -1798,10 +1810,11 @@ char * Thursday::Cutter(char * startPoint, char * word, int numberOfCharacters) 
 				//~ strcat(word, Utilities::int_to_char(temp[b]));
 			strcpy(word, strndup(temp, middleLength));					//We take the length of the word and subtract the number of characters that we are getting rid of from the length.
 		}
-		temp = NULL; free(temp);									
+		free(temp); temp = NULL;									
 	}
 	/*--------------------------------------------------------------------*/ 
-	startPoint = NULL; free(startPoint);
+	free(startPoint); startPoint = NULL;
+	
     if (debugSwitch == true) 
 		ColorChange((char*)"Mission - You are in the Cutter method.", 3);
 	/*--------------------------------------------------------------------*/ 
