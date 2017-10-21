@@ -19,7 +19,6 @@ int main (int argc, char * argv[], char *envp[])
 	std::string theCommands = "";
 	std::string homeDestination = "";
 	std::string informationDestination = "";
-	std::string resetArguments[2] = {"reset", "\0"};																//Is a char array used to give to the ExectureFile method to be able to reset the screen.
 	struct termios oldattr, newattr;																				//Setup terminal variables.
 	
 	Thursday home;																									//Create an instance of the class.																						
@@ -30,7 +29,10 @@ int main (int argc, char * argv[], char *envp[])
 	informationDestination += "/information";																		//Add the infromation directory to the information destination.														
 	
 	while (1) {																										//Loop for indeffinately.
-		home.ExecuteFile("reset", resetArguments);
+		incomingInput.push_back("reset");
+		home.ExecuteFile("reset", incomingInput);
+		incomingInput.clear();
+		cout << "HERE" << endl;
 		home.PromptDisplay();																						//Print basic prompt out.																	
 		while (returnNumber == 0) {																					//Loop until the user wants to logout.						
 			

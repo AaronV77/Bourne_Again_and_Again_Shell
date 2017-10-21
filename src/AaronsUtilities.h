@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string>
 #include <time.h>
 
 using namespace std;
@@ -11,12 +11,7 @@ using namespace std;
 namespace Utilities {   
     /*Methods*/
     /*-------------------------------------------------------------------------------------------*/
-    char *	date(int number);
-	char * 	decimal_to_string(double number);    
-	char * 	int_to_string(int number);
-	int 	string_to_int(char * incomingString);
-	char * 	string_checker(char * incomingString, int option);
-	char *	int_to_char(int number);
-	char *  string_copy(char * incomingString1, char * incomingString2);
+    std::string	date(int number);   
+	std::string	string_checker(std::string incomingString, int option);
 };
 #endif

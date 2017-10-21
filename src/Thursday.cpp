@@ -1,6 +1,5 @@
 #include "Thursday.h"
 
-char * Thursday::reset = (char*)"reset";
 char Thursday::path[MAX_SIZE];
 	
 Thursday::Thursday() {
@@ -29,7 +28,7 @@ Thursday::Thursday() {
 	colorOption = 11;								//Color switch for turning on and off the colors for the program.
 	commandSwitch = 0;								//Switch for when & is found in the incoming input.
 	currentPosition = 0;							//To keep track of the iterator in the stack.
-	debugSwitch = 0;								//Switch for turning on and off the debug statments.
+	debugSwitch = 1;								//Switch for turning on and off the debug statments.
     found = 0;										//To tell the DFS algorithm that a path was able to be found.
 	errorSwitch = 0;								//A switch to tell the DFS algorithm that there was an error in the change directtory method.
 	gid = getgid();									//Gets the group id for the process and saves it to an int variable.
@@ -104,12 +103,12 @@ int Thursday::ArgumentChecker(std::string theCommands, char * envp[]) {
 			}
 
 			for (int b = 0; b < OSCommands.size(); b++) {										//Loop through our operating system commands vector.
-				if (!strcmp(OSCommands[b], input)) {											//Check the current element in the vector against our command.
+				if (OSCommands[b] == input) {													//Check the current element in the vector against our command.
 					target = 1;																	//Set our target to 1, so that later on we know that it is one of my commands.
-					commandArguments.push_back(std:;to_string(target));							//Push the target into the command arguments vector.
+					commandArguments.push_back(std::to_string(target));							//Push the target into the command arguments vector.
 					commandArguments.push_back(input);											//Push back the command being sent in.
 					b++;																		//Increment the for loop iterator.
-					commandArguments.push_back(sOSCommands[b]);									//Push back the min argument value.
+					commandArguments.push_back(OSCommands[b]);									//Push back the min argument value.
 					b++;																		//Increment the for loop iterator.															
 					commandArguments.push_back(OSCommands[b]);									//Push back the max argument value.
 					b++;																		//Increment the for loop iterator.
@@ -119,7 +118,7 @@ int Thursday::ArgumentChecker(std::string theCommands, char * envp[]) {
 
 			if ( target == 0 ) {																//If the command was not found still.
 				argument = FileChecker(input);													//Send our argument to be checked against the operating system binaries.
-				if (strcmp(argument, input)) {													//If the output from the file checker is not the same as what we sent into it.
+				if (argument != input) {														//If the output from the file checker is not the same as what we sent into it.
 					target = 3;																	//Then set our target to 3.
 					commandArguments.push_back(std::to_string(target));							//Push the target into our vector.
 					commandArguments.push_back(input);											//Push the command into our vector.
@@ -139,14 +138,14 @@ int Thursday::ArgumentChecker(std::string theCommands, char * envp[]) {
 				break;
 			}
 			
-			if ( semiSwitch == 1 || inputCheck == NULL )										//If our semicolon was found or the next command is NULL.
+			if ( semiSwitch == 1 || inputCheck == "\0" )										//If our semicolon was found or the next command is NULL.
 				commandArguments.push_back(std::to_string(0));									//Add a 0 to the vector to show that there are no arguments after the command.
 		}
 		
 		if ( argumentSwitch == 1 ) {															//If we found our command then we have to start looking for our arguments
 			iterator++;																			//Increment our argument count iterator.
 			temp.push_back(input);																//Store our argument in a temp vector.
-			if ( semiSwitch == 1 || inputCheck == NULL) {										//If the semicolon was found or our next command is NULL.
+			if ( semiSwitch == 1 || inputCheck == "\0") {										//If the semicolon was found or our next command is NULL.
 				commandArguments.push_back(to_string(iterator++));								//Push the number of arguments.
 				for (int b = 0; b < temp.size(); b++)											//Loop through the temp vector.
 					commandArguments.push_back(temp[b]);										//Push all of our arguments into the vector.
@@ -164,7 +163,7 @@ int Thursday::ArgumentChecker(std::string theCommands, char * envp[]) {
 			argumentSwitch = 1;																	//Else turn on our argument swwitch.
 		}
 		
-		if ( inputCheck != NULL) {																//If the next command is not NULL.
+		if ( inputCheck != "\0") {																//If the next command is not NULL.
 			input = inputCheck;																	//Store the command into the input variable.
 		} else {
 			break;																				//Else get out of the loop.
@@ -270,23 +269,22 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
     if (debugSwitch == true) 
 		ColorChange("Mission - You are in the CompressAndDecompress method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	string arguments[5];												//Stores the arguments inorder to compress and decompress.			
+	std::vector<std::string> arguments;		
 	string path = FileChecker("tar");									//Stores the location of the binaries for tgz.
 	string fileName = argument;											//Stores the directory that is being packaged and adds the compression extension.
 	fileName += ".tgz";
 
 	/*--------------------------------------------------------------------*/ 
 	if (Number == 0) {													//Store the arguments for compressing.
-		arguments[0] = path;
-		arguments[1] = "cvzf";
-		arguments[2] = fileName;
-		arguments[3] = argument;
-		arguments[4] = "\0";
+		arguments.push_back(path);
+		arguments.push_back("cvzf");
+		arguments.push_back(fileName);
+		arguments.push_back(argument);
 	} else if (Number == 1) {											//Store the arguments for decompressing.
-		arguments[0] = path;
-		arguments[1] = "-xvzf";
-		arguments[2] = argument;
-		arguments[3] = "\0";
+		arguments.push_back(path);
+		arguments.push_back("-xvzf");
+		arguments.push_back(fileName);
+		arguments.push_back(argument);
 	}
 	ExecuteFile(path, arguments);										//Send arguments and path over to be executed.
 	/*--------------------------------------------------------------------*/ 
@@ -304,7 +302,7 @@ std::string Thursday::Cryptography(int number, int key, std::string message) {
     if (debugSwitch == true) 
 		ColorChange("Mission - You are in the Cryptography method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	int length = strlen(message);
+	int length = message.size();
 	int input = 0;
 	std::string output = "";
 	std::string theString = message;
@@ -366,12 +364,11 @@ void Thursday::DepthFirstSearch(std::string path, std::string command, int numbe
 	/*--------------------------------------------------------------------*/ 
 	std::string input = "";
 	
-	if (chdir(path) == -1) {																			//Make sure that the given path is absolute.	
-		path += "/";
-		strcpy(path, "/");																				//If not replace the path with the backslash and start from the beginning.
+	if (chdir(path.c_str()) == -1) {																	//Make sure that the given path is absolute.	
+		path = "/";																						//If not replace the path with the backslash and start from the beginning.
 		ColorChange("The path given is not absolute replacing with / (backslash) instead.", 3);
 	} else {			
-		chdir(currentPath);																				//If the command is absolute then change the to that directory.
+		chdir(currentPath.c_str());																		//If the command is absolute then change the to that directory.
 	}
 
     StackPush(path); 																					//Put the starting path into the stack.
@@ -443,17 +440,17 @@ void Thursday::DirectoryChange(std::string desiredPath, int number) {
     if (debugSwitch == 1) 
 		ColorChange("Mission - You are in the DirectoryChange method.", 3);
 	/*--------------------------------------------------------------------*/ 
-    if ((currentPath == desiredPath) && (desiredPath.size() > 0)) {							//Check to see if the current path is not the same with desired path that the system wants to move into.
+    if (currentPath != desiredPath && desiredPath.size() > 0) {							//Check to see if the current path is not the same with desired path that the system wants to move into.
 		if (number == 0) {																	//If I want there to be error statments or not.
-			if (chdir(desiredPath) == -1) {													//Make the directory change.
-				ColorChange("There was an issue moving to that directory", 3);				//Output an error if there was a problem making the directory jump.
+			if (chdir(desiredPath.c_str()) == -1) {											//Make the directory change.
+				ColorChange("There was an issue moving to that directory", 2);				//Output an error if there was a problem making the directory jump.
 				currentPath = getcwd(path, MAX_SIZE);										//If there was a problem then we want our actual path that the system is in.
 			} else {
 				currentPath = "";
 				currentPath = getcwd(path, MAX_SIZE);										//If there wasnt a problem then we want our actual path that the system is in.	
 			}		
 		} else {
-			if (chdir(desiredPath) == -1) {													//Make the directory change.
+			if (chdir(desiredPath.c_str()) == -1) {											//Make the directory change.
 				currentPath = getcwd(path, MAX_SIZE);										//If there was a problem then we want our actual path that the system is in.
 				errorSwitch = 1;															//Set our error switch if we have a permission issue so that the dfs algorithm doesn't re-look at the directory again and get stuck in a loop.
 			} else {
@@ -462,7 +459,7 @@ void Thursday::DirectoryChange(std::string desiredPath, int number) {
 		}
 	} else {
 		if (number == 0) {																	//If I want the system to output an error message or not.
-			ColorChange("There was an issue moving to the desired directory.", 3);
+			ColorChange("There was an issue moving to the desired directory.", 2);
 			std::cout << '\t' << '\t' << "CurrentPath: " << currentPath << std::endl;	
 			std::cout << '\t' << '\t' << "DesiredPath: " << desiredPath << std::endl;	
 		}
@@ -488,10 +485,10 @@ void Thursday::DirectoryDelete(std::string dirname) {
 	struct stat stFileInfo;
 	char abs_filename[FILENAME_MAX];
 
-	dp = opendir(dirname);															//Grabs where the directory is loacted in the stream.
+	dp = opendir(dirname.c_str());													//Grabs where the directory is loacted in the stream.
 	if (dp != NULL) {																//Checks to see if the loaction is NULL.
 		while (ep = readdir(dp)) {													//Reads where the directory is located.
-			snprintf(abs_filename, FILENAME_MAX, "%s/%s", dirname, ep->d_name);		//Have no clue what this does.
+			snprintf(abs_filename, FILENAME_MAX, "%s/%s", dirname.c_str(), ep->d_name);		//Have no clue what this does.
 			if (lstat(abs_filename, &stFileInfo) < 0)								//Checks for symbolic links
 				perror ( abs_filename );											//Print out error
 			if(S_ISDIR(stFileInfo.st_mode)) {										//Checks to see if what we are looking at is another directory
@@ -507,7 +504,7 @@ void Thursday::DirectoryDelete(std::string dirname) {
 		ColorChange("Couldn't open the directory", 3);								//Print out a statement if the directory was NULL.
 	}
  	/*--------------------------------------------------------------------*/
- 	remove(dirname);																//Remove the directory from the hiearchy. 
+ 	remove(dirname.c_str());														//Remove the directory from the hiearchy. 
 
 	if (debugSwitch == 1)
 		ColorChange("Mission - You are leaving the DirectoryChange method.", 3);
@@ -523,8 +520,8 @@ void Thursday::DisplayDirectories(std::string searchWord, int number, int theSwi
 		ColorChange("Mission - You are in the DisplayDirectories method.", 3);
 	/*--------------------------------------------------------------------*/ 
 	struct stat s;
-	std::string addedPath = ""
-    DIR * dir = opendir(".");
+	std::string addedPath = "";
+    DIR * dir = opendir((char*)".");
     dirent * entry;
 
     if (NULL==dir) {
@@ -543,7 +540,7 @@ void Thursday::DisplayDirectories(std::string searchWord, int number, int theSwi
 					found = 1;															//Set the found variable that the system has been able to find at least one location of the file that is being searched for.
 				} 
 				if ((entry->d_name !=  ".") && (entry->d_name != "..")) {				//Check to see if the system is looking at . and .. so that we don't store them.
-					if (lstat(addedPath, &s) == 0) {									//Retrieves information on the directory that we are looking at.
+					if (lstat(addedPath.c_str(), &s) == 0) {							//Retrieves information on the directory that we are looking at.
 						if (s.st_mode & S_IFLNK) {										//Check the mask type to see if the directory is a symbolic link.
 							//~ cout << "Random2 is a Symbolic link" << endl;			//If so do not do anything.
 						} else {
@@ -579,8 +576,8 @@ void Thursday::EnvironmentUtilites(int Number) {
     if (debugSwitch == 1) 
 		ColorChange("Mission - You are in the EnvironmentUtilites method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	std::variableName = "";																//Used to get the name of the global variable.
-	std::value = "";																	//Used to get the value of the global variable.	
+	std::string variableName = "";														//Used to get the name of the global variable.
+	std::string value = "";																//Used to get the value of the global variable.	
 	
 	int foundSwitch = 0;																//Used to switch on and off if the global variable is found.
  
@@ -636,7 +633,7 @@ void Thursday::EnvironmentUtilites(int Number) {
 	return;		
 }
 
-int Thursday::ExecuteFile(std::string incomingCommand, string arguments[]) {
+int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> arguments) {
 	/*-------------------------------------------------------------------
 	Note: This method brings an incoming command that needs to be executed
 	* and an array of arguments that are NULL terminated. This method was 
@@ -644,19 +641,32 @@ int Thursday::ExecuteFile(std::string incomingCommand, string arguments[]) {
 	--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
         ColorChange("Mission - You are in the ExecuteFile method.", 3);
-	/*--------------------------------------------------------------------*/    
+	/*--------------------------------------------------------------------*/
+	int i = 0;    
+    char * theArguments[arguments.size()];
+    for (int i = 0; i < arguments.size(); i++) {
+		strcpy(theArguments[i], arguments[i].c_str());
+	}
+	i++;
+	theArguments[i] = NULL;
+   
     pid_t pid;																					//Create a data type to store a process number.
 	incomingCommand = FileChecker(incomingCommand);												//Send the incoming command to find in the location of the binary in the system. Will either return just the command or the location path.
+	std::cout << "1: " << incomingCommand << endl;
 	pid = fork();																				//Create another process.
 	if (pid == 0) {																				//If the process is the child.
-		if (execv(incomingCommand, arguments) == -1) {											//Execute with the given command / location path, and char array of arguments.
-			ColorChange("Something went wrong with the execution of the dommand.", 2);			//If there is an error a messeage will be printed.
+		if (execv(incomingCommand.c_str(), theArguments) == -1) {								//Execute with the given command / location path, and char array of arguments.
+			ColorChange("Something went wrong with the execution of the command.", 2);			//If there is an error a messeage will be printed.
 			return 0;
 		}
 	} else {
 		if (commandSwitch == false)																//If the running in the back ground command is false.
 			waitpid(pid, NULL, 0);																//Wait for the process to finish executing.
 	}
+	
+	for (int i = 0; i < arguments.size(); i++)
+		free(theArguments[i]);
+	free(theArguments[i]);
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
         ColorChange("Mission - You are leaving the ExecuteFile method.", 3);
@@ -680,8 +690,8 @@ std::string Thursday::FileChecker(std::string argument) {
 	for (int i = 0; i < PathVector.size(); i++) {								//Loop through the path vector containing all the different locations commands and binaries.
 		incomingArgument = PathVector[i];										//Add one of the predefined locations to the pointer.
 		incomingArgument += "/";												//Add a back slash.
-		incomingArgument = argument;											//Add the command to the pointer to complete the path.
-		if (access(incomingArgument, F_OK) == 0)								//Use a c function to check if the path is an actual location.
+		incomingArgument += argument;											//Add the command to the pointer to complete the path.
+		if (access(incomingArgument.c_str(), F_OK) == 0)						//Use a c function to check if the path is an actual location.
 			return incomingArgument;											//Return the working path.
 	}
 	/*--------------------------------------------------------------------*/ 
@@ -777,7 +787,7 @@ void Thursday::Help(std::string argument) {
 		word = Utilities::string_checker(word, 0);											//Search for special characters from the word.
 		definition = Utilities::string_checker(definition, 0);								//Search for special characters from the word definition.
 		//--------------------------------------------------------------
-		if (!strcmp(word, argument)) {
+		if (word == argument) {
 			std::cout << "\n\t\t" << type << " " << word << " " << definition << std::endl;
 			mySwitch = 1;
 		}
@@ -804,8 +814,10 @@ void Thursday::Login() {
     std::string thePassword = "";															//Used to only store the password that is coming from the file and user.
     std::string login = "";																	//Used to only store the login that is coming from the user.				
     std::string input = "";																	//Used to store the input coming from the file.
-    std::string resetArguments[2] = { "reset", "\0" };										//Is a char array used to give to the ExectureFile method to be able to reset the screen.
+	std::vector<std::string> arguments;
     int found = 0, counter = 0, errorCode = 0;	
+    
+    arguments.push_back("reset");
     
 	ifstream InputData;																		//Setup an input stream variable.
 
@@ -842,7 +854,7 @@ void Thursday::Login() {
     InputData >> thePassword;																//Grab the encrypted password from the file.
     userPassword = thePassword;																//Copy the password to class variable.
     InputData >> input;																		//Grab the userNumber from the file.
-    userNumber = std::stoi::(input);														//Copy the password to the class variable.
+    userNumber = std::stoi(input);															//Copy the password to the class variable.
     InputData >> input;																		//Grab the userPromptNumber from the file.
     userPromptNumber = std::stoi(input);													//Copy the userPromptNumber to the class variable.
     InputData >> input;
@@ -865,8 +877,8 @@ void Thursday::Login() {
 		thePassword = Cryptography(3, 0, thePassword);										//Uppdercase the incoming password.
 		thePassword = Cryptography(1, userKey, thePassword);								//Decrypt the password.
 		tcsetattr(STDIN_FILENO, TCSANOW, &oldt);											//Apply the old settings to standard in. 
-		if (!strcmp(thePassword, userPassword)) {											//Compare the incoming password and the one from the file, if the same it will go in.
-			ExecuteFile(reset, resetArguments);												//set the screen on the terminal.
+		if (thePassword ==  userPassword) {													//Compare the incoming password and the one from the file, if the same it will go in.
+			ExecuteFile("reset", arguments);												//set the screen on the terminal.
 			DirectoryChange(homeDestination, 0);											//Go back to the home directory.
 			cin.ignore();
 			return;
@@ -941,23 +953,20 @@ void Thursday::Search(std::string argument) {
 	std::string output = "";
 	std::string searchWord = "";
 	std::string word = "";
-	char letter[5] = {};
+	std::string letter = "";
     int wordChar = 0;
 	int mySwitch = 0;
  	/*--------------------------------------------------------------------*/
     if (argument[0] >= 65 && argument[0] <= 90) {									//If the first letter in the argument is uppercase.
- 		wordChar = argument[0];
- 		letter += Utilities::int_to_char(wordChar);									//Copy the first letter over to the variable for opening the file.
+ 		letter = argument[0];
  		searchWord = argument;														//Create a search word variable because we have to modify our argument if it has an uppdercase first letter.		
     } else if (argument[0] >= 97 && argument[0] <= 122) {							//If the first letter in the argument is lowercase.	
         wordChar = argument[0];														//Get the first character.	
         wordChar -= 32;																//Decrement the variable by 32, to make it lowercase.	
-        letter += Utilities::int_to_char(wordChar);									//Convert the modified first character and give it to the letter variable.
+        letter += std::to_string(wordChar);											//Convert the modified first character and give it to the letter variable.
         searchWord += letter;														//Add it to the search word variable.
-		for (int i = 1; i < argument.size(); i++) {									//Loop through the remaining characters in the argument.
-			char character[5] = { argument[i] };									//Get the character from the argument and add it to the search word.
-			searchWord += character;												//Add the remaining characters to the search word variable.
-		}	
+		for (int i = 1; i < argument.size(); i++)									//Loop through the remaining characters in the argument.
+			searchWord += argument[i];
     } else {
         ColorChange("The word you are searching is not in the correct format.", 2);
         return;
@@ -982,9 +991,9 @@ void Thursday::Search(std::string argument) {
 		definition = Utilities::string_checker(definition,0);
 		//~ //--------------------------------------------------------------
 		if (word == searchWord) {
-			ouput = word;
+			output = word;
 			output += " -";
-			output += defintion;
+			output += definition;
 			for (int i = 0; i < output.size(); i++) {								//Loop through each output combination.
 				if (i % 80 == 0) {													//At 80 characters, add a new line, and then tab.		
 					std::cout << "\n\t\t" << output[i];
@@ -1005,7 +1014,7 @@ void Thursday::Search(std::string argument) {
 	return;
 }
 
-int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int signal) {
+int Thursday::SearchCommands(char * envp[], vector<std::string>incomingInput, int signal) {
 	/*------------------------------------------------------------------
 	Note: This method takes in the vector filled with pre-approved commands
 	* that are coming from the main. If the command that you are looking for
@@ -1020,16 +1029,15 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 		ColorChange("Mission - You are in the SearchCommands method.", 3);
  	/*--------------------------------------------------------------------*/
 								
-	std::string filename = "";
-	std::string resetArguments[2] = { "reset", "\0" };																	//Char array to be able to reset the terminal screen.
-	std::string arguments[20] = {};
+	std::string fileName = "";
+	std::string random = "";
+	std::vector<std::string> temp;
+	std::vector<std::string> arguments;
 	char run[5] = {};
-	char random[100];
     int characterValue = 0;																								//To grab the ascii value of the first character in the command.
     int i = 0;
     int key = 0;
     int size = incomingInput.size();
-	std::vector<std::string> temp;
 	
 	run[0] = incomingInput[0][0];
 	run[1] =  incomingInput[0][1];
@@ -1045,8 +1053,9 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 				if (incomingInput[i] == "adduser") {
 					UserUtilities(1);
 				} else if (incomingInput[i] == "bash") {
-					std::string BashArguments[2] = {incomingInput[i], "\0"};
-					ExecuteFile(incomingInput[i], BashArguments);
+					arguments.push_back(incomingInput[i]);
+					ExecuteFile(incomingInput[i], arguments);
+					arguments.clear();
 				} else if (incomingInput[i] == "bomb") {
 					i++;
 					if (userNumber == 0)
@@ -1101,7 +1110,7 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 						std::cin.clear();
 						std::cin.ignore(100,'\n');
 					}
-					std::cout << "\t\t" << Cryptography(2, key, strdup(incomingInput[i])) << std::endl;					//Display the message from the Cryptography method.		
+					std::cout << "\t\t" << Cryptography(2, key, incomingInput[i]) << std::endl;							//Display the message from the Cryptography method.		
 				} else if (incomingInput[i] == "deleteuser") {
 					UserUtilities(2);
 				} else if (incomingInput[i] == "dirs") {	
@@ -1114,9 +1123,10 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 						std::cin.clear();
 						std::cin.ignore(100,'\n');
 					}
-					std::cout << "\t\t" << Cryptography(1, key, strdup(incomingInput[i])) << std::endl;					//Display the message from the Cryptography method.		
-				} else if (incomingInput[i] == "exit") {	
-					ExecuteFile(reset, resetArguments);	
+					std::cout << "\t\t" << Cryptography(1, key, incomingInput[i]) << std::endl;							//Display the message from the Cryptography method.		
+				} else if (incomingInput[i] == "exit") {
+					arguments.push_back("reset");
+					ExecuteFile("reset", arguments);	
 					SetupAndCloseSystem(2);
 					exit(0);
 				} else if (incomingInput[i] == "find") {	
@@ -1157,7 +1167,9 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 						userName = "";
 						userPrompt = "";
 					}
-					ExecuteFile(reset, resetArguments);										
+					arguments.push_back("reset");
+					ExecuteFile("reset", arguments);	
+					arguments.clear();									
 				} else if (incomingInput[i] == "ls") {
 					std::cout << std::endl;
 					random = "";
@@ -1181,7 +1193,7 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 					UserUtilities(3);
 				} else if (incomingInput[i] == "prompt") {
 					i++; 
-					int promptNumber = string_to_int(strdup(incomingInput[i]));											//Converts the incoming char pointer and makes it a number
+					int promptNumber = std::stoi(incomingInput[i]);														//Converts the incoming char pointer and makes it a number
 					if (promptNumber >= 0 || promptNumber <= 4) {														//Check to see if the number is between the systems range.		
 						userPromptNumber = promptNumber;																//Set the class variable of the prompt number to its new setting.
 					} else {
@@ -1189,7 +1201,7 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 					}
 				} else if (incomingInput[i] == "rm") {	
 					i++;
-					if (remove(incomingInput[i]) != 0)
+					if (remove(incomingInput[i].c_str()) != 0)
 						DirectoryDelete(incomingInput[i]);
 				} else if (incomingInput[i] == "search") {
 					i++;
@@ -1222,19 +1234,15 @@ int Thursday::SearchCommands(char * envp[], vector<char*>incomingInput, int sign
 			}
 		}
 	} else if ( signal == 2) {
-		int a = 0;
-		for (a = 0; a < size; a++)
-			arguments[a] = incomingInput[a];
-		arguments[a++] = "\0";					
+		for (int a = 0; a < size; a++)
+			arguments.push_back(incomingInput[a]);				
 		ExecuteFile(incomingInput[i], arguments); 
 		i = size;
 		return 3;
 	} else if ( signal == 1 ) {
 		int returnNumber = 0;
-		int a = 0;																										//Initialize the iterator outside the loop so that I can NULL terminate the array after the loop.
-		for (a = 0; a < size; a++)																						//Loop through the given size of the vector.
-			arguments[a] = incomingInput[a];																			//Place all the arguments, even the command in the array.
-		arguments[a++] = "\0";																							//NULL terminate the array for execution.
+		for (int a = 0; a < size; a++)																					//Loop through the given size of the vector.
+			arguments.push_back(incomingInput[a]);
 		returnNumber = ExecuteFile(incomingInput[i], arguments); 														//Pass the incoming command and the array filled with arguments.
 		i = size;
 		return returnNumber;
@@ -1267,7 +1275,7 @@ void Thursday::SetupAndCloseSystem(int number) {
 	osCommandsFileName += "/OSCommands.txt";
 	globalFileName = informationDestination;
 	globalFileName += "/GlobalVariables.txt";
-	usersFilename = profileDestination;
+	usersFileName = profileDestination;
 	usersFileName += "/Users.txt";
 
 	std::vector<std::string> temp;
@@ -1277,7 +1285,7 @@ void Thursday::SetupAndCloseSystem(int number) {
 		OSCommands = FileLoader(OSCommands, osCommandsFileName, 0);														//Loads the operating system commmands
 		temp = FileLoader(temp, usersFileName, 0);																		//Get the users.
 		for (int a = 0; a < temp.size(); a++) {																			//Loops until the end of the file.
-			input = Cryptography(2, 20, strdup(temp[a]));																//Decrypts the contents of the file and saves it to inputStream.
+			input = Cryptography(2, 20, temp[a]);																		//Decrypts the contents of the file and saves it to inputStream.
 			if (input.size() > 1)																						//If the incoming user has a length greater than one.
 				UsersVector.push_back(input);																			//Stores it into the user vector.
 			input = "";
@@ -1290,9 +1298,8 @@ void Thursday::SetupAndCloseSystem(int number) {
 				Environment.push_back(temp[b]);																			//Put the variable into the Environment vector.
 				if (temp[b] == "PATH") {																				//If the variable matches with PATH.
 					b++;
-
 					istringstream iss (temp[b]);																		//Tokenize the variable of the predetermined paths, when PATH was found.
-					while (iss >> stringTokens)																			//Loop through until there are no more tokens.
+					while (std::getline(iss,stringTokens,':'))															//Loop through until there are no more tokens.
 						PathVector.push_back(stringTokens);																//Store one of the paths into the path vector.
 				}
 			}														
@@ -1317,7 +1324,7 @@ void Thursday::SetupAndCloseSystem(int number) {
 		
 		for (int i = 0; i < UsersVector.size(); i++) {																	//Loops until the end of the vector.
 			input = Cryptography(1, 20, UsersVector[i]);																//Encrypts the users and saves it to the inputStream.
-			if (UsersVector[i] != " " || strcmp(UsersVector[i] != "") || UsersVector[i] == "")							//Checks to see if the inputstreamm is not empty and NULL.
+			if (UsersVector[i] != " " || UsersVector[i] != "" || UsersVector[i] == "")									//Checks to see if the inputstreamm is not empty and NULL.
 				UsersInput << input << std::endl;																		//Stores it into the user vector.
 		}
 		
@@ -1361,7 +1368,7 @@ std::string Thursday::StackPop() {
     }
 }
 
-void Thursday::StackPush(char * incomingPath) {
+void Thursday::StackPush(std::string incomingPath) {
 	/*-------------------------------------------------------------------
 	Note: This method pushes paths into the char array. This method was 
 	* last updated on 9/24/2017.
@@ -1484,7 +1491,7 @@ void Thursday::UserUtilities(int number) {
 			std::cin.ignore();
 			currName = Cryptography(1, key, currName);																	//Encrypt the name given the key.
 			currName += ".txt";																							//Add the text file extenstion to the end of the encrypted name.
-			fileDescriptor = open(currName, O_TRUNC |  O_RDWR | O_CREAT, S_IRWXU | S_IRGRP | S_IROTH );  				//Create and open the file using the encrypted name.		
+			fileDescriptor = open(currName.c_str(), O_TRUNC |  O_RDWR | O_CREAT, S_IRWXU | S_IRGRP | S_IROTH );  		//Create and open the file using the encrypted name.		
 			if (fileDescriptor == -1) {																					//If the file was not able to be created.
 			  ColorChange("Open Failed", 2);
 			  DirectoryChange(homeDestination, 0);																		//Move the system to the home directory.
@@ -1564,7 +1571,7 @@ void Thursday::UserUtilities(int number) {
 					}
 					currName = Cryptography(1, key, currName);															//Encrypt the username with the given key.
 					currName += ".txt";																					//Add the text file extenstion to the encrypted username.
-					if (remove(currName) != 0)																			//Delete the user profile from the system.
+					if (remove(currName.c_str()) != 0)																	//Delete the user profile from the system.
 						ColorChange("There was an issue deleteing the user", 2);
 				} else {
 					ColorChange("Sorry the user was not found.", 2);
@@ -1605,7 +1612,7 @@ void Thursday::UserUtilities(int number) {
 			UsersVector.push_back(currName);																			//Put the username into the vector.
 			currName = Cryptography(1, key, currName);																	//Encrypt the name.						
 			currName += ".txt";																							//Add the file extensions.
-			fileDescriptor = open(currName, O_TRUNC |  O_RDWR | O_CREAT, S_IRWXU | S_IRGRP | S_IROTH );  				//Create and open the file with the given encrypted username.
+			fileDescriptor = open(currName.c_str(), O_TRUNC |  O_RDWR | O_CREAT, S_IRWXU | S_IRGRP | S_IROTH );  		//Create and open the file with the given encrypted username.
 			if (fileDescriptor == -1) {																					//If the file couldn't be opened.
 			  ColorChange("Open failed.", 2);
 			  DirectoryChange(homeDestination, 0);
@@ -1626,7 +1633,7 @@ void Thursday::UserUtilities(int number) {
 			std::cout << "\t\t" << "Is this new user an Admin ( 0 - Yes or 1 - No): ";
 			while(!(std::cin >> id)) {																					//Get the admin ID, and repeat until its an actual number.
 				ColorChange("Must be a number.", 2);
-				std:;cin.clear();
+				std::cin.clear();
 				std::cin.ignore(100,'\n');
 			}
 			//--------------------------------------------------------------------------------
@@ -1667,7 +1674,7 @@ void Thursday::UserUtilities(int number) {
 				std::cout << "Make sure that this is uppercased: " << userName << std::endl;
 				userName = Cryptography(1, userKey, userName);															//Encrypt the old username.
 				userName += ".txt";																						//Add the file extension to the username.
-				if (remove(userName) != 0)																				//Remove the old user profle.
+				if (remove(userName.c_str()) != 0)																		//Remove the old user profle.
 					ColorChange("There was an issue deleteing the user", 2);
 					
 			} else {
@@ -1682,7 +1689,7 @@ void Thursday::UserUtilities(int number) {
 				currPrompt += " ";																						//Add a space to the end of the prompt so that there is some clearance.
 				userPrompt = currPrompt;																				//Add the new custom prompt to the class variable.		
 				currPrompt += "#";																						//Terminate the custom prompt with this symbol so that the system can get the whole prompt.	
-				currName = strdup(userName);																			//Create the file name and open the user profile.
+				currName = userName;																					//Create the file name and open the user profile.
 				currName = Cryptography(3,0,currName);
 				currName = Cryptography(1,userKey,currName);
 				currName += ".txt";
@@ -1699,7 +1706,7 @@ void Thursday::UserUtilities(int number) {
 			InputData << promptNumber << endl;
 			InputData << currPrompt << endl;
 			
-			std:;cout << "\t\t" << "The prompt has been updated!" << std::endl;
+			std::cout << "\t\t" << "The prompt has been updated!" << std::endl;
 		}			
 	} else {
 		ColorChange("Admins only please!", 2);

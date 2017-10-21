@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <string.h>
 #include <sstream>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -27,7 +28,6 @@ using namespace Color;
 
 class Thursday {
  
- 	static char * reset;
 	static const int MAX_SIZE = 256;
 	static const long int MAX = 3000;
 	static char path[MAX_SIZE];
@@ -47,13 +47,13 @@ public:
 	std::string FileChecker(std::string argument);	
 	std::vector<std::string> FileLoader(std::vector<std::string> incomingVector, std::string fileName, int signal);
 	void EnvironmentUtilites(int Number);
-	int ExecuteFile(std::string incomingCommand, char * args[]);
+	int ExecuteFile(std::string incomingCommand, std::vector<std::string> arguments);
 	void Help(std::string argument);
 	void LoadSystemCommands();
 	void Login();	
 	void PromptDisplay();
 	void Search(std::string argument);
-	int SearchCommands(std::string envp[], std::vector<std::string>incomingInput, int signal);
+	int SearchCommands(char * envp[], std::vector<std::string>incomingInput, int signal);
 	void SetupAndCloseSystem(int number);
 	std::string StackPop();
 	void StackPush(std::string incomingPath);
@@ -91,7 +91,7 @@ private:
 	std::string userName;
 	std::string userPrompt;	
 	
-	std::string stackArray[MAX][200];
+	std::string stackArray[MAX];
     std::vector<std::string> Environment;
     std::vector<std::string> PathVector;
     std::vector<std::string> ThursdayCommands;
