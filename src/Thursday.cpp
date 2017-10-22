@@ -29,7 +29,7 @@ Thursday::Thursday() {
 	colorSwitch = 1; 								//Color switch so that the color is turned either on or off.
 	commandSwitch = 0;								//Switch for when & is found in the incoming input.
 	currentPosition = 0;							//To keep track of the iterator in the stack.
-	debugSwitch = 0;								//Switch for turning on and off the debug statments.
+	debugSwitch = 1;								//Switch for turning on and off the debug statments.
     found = 0;										//To tell the DFS algorithm that a path was able to be found.
 	errorSwitch = 0;								//A switch to tell the DFS algorithm that there was an error in the change directtory method.
 	gid = getgid();									//Gets the group id for the process and saves it to an int variable.
@@ -1044,6 +1044,9 @@ int Thursday::SearchCommands(char * envp[], vector<std::string>incomingInput, in
 		signal = 2;
 		incomingInput[i].erase(incomingInput[i].begin()+(incomingInput[i].size()-2), incomingInput[i].end());
 	}
+
+	for (int i = 0; i < incomingInput.size(); i++)
+		std::cout << "1: " << incomingInput[i] << std::endl;
 
 	characterValue = incomingInput[i][0];																				//Grab the ascii value of the first chararcter of the current command.
 	if ( signal == 0 ) {

@@ -34,18 +34,17 @@ int main (int argc, char * argv[], char *envp[])
 		incomingInput.clear();
 		home.PromptDisplay();																						//Print basic prompt out.																	
 		while (returnNumber == 0) {																					//Loop until the user wants to logout.						
-			
 			tcgetattr(STDIN_FILENO, &oldattr);																		//Get the terminal setting for standard in.				
 			newattr = oldattr;																						//Save the settings to a different terminal variable.
 			newattr.c_lflag &= ~( ICANON | ECHO );																	//Turn off the echo feature and line editing to still occur.
 			tcsetattr(STDIN_FILENO, TCSANOW, &newattr);																//Set the new settings to the terminal.
 			characterNumber = getche();																				//Retrieve the character that was typed and send back the ascii value.
 			tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);																//Set the terminal to the old settings.
-
 			switch(characterNumber) {																				//Use a switch statment to do specific actions for certain characters.
 				case 10: 																							//When an enter key was pressed.
 					if (theCommands != "") {																		//Make sure that the char pointer is not empty / NULL.
 						if (operatorSwitch == 0) {
+							std::cout << "1: " << theCommands << std::endl;
 							returnNumber = home.ArgumentChecker(theCommands, envp);									//Send the commands in the incomingInput vector to the search commands method.
 							operatorSwitch = 0;
 						} else {
@@ -60,6 +59,8 @@ int main (int argc, char * argv[], char *envp[])
 					UpAndDownIterator = incomingCommands.size();													//Set the up and down iterator to zero.
 					UpAndDownIterator--;		
 					LeftAndRightIterator = 0;
+					character = "";
+					theCommands = "";
 					break;																							//Break out of the switch staatement.
 				case 127: 																							//Backspace character.
 					if (LeftAndRightIterator > 0) {																	//Delete the characters in the pointer, but no further than what was typed.
@@ -116,7 +117,6 @@ int main (int argc, char * argv[], char *envp[])
 					} 
 					break;
 				case 201:																							//Right arrow key.
-
 					if (LeftAndRightIterator < theCommands.size()) {												
 						printf ("\033[C"); 
 						LeftAndRightIterator++;	
@@ -133,7 +133,7 @@ int main (int argc, char * argv[], char *envp[])
 						operatorSwitch = 1;
 
 					if (characterNumber < 195 || characterNumber > 204) {											//Look for any letter between a - z.
-						theCommands += character;
+						theCommands += characterNumber;
 						LeftAndRightIterator++;
 					}
 					break;
