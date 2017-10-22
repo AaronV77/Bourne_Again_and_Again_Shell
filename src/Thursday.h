@@ -66,6 +66,7 @@ public:
 private:
 	int BoolVar;
 	int colorOption;
+	int colorSwitch;
 	int commandSwitch;
 	int currentPosition;	
 	int debugSwitch;

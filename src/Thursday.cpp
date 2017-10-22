@@ -26,9 +26,10 @@ Thursday::Thursday() {
 	//--------------------------------------------------------------------
 	BoolVar = 1;
 	colorOption = 11;								//Color switch for turning on and off the colors for the program.
+	colorSwitch = 0; 								//Color so that the terminal doesn't complain to me.
 	commandSwitch = 0;								//Switch for when & is found in the incoming input.
 	currentPosition = 0;							//To keep track of the iterator in the stack.
-	debugSwitch = 1;								//Switch for turning on and off the debug statments.
+	debugSwitch = 0;								//Switch for turning on and off the debug statments.
     found = 0;										//To tell the DFS algorithm that a path was able to be found.
 	errorSwitch = 0;								//A switch to tell the DFS algorithm that there was an error in the change directtory method.
 	gid = getgid();									//Gets the group id for the process and saves it to an int variable.
@@ -643,8 +644,8 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
         ColorChange("Mission - You are in the ExecuteFile method.", 3);
 	/*--------------------------------------------------------------------*/
 	int i = 0;    
-    char * theArguments[arguments.size()];
-    for (int i = 0; i < arguments.size(); i++) {
+    char ** theArguments = new char *[200];
+    for (i = 0; i < arguments.size(); i++) {
 		strcpy(theArguments[i], arguments[i].c_str());
 	}
 	i++;
@@ -652,7 +653,6 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
    
     pid_t pid;																					//Create a data type to store a process number.
 	incomingCommand = FileChecker(incomingCommand);												//Send the incoming command to find in the location of the binary in the system. Will either return just the command or the location path.
-	std::cout << "1: " << incomingCommand << endl;
 	pid = fork();																				//Create another process.
 	if (pid == 0) {																				//If the process is the child.
 		if (execv(incomingCommand.c_str(), theArguments) == -1) {								//Execute with the given command / location path, and char array of arguments.
@@ -664,9 +664,8 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 			waitpid(pid, NULL, 0);																//Wait for the process to finish executing.
 	}
 	
-	for (int i = 0; i < arguments.size(); i++)
-		free(theArguments[i]);
-	free(theArguments[i]);
+	delete[] theArguments;
+	
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
         ColorChange("Mission - You are leaving the ExecuteFile method.", 3);
@@ -1298,6 +1297,7 @@ void Thursday::SetupAndCloseSystem(int number) {
 				Environment.push_back(temp[b]);																			//Put the variable into the Environment vector.
 				if (temp[b] == "PATH") {																				//If the variable matches with PATH.
 					b++;
+					std::cout << temp[b] << std::endl;
 					istringstream iss (temp[b]);																		//Tokenize the variable of the predetermined paths, when PATH was found.
 					while (std::getline(iss,stringTokens,':'))															//Loop through until there are no more tokens.
 						PathVector.push_back(stringTokens);																//Store one of the paths into the path vector.
@@ -1724,85 +1724,92 @@ void Thursday::UserUtilities(int number) {
 void Thursday::ColorChange(std::string sentence, int signal) {
 	string color = "";
 	Color::Modifier def(Color::FG_DEFAULT, BoolVar);
-	
-	if ( signal == 1 ) {
-		if ( colorOption == 0 ) {
-			Color::Modifier color(Color::FG_BLACK, BoolVar); 
-			std::cout << color << sentence << def;
-			return;
-		} else if ( colorOption == 1 ) {
+	if (colorSwitch == 1) {
+		if ( signal == 1 ) {
+			if ( colorOption == 0 ) {
+				Color::Modifier color(Color::FG_BLACK, BoolVar); 
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 1 ) {
+				Color::Modifier color(Color::FG_RED, BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 2 ) {
+				Color::Modifier color(Color::FG_RED,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 3 ) {
+				Color::Modifier color(Color::FG_GREEN,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 4 ) {
+				Color::Modifier color(Color::FG_YELLOW,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 5 ) { 
+				Color::Modifier color(Color::FG_BLUE,BoolVar);	
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 6 ) { 
+				Color::Modifier color(Color::FG_MEGENTA,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 7 ) {
+				Color::Modifier color(Color::FG_CYAN,BoolVar);	
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 8 ) {		
+				Color::Modifier color(Color::FG_LIGHT_GRAY,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 9 ) {
+				Color::Modifier color(Color::FG_DARK_GRAY,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 10 ) {
+				Color::Modifier color(Color::FG_LIGHT_RED,BoolVar);	
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 11 ) {
+				Color::Modifier color(Color::FG_LIGHT_GREEN,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 12 ) {
+				Color::Modifier color(Color::FG_LIGHT_YELLOW,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 13 ) {
+				Color::Modifier color(Color::FG_LIGHT_BLUE,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 14 ) {
+				Color::Modifier color(Color::FG_LIGHT_MAGENTA,BoolVar);	
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 15 ) {
+				Color::Modifier color(Color::FG_LIGHT_CYAN,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else {
+				Color::Modifier color(Color::FG_WHITE,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			}
+		} else if ( signal == 2 ) {
 			Color::Modifier color(Color::FG_RED, BoolVar);
-			std::cout << color << sentence << def;
+			std::cout << "\t\t" << color << sentence << std::endl;
 			return;
-		} else if ( colorOption == 2 ) {
-			Color::Modifier color(Color::FG_RED,BoolVar);
-			std::cout << color << sentence << def;
-			return;
-		} else if ( colorOption == 3 ) {
-			Color::Modifier color(Color::FG_GREEN,BoolVar);
-			std::cout << color << sentence << def;
-			return;
-		} else if ( colorOption == 4 ) {
-			Color::Modifier color(Color::FG_YELLOW,BoolVar);
-			std::cout << color << sentence << def;
-			return;
-		} else if ( colorOption == 5 ) { 
-			Color::Modifier color(Color::FG_BLUE,BoolVar);	
-			std::cout << color << sentence << def;
-			return;
-		} else if ( colorOption == 6 ) { 
-			Color::Modifier color(Color::FG_MEGENTA,BoolVar);
-			std::cout << color << sentence << def;
-			return;
-		} else if ( colorOption == 7 ) {
-			Color::Modifier color(Color::FG_CYAN,BoolVar);	
-			std::cout << color << sentence << def;
-			return;
-		} else if ( colorOption == 8 ) {		
-			Color::Modifier color(Color::FG_LIGHT_GRAY,BoolVar);
-			std::cout << color << sentence << def;
-			return;
-		} else if ( colorOption == 9 ) {
-			Color::Modifier color(Color::FG_DARK_GRAY,BoolVar);
-			std::cout << color << sentence << def;
-			return;
-		} else if ( colorOption == 10 ) {
-			Color::Modifier color(Color::FG_LIGHT_RED,BoolVar);	
-			std::cout << color << sentence << def;
-			return;
-		} else if ( colorOption == 11 ) {
-			Color::Modifier color(Color::FG_LIGHT_GREEN,BoolVar);
-			std::cout << color << sentence << def;
-			return;
-		} else if ( colorOption == 12 ) {
-			Color::Modifier color(Color::FG_LIGHT_YELLOW,BoolVar);
-			std::cout << color << sentence << def;
-			return;
-		} else if ( colorOption == 13 ) {
-			Color::Modifier color(Color::FG_LIGHT_BLUE,BoolVar);
-			std::cout << color << sentence << def;
-			return;
-		} else if ( colorOption == 14 ) {
-			Color::Modifier color(Color::FG_LIGHT_MAGENTA,BoolVar);	
-			std::cout << color << sentence << def;
-			return;
-		} else if ( colorOption == 15 ) {
-			Color::Modifier color(Color::FG_LIGHT_CYAN,BoolVar);
-			std::cout << color << sentence << def;
-			return;
-		} else {
-			Color::Modifier color(Color::FG_WHITE,BoolVar);
-			std::cout << color << sentence << def;
+		} else if ( signal == 3 ) {
+			Color::Modifier color(Color::FG_YELLOW, BoolVar);
+			std::cout << "\t\t" << color << sentence << std::endl;
 			return;
 		}
-	} else if ( signal == 2 ) {
-		Color::Modifier color(Color::FG_RED, BoolVar);
-		std::cout << "\t\t" << color << sentence << std::endl;
-		return;
-	} else if ( signal == 3 ) {
-		Color::Modifier color(Color::FG_YELLOW, BoolVar);
-		std::cout << "\t\t" << color << sentence << std::endl;
-		return;
+	} else {
+		if (signal == 1) {
+			std::cout << sentence;
+		} else {
+			std::cout << sentence << endl;
+		}
 	}
 	return;
 }
