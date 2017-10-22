@@ -26,7 +26,7 @@ Thursday::Thursday() {
 	//--------------------------------------------------------------------
 	BoolVar = 1;
 	colorOption = 11;								//Color switch for turning on and off the colors for the program.
-	colorSwitch = 0; 								//Color so that the terminal doesn't complain to me.
+	colorSwitch = 1; 								//Color switch so that the color is turned either on or off.
 	commandSwitch = 0;								//Switch for when & is found in the incoming input.
 	currentPosition = 0;							//To keep track of the iterator in the stack.
 	debugSwitch = 0;								//Switch for turning on and off the debug statments.
@@ -645,7 +645,7 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 	/*--------------------------------------------------------------------*/
 	int i = 0;    
     char ** theArguments = new char *[200];
-    for (i = 0; i < arguments.size(); i++) {
+    for (int i = 0; i < arguments.size(); i++) {
 		strcpy(theArguments[i], arguments[i].c_str());
 	}
 	i++;
@@ -653,6 +653,7 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
    
     pid_t pid;																					//Create a data type to store a process number.
 	incomingCommand = FileChecker(incomingCommand);												//Send the incoming command to find in the location of the binary in the system. Will either return just the command or the location path.
+	std::cout << "1: " << incomingCommand << endl;
 	pid = fork();																				//Create another process.
 	if (pid == 0) {																				//If the process is the child.
 		if (execv(incomingCommand.c_str(), theArguments) == -1) {								//Execute with the given command / location path, and char array of arguments.
@@ -665,7 +666,6 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 	}
 	
 	delete[] theArguments;
-	
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
         ColorChange("Mission - You are leaving the ExecuteFile method.", 3);
