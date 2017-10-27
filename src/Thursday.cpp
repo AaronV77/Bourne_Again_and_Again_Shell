@@ -28,7 +28,6 @@ Thursday::Thursday() {
 	colorOption = 11;								//Color switch for turning on and off the colors for the program.
 	colorSwitch = 1; 								//Color switch so that the color is turned either on or off.
 	commandSwitch = 0;								//Switch for when & is found in the incoming input.
-	currentPosition = 0;							//To keep track of the iterator in the stack.
 	debugSwitch = 1;								//Switch for turning on and off the debug statments.
     found = 0;										//To tell the DFS algorithm that a path was able to be found.
 	errorSwitch = 0;								//A switch to tell the DFS algorithm that there was an error in the change directtory method.
@@ -48,6 +47,7 @@ Thursday::~Thursday() {
 	/*------------------------------------------------------------------
 	Note: The deconstructor sets each pointer to NULL and then frees them.
 	--------------------------------------------------------------------*/	
+	SetupAndCloseSystem(2);
 	ThursdayCommands.clear();
 	OSCommands.clear();
 	Environment.clear();
@@ -55,210 +55,91 @@ Thursday::~Thursday() {
 	PathVector.clear();	
 }
 
-int Thursday::ArgumentChecker(std::string theCommands, char * envp[]) {
+void Thursday::GetArguments(std::string theCommands, char* envp[]) {
 	/*-------------------------------------------------------------------
-	Note: This is the main method for the systemss command interperter. 
-	* This method was last updated on 9/24/2017. Read the comments on the 
-	* right hand side to try and understand what this method is doing.
+	Note: 
+	--------------------------------------------------------------------*/
+    if (debugSwitch == true) 
+		ColorChange("Mission - You are in the GetArguments method.", 3);
+	/*--------------------------------------------------------------------*/ 
+	std::string incomingInput = "";
+	std::istringstream iss (theCommands);
+	std::vector<std::string> tokens;
+	
+	while (iss >> incomingInput)						// Loop through getting the tokens by the space character.
+		tokens.push_back(incomingInput);				// Put the contents into our vector to give to our ArgumentChecker method.
+
+	ArgumentChecker(tokens, envp);						
+	
+	/*--------------------------------------------------------------------*/
+    if (debugSwitch == true) 
+		ColorChange("Mission - You are leaving the GetArguments method.", 3);
+	/*--------------------------------------------------------------------*/ 
+	return;
+}
+
+void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
+	/*-------------------------------------------------------------------
+	Note: 
 	--------------------------------------------------------------------*/
     if (debugSwitch == true) 
 		ColorChange("Mission - You are in the ArgumentChecker method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	std::string input = "";
-	std::string inputCheck = "";
-	std::string argument = "";
-	char character;
-	int length = 0, target = 0, iterator = 0, updateFile = 0;
-	int semiSwitch = 0, commandSwitch = 0, argumentSwitch = 0;
-	int min = 0, max = 0;
-	int check1 = 0;
-	std::vector<std::string> badCommands;
-	std::vector<std::string> commandArguments;
-	std::vector<std::string> goodCommands;
-	std::vector<std::string> temp;
+	int argumentVectorSize = arguments.size();
+	int argumentPosition = 0;
+	bool commandFound = false;
+	bool notMindSwitch = false;
+	std::size_t stringFind;
+	std::vector<std::string> commandAndArguments;
 	
-	std::istringstream iss (theCommands);
-	
-	while (iss >> inputCheck) {																	//Loop through the tokens of the char pointer.
-		length = input.size();																	//Get the character length of the token.
-		character = input[length - 1];															//Store the last character of the token.
-		if ( character == ';' ) {																//Check to see if the chaaracter is a semicolon.
-			input.erase(input.begin()+(input.size() - 1), input.end());							//Trim the pointer to get rid of the semicolon.
-			semiSwitch = 1;																		//Turn our semicolon switch on.	
-		}
-		
-		if ( commandSwitch == 0 ) {																//Check our switch to see if we have found a command.
-			commandSwitch = 1;																	//If we haven't found a command then lets set our switch.			
-			for (int a = 0; a < ThursdayCommands.size(); a++) {									//Loop through our system commands vector.
-				if (ThursdayCommands[a] == input) {												//Check the current element in the vector against our command.
-					target = 1;																	//Set our target to 1, so that later on we know that it is one of my commands.
-					commandArguments.push_back(std::to_string(target));							//Push the target into the command arguments vector.
-					commandArguments.push_back(input);											//Push back the command being sent in.
-					a++;																		//Increment the for loop iterator.
-					commandArguments.push_back(ThursdayCommands[a]);							//Push back the min argument value.
-					a++;																		//Increment the for loop iterator.															
-					commandArguments.push_back(ThursdayCommands[a]);							//Push back the max argument value.
-					a++;																		//Increment the for loop iterator.
-					break;	
-				}																
-			}
-
-			for (int b = 0; b < OSCommands.size(); b++) {										//Loop through our operating system commands vector.
-				if (OSCommands[b] == input) {													//Check the current element in the vector against our command.
-					target = 1;																	//Set our target to 1, so that later on we know that it is one of my commands.
-					commandArguments.push_back(std::to_string(target));							//Push the target into the command arguments vector.
-					commandArguments.push_back(input);											//Push back the command being sent in.
-					b++;																		//Increment the for loop iterator.
-					commandArguments.push_back(OSCommands[b]);									//Push back the min argument value.
-					b++;																		//Increment the for loop iterator.															
-					commandArguments.push_back(OSCommands[b]);									//Push back the max argument value.
-					b++;																		//Increment the for loop iterator.
-					break;	
-				}																
-			}
-
-			if ( target == 0 ) {																//If the command was not found still.
-				argument = FileChecker(input);													//Send our argument to be checked against the operating system binaries.
-				if (argument != input) {														//If the output from the file checker is not the same as what we sent into it.
-					target = 3;																	//Then set our target to 3.
-					commandArguments.push_back(std::to_string(target));							//Push the target into our vector.
-					commandArguments.push_back(input);											//Push the command into our vector.
-					commandArguments.push_back(std::to_string(0));								//push our min value into the vector.
-					commandArguments.push_back(std::to_string(0));								//Push our max value into the vector
-					argument = "";
-					break;
-				}
-			}
-			
-			if ( target == 0 ) {																//If we still have not found our command.
-				target = 4;																		//Set our target to four.
-				commandArguments.push_back(std::to_string(target));								//Push the target into our vector.
-				commandArguments.push_back(input);												//Push the command into our vector.
-				commandArguments.push_back(std::to_string(0));									//push our min value into the vector.
-				commandArguments.push_back(std::to_string(0));									//Push our max value into the vector
-				break;
-			}
-			
-			if ( semiSwitch == 1 || inputCheck == "\0" )										//If our semicolon was found or the next command is NULL.
-				commandArguments.push_back(std::to_string(0));									//Add a 0 to the vector to show that there are no arguments after the command.
-		}
-		
-		if ( argumentSwitch == 1 ) {															//If we found our command then we have to start looking for our arguments
-			iterator++;																			//Increment our argument count iterator.
-			temp.push_back(input);																//Store our argument in a temp vector.
-			if ( semiSwitch == 1 || inputCheck == "\0") {										//If the semicolon was found or our next command is NULL.
-				commandArguments.push_back(to_string(iterator++));								//Push the number of arguments.
-				for (int b = 0; b < temp.size(); b++)											//Loop through the temp vector.
-					commandArguments.push_back(temp[b]);										//Push all of our arguments into the vector.
-			}
-		}
-		
-		if ( semiSwitch == 1 ) {																//If our semicolon was found reset all our variables.
-			commandSwitch = 0;
-			argumentSwitch = 0;
-			semiSwitch = 0;
-			iterator = 0;
-			target = 0;
-			temp.clear();
+	for (int i = 0; i < tokens.size(); i++) {												// Loop through the tokens.
+		stringFind = tokens[i].find(';');													// See if the argument that we are looking at has a semicolon. A semicolon represents an end of a command.
+		if (stringFind != std::string::npos) {												// If there is a semicolon.
+			tokens[i].erase(tokens[i].begin()+(tokens[i].size() - 1), tokens[i].end());		// Delete if off the end of our token.
+			commandAndArguments.push_back(tokens[i]);										// Add it to our vector.
+			if (notMineSwitch == true && commandSwitch == false)							// Check to see if ther user is trying to execute code or if we have found one of our commands. You are probably thinking that there are more than one permutation but if the first argument is "./something" then it will not be ours.
+				SearchCommands(commandAndArguments, 1, envp);								// Send it to our SearchCommands method for exec.
+			else 
+				SearchCommands(commandAndArguments, 0, envp);								// Send it to our SearchCommands method for processing.
+			commandFound = false;															// Reset our switch. This is used to tell if the stuff in the vector is the applications commands or random commands.
+			notMineSwitch = false;															// Reset our switch. This is used to tell if someone is trying to execute script or code.
+			currentPosition = 0;															// I'm using thins to keep track of our position in the vector.
+			if (commandAndArguments.size() > 0) 											// Reset the vector if the vector is not empty.
+				commandAndArguments.clear();												// Clear the contents of the vector correctly.
 		} else {
-			argumentSwitch = 1;																	//Else turn on our argument swwitch.
+			stringFind = tokens[i].find("./");												// Look for the execution of something.
+			if (stringFind != std::string::npos)											// See if we have found anything.
+				notMineSwitch = true;														// Set our switch to true.
 		}
 		
-		if ( inputCheck != "\0") {																//If the next command is not NULL.
-			input = inputCheck;																	//Store the command into the input variable.
+		if (argumentPosition == 0) {														// If we are at the beginning of the loop lets see if we can't find our command. I don't want to keep searching for a command if we didn't find it in the beginning. If we find something that is ours afterwards then there is trouble.
+			for (int a = 0; a < ThursdayCommands.size(); a++) {								// Loop through my vector of acceptable commands that the application can use.
+				if (ThursdayCommands[i] == tokens[i]) {										// Check to see if the token matches the element in the ThrusdayCommands vector.
+					commandFound = true;													// If it does then we set our switch to true.
+					break;																	// If the command is found then lets get out of the loop.
+				}														
+			}
+			commandAndArguments.push_back(tokens[i]);										// Add the token to the vector regardless if it is ours or not.	
 		} else {
-			break;																				//Else get out of the loop.
+			commandAndArguments.push_back(tokens[i]);										// If we are not looking at the front of the command string, then lets add it anyway.
 		}
+
+		if (tokens[i] == ">" || tokens[i] == "<" || tokens[i] == "|")						// Check to see if our token is an operator.
+			notMineSwitch = true;															// If we have found an operator, then what we have in our vector is not for my application to handle. I don't process operators so lets just give it to exec.
+	
+		currentPosition++;																	// Keep track of our current position. 
 	}
 
-	if ( commandArguments.size() == 4 ) 														//******************I don't think this is need*******************
-		commandArguments.push_back(std::to_string(0));
-					
-	for (int c = 0; c < commandArguments.size(); c++) {											//Loop through our command arguments vector.
-		if (std::stoi(commandArguments[c]) == 1 ||  std::stoi(commandArguments[c]) == 2)		//If the first command has a target of 1.
-			check1 = 1;																			//Turn on our switch to one.
-		c++;																					//increment our loop iterator.
-		argument = commandArguments[c];															//Store our command in a variable.
-		c++;																					//increment our loop iterator.
-		min = std::stoi(commandArguments[c]);													//Store our min value.
-		c++;																					//increment our loop iterator.
-		max = std::stoi(commandArguments[c]);													//Store our max value.
-		c++;																					//increment our loop iterator.
-		target = std::stoi(commandArguments[c]);												//Store the number of arguments we have.
-		c++;																					//increment our loop iterator.
-		if ( check1 == 1 ) {																	//If the command was in our own commands or os commands.
-			if (target <= max && target >= min) {												//If the number of arguments is between our min and max values.
-				goodCommands.push_back(std::to_string(target+1));								//Store the target +1 into our good command vector. The plus one is to include our command.
-				goodCommands.push_back(argument);												//Store the command in the vector.
-				for (int d = 0; d < target; d++) {												//Loop through the number of arguments for the given command.
-					goodCommands.push_back(commandArguments[c]);								//Store our argument in the vector.
-					c++;																		//Increment the main loop as we store the arguments.
-				}	
-				c--;																			//Since we go one to many over we have to decrement.
-			} else if (target < min || target > max ) {											//If the number of arguments is either below or higher than our min or max value.
-				badCommands.push_back(std::to_string(target+1));								//Store the target +1 into our bad command vector. The plus one is to include our command.
-				badCommands.push_back(argument);												//Store our command into the bad command vector.
-				for (int e = 0; e < target; e++) {												//Loop through the number of arguments for the given command.
-					badCommands.push_back(commandArguments[c]);									//Store the arguments into the vector.
-					c++;																		//Increment the main loop as we store the arguments.
-				}
-				c--;																			//Since we go one to many over we have to decrement.
-			}
-		} else {
-			badCommands.push_back(std::to_string(target+1));									//Store the target including the command for the command that was not found.
-			badCommands.push_back(argument);													//Store the command into the bad command vector.
-			for (int f = 0; f < target; f++) {													//Loop through the arguments.
-				badCommands.push_back(commandArguments[c]);										//Push the arguments into the vector.
-				c++;																			//Increment the main loop iterator as we store the arguments.
-			}
-			c--;																				//Since we go one to many over we have to decrement.
-		}
-		check1 = 0;																				//Reset our check switch.
-		argument = "";																			//Reset our argument pointer.
-	}
-	
-	temp.clear();
-	int h = 0;
-	for (int g = 0; g < goodCommands.size(); g++) {												//Loop through our good commands.
-		target = std::stoi(goodCommands[g]);													//Get the target for the number of elements for the given command.
-		g++;																					//Increment our loop.
-		while (h < target) {																	//Loop through the given target.
-			temp.push_back(goodCommands[g]);													//Store all the commands and arguments.
-			g++;																				//Increment the main loop.
-			h++;																				//Increment until we reach our target.
-		}
-		g--;																					//Decrement our main loop iterator.
-		h = 0;																					//Reset our second loop iterator.
-		SearchCommands(envp, temp, 0);															//Send the command and arguments to the search command method.
-		temp.clear();																			//Clear our temp vector.
-	}
-
-	for (int i = 0; i < badCommands.size(); i++) {												//Loop through our bad commands.
-		target = std::stoi(badCommands[i]);														//Get the target for the number of elements for the given command.
-		i++;																					//Increment our loop.
-		while (h < target) {																	//Loop through the given target.
-			temp.push_back(badCommands[i]);														//Store all the commands and arguments.
-			i++;																				//Increment the main loop.
-			h++;																				//Increment until we reach our target.
-		}
-		i--;																					//Decrement our main loop iterator.
-		h = 0;																					//Reset our second loop.
-		updateFile = SearchCommands(envp, temp, 1);												//Send the command and arguments to the search command method.
-		if (updateFile == 1) {
-				//Update the file if this command executed correctly.
-		}
-		temp.clear();
-	}
-	
+	if (notMineSwitch == true && commandSwitch == false)									// Had to put this hear for commands that don't have a semicolon.
+		SearchCommands(commandAndArguments, 1, envp);										// Send it to our SearchCommands method for exec.
+	else 
+		SearchCommands(commandAndArguments, 0, envp);										// Send it to our SearchCommands method for processing.
+		
 	/*--------------------------------------------------------------------*/
-	badCommands.clear();
-	commandArguments.clear();
-	goodCommands.clear();
-	
     if (debugSwitch == true) 
 		ColorChange("Mission - You are leaving the ArgumentChecker method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	return 0;
+	return;
 }
 
 void Thursday::CompressAndDecompress(int Number, std::string argument) {
@@ -271,11 +152,10 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
 		ColorChange("Mission - You are in the CompressAndDecompress method.", 3);
 	/*--------------------------------------------------------------------*/ 
 	std::vector<std::string> arguments;		
-	string path = FileChecker("tar");									//Stores the location of the binaries for tgz.
-	string fileName = argument;											//Stores the directory that is being packaged and adds the compression extension.
+	string path = FileChecker("tar");
+	string fileName = argument;	
 	fileName += ".tgz";
 
-	/*--------------------------------------------------------------------*/ 
 	if (Number == 0) {													//Store the arguments for compressing.
 		arguments.push_back(path);
 		arguments.push_back("cvzf");
@@ -287,7 +167,9 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
 		arguments.push_back(fileName);
 		arguments.push_back(argument);
 	}
+	
 	ExecuteFile(path, arguments);										//Send arguments and path over to be executed.
+	
 	/*--------------------------------------------------------------------*/ 
     if (debugSwitch == true) 
 		ColorChange("Mission - You are leaving the CompressAndDecompress method.", 3);
@@ -372,9 +254,9 @@ void Thursday::DepthFirstSearch(std::string path, std::string command, int numbe
 		chdir(currentPath.c_str());																		//If the command is absolute then change the to that directory.
 	}
 
-    StackPush(path); 																					//Put the starting path into the stack.
-    while(currentPosition != -1) {																		//Loop until the current position in the stack is negative.
-		input = StackPop();																				//Pop off the last element in the stack.
+    stringStack(path); 																					//Put the starting path into the stack.
+    while(!stringStack.empty()) {																		//Loop until the current position in the stack is negative.
+		input = stringStack.pop();																		//Pop off the last element in the stack.
 		
 		if (number == 0) 																				//If the incoming number is 0 then the user wants all the commands to be printed out.
 			std::cout << '\t' << '\t' << " Directory: " << input << std::endl;
@@ -395,41 +277,6 @@ void Thursday::DepthFirstSearch(std::string path, std::string command, int numbe
     if (debugSwitch == true) 
 		ColorChange((char*)"Mission - You are leaving the DepthFirstSearch method.", 3);
 	/*--------------------------------------------------------------------*/ 
-    return;
-}
-
-void Thursday::Destruction(int number) {
-	/*-------------------------------------------------------------------
-	Note: This method takes in a number that will fork the system to
-	* shut down, or erase every file in the computer system. This method
-	* was last updated on 9/24/2017.
-	--------------------------------------------------------------------*/
-    if (debugSwitch == 1) 
-        ColorChange("Good Bye...", 3);
-	/*--------------------------------------------------------------------*/   
-	std::string input = "";
-	
-	ColorChange("CAUTION - crash or wipe the system!", 3);
-	ColorChange("CAUTION - crash or wipe the system!", 3);
-	std::cout << '\t' << '\t'  << "Are you sure [y/n]: ";
-	std::getline(std::cin,input);
-	if (input == "y") {
-		cout << '\t' << '\t' << "Launching...." << endl;
-		if (number == 0) {
-			while (1)													//Infinite loop until system crashes.
-				fork(); 												//Just keep forking.	
-		} else if (number == 1) {
-			DirectoryChange("/", 1);
-			if (system("rm -rf *") == -1)								//Have the system delete all directories in the system.
-				ColorChange("System Error: ", 3);
-		} else {
-			ColorChange("Wrong input number.", 3);
-		}
-	} else if (input == "n") {
-		std::cout << '\t' << '\t' << "Good Choice" << std::endl;
-	} else {
-		ColorChange("Wrong input number.", 13);
-	}
     return;
 }
 
@@ -546,7 +393,7 @@ void Thursday::DisplayDirectories(std::string searchWord, int number, int theSwi
 							//~ cout << "Random2 is a Symbolic link" << endl;			//If so do not do anything.
 						} else {
 							if (s.st_mode & S_IFDIR) {									//If the path is a directory.
-								StackPush(addedPath);									//Push the path into the stack.
+								stringStack.push(addedPath);							//Push the path into the stack.
 							}
 						}
 					}
@@ -562,7 +409,7 @@ void Thursday::DisplayDirectories(std::string searchWord, int number, int theSwi
     }
     /*--------------------------------------------------------------------*/ 
     if (debugSwitch == 1) 
-		ColorChange((char*)"Mission - You are leaving the DisplayDirectories method.", 3);
+		ColorChange("Mission - You are leaving the DisplayDirectories method.", 3);
 	/*--------------------------------------------------------------------*/ 
     return;
 } 
@@ -725,7 +572,7 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 			input = Utilities::string_checker(input, 0);
 			if (input.size() > 0)
 				incomingVector.push_back(input);
-			}
+		}
 	} else if ( signal == 1) {													//This option will display just the basic contents of a file that is # ending.
 		while (!InputData.eof()) {
 			std::getline(InputData, input, '#');
@@ -741,11 +588,14 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 			word = Utilities::string_checker(word, 0);							//Check for special characters in the word, then replace the word.	
 			definition = Utilities::string_checker(definition, 0);				//Check the special characters in the definition, then replace the definition.
 			//--------------------------------------------------------------
-			word += " ";
-			word += definition;
-			std::cout << "\t\t" << word << std::endl;
+			if (word.size() > 0) {
+				word += " ";
+				word += definition;
+				std::cout << "\t\t" << word << std::endl;
+			}
 		}
 	}
+	InputData.close();
    	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
 		ColorChange("Mission - You are leaving the FileLoader method.", 3);
@@ -799,111 +649,6 @@ void Thursday::Help(std::string argument) {
         ColorChange("Mission - You are in the ArgumentChecker method.", 3);
 	/*--------------------------------------------------------------------*/
 	return;
-}
-
-void Thursday::Login() {
-	/*------------------------------------------------------------------
-	Note: This method gets the user credentials and checks the credentials
-	* to what is saved in the system. This method was last updated on 
-	* 9/25/2017.
-	--------------------------------------------------------------------*/	
-    if (debugSwitch == 1) 
-		ColorChange("Mission - You are in the Login method.", 3);
-	/*--------------------------------------------------------------------*/
-    std::string thePassword = "";															//Used to only store the password that is coming from the file and user.
-    std::string login = "";																	//Used to only store the login that is coming from the user.				
-    std::string input = "";																	//Used to store the input coming from the file.
-	std::vector<std::string> arguments;
-    int found = 0, counter = 0, errorCode = 0;	
-    
-    arguments.push_back("reset");
-    
-	ifstream InputData;																		//Setup an input stream variable.
-
-	DirectoryChange(profileDestination, 0);													//Move to the profile directory.
-
-    std::cout << "\n" << "Welcome to the Thursday Program!" << std::endl;
-    std::cout << "The Key: ";
-	while(!(std::cin >> userKey)) {																//Loop until a number is actually entered.
-		std::cout << "\t\t" << "Must be a number" << std::endl;
-		std::cin.clear();
-		std::cin.ignore(100,'\n');
-	}
-
-    while (found == 0) {																	//Loop until the username has been found.
-		std::cout << "Login: ";
-		std::cin >> login;
-		if (login == "exit" || login == "Exit") {											//Check to see if exit was entered if so then leave.		
-			exit(0);																		//Exit call and will leave the program.
-		}
-			
-		userName = login;																	//Save the username to the class variable.
-		login = Cryptography(3, 0, login);													//Convert the username to all uppercase.
-		login = Cryptography(1, userKey, login);											//Then encrypt the password.
-		login += ".txt";																	//Add the file extension to the username.
-		InputData.open(login);																//Open the file with the given username.
-		if (!InputData) {																	//If doesnt open then display error, else exit loop.
-			ColorChange("Error - Username Information", 2);
-			std::cout << "------------------------------------" << std::endl;
-		} else {
-			found = 1;																		//If the login was found then exit the loop.
-		}
-    }
-							
-    InputData >> thePassword;																//Grab the encrypted password from the file.
-    userPassword = thePassword;																//Copy the password to class variable.
-    InputData >> input;																		//Grab the userNumber from the file.
-    userNumber = std::stoi(input);															//Copy the password to the class variable.
-    InputData >> input;																		//Grab the userPromptNumber from the file.
-    userPromptNumber = std::stoi(input);													//Copy the userPromptNumber to the class variable.
-    InputData >> input;
-    colorOption = std::stoi(input);															//Grab the color option for the user.
-
-    std::getline(InputData, input, '#');													//Grab the custom user prompt from the file.
-    input = Utilities::string_checker(input, 0);											//Check for bad characters in the input.
-    userPrompt = input;																		//Copy the prompt to the class variable.
-
-	while (1) {																				//Loop until exited.
-		termios oldt, newt;																	//Create a terminal variable.
-		tcgetattr(STDIN_FILENO, &oldt);														//Get the terminal settings for standard in.
-		newt = oldt;																		//Save the terminal settings of standard in.
-		newt.c_lflag &= ~ECHO;																//Turn off the echo setting for typing.
-		tcsetattr(STDIN_FILENO, TCSANOW, &newt);											//Apply the new terminl variable to standard in.
-		std::cout << "Password: ";
-		std::cin >> thePassword;
-		if (thePassword == "exit" || thePassword == "Exit")									//Check to see if exit was entered if so then leave.
-			return;																			//Exit call and will leave the program.
-		thePassword = Cryptography(3, 0, thePassword);										//Uppdercase the incoming password.
-		thePassword = Cryptography(1, userKey, thePassword);								//Decrypt the password.
-		tcsetattr(STDIN_FILENO, TCSANOW, &oldt);											//Apply the old settings to standard in. 
-		if (thePassword ==  userPassword) {													//Compare the incoming password and the one from the file, if the same it will go in.
-			ExecuteFile("reset", arguments);												//set the screen on the terminal.
-			DirectoryChange(homeDestination, 0);											//Go back to the home directory.
-			cin.ignore();
-			return;
-		} else {
-			errorCode = 2;																	//Set the errorCode and display the error message and try grabbing the password again.
-		}
-
-		if (counter >= 3) {																	//If the counter its more than three, ask the user if they want to try a new key.
-			std::cout << "Would you like to try a new key (0-Yes / 1-NO): ";
-			std::cin >> counter;
-			if (counter == 0) {																//If the user wants to re-try logging in again.
-				DirectoryChange(homeDestination, 0);										//Change the directory again.
-				Login();																	//Try loging in again.
-				errorCode = 0;
-			}
-			counter == 0;																	//Reset the counter.
-		}
-
-		if (errorCode == 2) {
-			ColorChange("Error - Password Information", 2);
-			std::cout << "------------------------------------" << std::endl;
-			errorCode = 0;
-		}
-		counter++;																			//Increment the counter on the number of failed attempts to logging in.
-	}	
-	/*--------------------------------------------------------------------*/
 }
 
 void Thursday::PromptDisplay() {
@@ -1013,16 +758,9 @@ void Thursday::Search(std::string argument) {
 	return;
 }
 
-int Thursday::SearchCommands(char * envp[], vector<std::string>incomingInput, int signal) {
+int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char * envp[]) {
 	/*------------------------------------------------------------------
-	Note: This method takes in the vector filled with pre-approved commands
-	* that are coming from the main. If the command that you are looking for
-	* is not found in the list below then the command will be executed in
-	* the not found section at the very end of each quarter else statment.
-	* Since I found no easy way of going around the long if statments I 
-	* sectioned it up by spliting the alphabet into four parts. In the loop
-	* I take the first character and convert it to ascii value and go to the
-	* proper if statment.
+	Note: 
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
 		ColorChange("Mission - You are in the SearchCommands method.", 3);
@@ -1030,118 +768,120 @@ int Thursday::SearchCommands(char * envp[], vector<std::string>incomingInput, in
 								
 	std::string fileName = "";
 	std::string random = "";
+	std::size_t stringFind;
+	std::locale loc;
 	std::vector<std::string> temp;
 	std::vector<std::string> arguments;
-	char run[5] = {};
+	
     int characterValue = 0;																								//To grab the ascii value of the first character in the command.
     int i = 0;
     int key = 0;
     int size = incomingInput.size();
-	
-	run[0] = incomingInput[0][0];
-	run[1] =  incomingInput[0][1];
-	if (run == "./") {
-		signal = 2;
-		incomingInput[i].erase(incomingInput[i].begin()+(incomingInput[i].size()-2), incomingInput[i].end());
-	}
-
-	for (int i = 0; i < incomingInput.size(); i++)
-		std::cout << "1: " << incomingInput[i] << std::endl;
 
 	characterValue = incomingInput[i][0];																				//Grab the ascii value of the first chararcter of the current command.
 	if ( signal == 0 ) {
 		if (characterValue >= 97 && characterValue <= 108) {															//If the command is within A - L (a - l).
 			if (characterValue >= 97 && characterValue <= 102) {														//If the command is within A - F (a - f).
-				if (incomingInput[i] == "adduser") {
-					UserUtilities(1);
-				} else if (incomingInput[i] == "bash") {
+				if (incomingInput[i] == "bash") {
 					arguments.push_back(incomingInput[i]);
 					ExecuteFile(incomingInput[i], arguments);
 					arguments.clear();
-				} else if (incomingInput[i] == "bomb") {
-					i++;
-					if (userNumber == 0)
-						Destruction(0);
 				} else if (incomingInput[i] == "cd") {
-					i++;
-					if (size > 1) {												
-						if (incomingInput[i] == "/") {									
-							DirectoryChange(random, 0);
+					if (size > 1) {																						// Check to see if we have another argument in the vector.
+						i++;
+						stringFind = tokens[i].find('/');																// If there is a / in the path if so just try and change with that directory.																							
+						if (stringFind != std::string::npos) {															// See if there is a / in the element.					
+							DirectoryChange(incomingInput[i], 0);														// Make the directory change if a / was found.
 						} else {
-							random = currentPath;																		//If the command is just cd src, then we want to appended the backslash to the currentpath along with the src.
-							random += "/";
-							random += incomingInput[i];
-							DirectoryChange(random, 0);
+							random = currentPath;																		// Add the currentPath to a string. I'm doing this because if I am moving from some where in the directory then I don't want to type the whole path.
+							random += "/";																				// Add the / to the string.
+							random += incomingInput[i];																	// Add the directory that the user wants to go into.
+							DirectoryChange(random, 0);																	// Make the directory change.
 						}
 					} else {
-						std::cout << "\t\t" << "Need another argument" << std::endl;
+						ColorChange("The number of arguments was incorrect.", 2);
 					}
-				} else if (incomingInput[i] == "clear") {
-					for (int b = 0; b < 60; b++)
-						std::cout << std::endl;
 				} else if (incomingInput[i] == "color") {				
-					i++;
-					colorOption = std::stoi(incomingInput[i]);
+					if (size > 1) {
+						i++;
+						if (std::stoi(incomingInput[i]))
+							colorOption = std::stoi(incomingInput[i]);
+					} else {
+						ColorChange("The number of arguments was incorrect.", 2);
+					}
 				} else if (incomingInput[i] == "commands") {
 					fileName = informationDestination;
 					fileName += "/ThursdayCommandDefinitions.txt";
 					FileLoader(temp, fileName, 2);
 				} else if (incomingInput[i] == "compress") {
-					i++;
-					CompressAndDecompress(0, incomingInput[i]);
-				} else if (incomingInput[i] == "crash") {
-					i++;
-					if (userNumber == 0)
-						Destruction(1);
+					if (size > 1) {
+						i++;
+						CompressAndDecompress(0, incomingInput[i]);
+					} else {
+						ColorChange("The number of arguments was incorrect.", 2);
+					}
 				} else if (incomingInput[i] == "date") {
-					std::cout << "\t\t" << Utilities::date(7) << std::endl;
+					std::cout << "\t\t" << Utilities::date(1) << std::endl;
 				} else if (incomingInput[i] == "debug") {
-					if (debugSwitch == 1) {
+					if (debugSwitch == 1)
 						 debugSwitch = 0;
-					} else { 
+					else
 						 debugSwitch = 1;
-					}
 				} else if (incomingInput[i] == "decompress") {
-					i++;
-					CompressAndDecompress(1, incomingInput[i]);
-				} else if (incomingInput[i] == "decrypt") {
-					i++;
-					std::cout << "\t\t" << "Please enter your key: ";
-					while(!(std::cin >> key)) {																			//Loop until an actual encryption key is a number.
-						std::cout << "\t\t" << "Must be a number: ";
-						std::cin.clear();
-						std::cin.ignore(100,'\n');
+					if (size > 1) {
+						i++;
+						CompressAndDecompress(1, incomingInput[i]);
+					} else {
+						ColorChange("The number of arguments was incorrect.", 2);
 					}
-					std::cout << "\t\t" << Cryptography(2, key, incomingInput[i]) << std::endl;							//Display the message from the Cryptography method.		
-				} else if (incomingInput[i] == "deleteuser") {
-					UserUtilities(2);
+				} else if (incomingInput[i] == "decrypt") {
+					if (size > 2) {
+						i++;
+						if (Utilities::isNumber(incomingInput[i]) == 1) {
+							key = std::stoi(incomingInput[i]);	
+						} else {
+							ColorChange("Sorry the key was not a number.", 2);
+							break;
+						}
+						i++;
+						std::cout << "\t\t" << Cryptography(2, key, incomingInput[i]) << std::endl;
+					} else {
+						ColorChange("The number of arguments was incorrect.", 2);
+					}
 				} else if (incomingInput[i] == "dirs") {	
 					DepthFirstSearch("/", "&&&&&", 0, 0);
 				} else if (incomingInput[i] == "encrypt") {
-					i++;
-					std::cout << "\t\t" << "Please enter your key: ";
-					while(!(std::cin >> key)) {																			//Loop until an actual encryption key is a number.
-						std::cout << "\t\t" << "Must be a number: ";
-						std::cin.clear();
-						std::cin.ignore(100,'\n');
+					if (size > 2) {
+						i++;
+						if (Utilities::isNumber(incomingInput[i]) == 1) {
+							key = std::stoi(incomingInput[i]);	
+						} else {
+							ColorChange("Sorry the key was not a number.", 2);
+							break;
+						}
+						i++;
+						std::cout << "\t\t" << Cryptography(1, key, incomingInput[i]) << std::endl;	
+					} else {
+						ColorChange("The number of arguments was incorrect.", 2);
 					}
-					std::cout << "\t\t" << Cryptography(1, key, incomingInput[i]) << std::endl;							//Display the message from the Cryptography method.		
 				} else if (incomingInput[i] == "exit") {
+					SetupAndCloseSystem(2);
 					arguments.push_back("reset");
 					ExecuteFile("reset", arguments);	
-					SetupAndCloseSystem(2);
 					exit(0);
 				} else if (incomingInput[i] == "find") {	
-					i++;
 					std::cout << std::endl;
 					if (size > 2) { 
+						i++;
 						DepthFirstSearch(incomingInput[i], incomingInput[i+1], 1, 1);
 					} else if (size > 1) {
+						i++;
 						random = "/";
 						DepthFirstSearch(random, incomingInput[i], 1, 1);
+					} else {
+						ColorChange("The number of arguments was incorrect.", 2);
 					}
 					std::cout << std::endl;
-					i++;
 				}
 			} else {																									//If the command is within G - L (g - l).											
 				if (incomingInput[i] == "getenv") {
@@ -1149,29 +889,18 @@ int Thursday::SearchCommands(char * envp[], vector<std::string>incomingInput, in
 				} else if (incomingInput[i] == "hd") {
 					UserInformation(0);
 				} else if (incomingInput[i] == "help") {
-					i++;
-					Help(incomingInput[i]);
+					if (size > 1) {
+						i++;
+						Help(incomingInput[i]);
+					} else {
+						ColorChange("The number of arguments was incorrect.", 2);
+					}
 				} else if (incomingInput[i] == "info") {
 					std::cout << "\t\t" << "The user ID is: " << uid << std::endl;
 					std::cout << "\t\t" << "The process ID is: " << pid << std::endl;
 					std::cout << "\t\t" << "The parent process ID is: " << ppid << std::endl;
 					std::cout << "\t\t" << "The user's name is: " << userName << std::endl;
-					UserInformation(1);
-				} else if (incomingInput[i] == "login") {
-					Login();
-				} else if (incomingInput[i] == "logout") {
-					if (userKey != 0) {
-						colorOption = 1;
-						userKey = 0;	
-						userPromptNumber = 3;
-						userNumber = 1;
-						userPassword = "";
-						userName = "";
-						userPrompt = "";
-					}
-					arguments.push_back("reset");
-					ExecuteFile("reset", arguments);	
-					arguments.clear();									
+					UserInformation(1);									
 				} else if (incomingInput[i] == "ls") {
 					std::cout << std::endl;
 					random = "";
@@ -1181,45 +910,50 @@ int Thursday::SearchCommands(char * envp[], vector<std::string>incomingInput, in
 			}
 		} else if (characterValue >= 109 && characterValue <= 122) {													//If the command is within M - Z (m - z).
 			if (characterValue >= 109 && characterValue <= 115) {														//If the command is within M - S (m - s).
-				if (incomingInput[i] == "myprompt") {
-					UserUtilities(5);
-				} else if (incomingInput[i] == "name") {
-					std::cout << "\t\t" << "The user's name is: " << userName << std::endl;	
-				} else if (incomingInput[i] == "pid") {
+			    if (incomingInput[i] == "pid") {
 					std::cout << "\t\t" << "The process ID is: " << getpid() << std::endl;
 				} else if (incomingInput[i] == "ppid") {
 					std:;cout << "\t\t" << "The parent process ID is: " << getppid() << std::endl;
 				} else if (incomingInput[i] == "printenv") {
 					EnvironmentUtilites(3); 
-				} else if (incomingInput[i] == "printusers") {
-					UserUtilities(3);
 				} else if (incomingInput[i] == "prompt") {
-					i++; 
-					int promptNumber = std::stoi(incomingInput[i]);														//Converts the incoming char pointer and makes it a number
-					if (promptNumber >= 0 || promptNumber <= 4) {														//Check to see if the number is between the systems range.		
-						userPromptNumber = promptNumber;																//Set the class variable of the prompt number to its new setting.
+					if (size > 1) { 
+						i++; 
+						if (Utilities::isNumber(incomingInput[i]) == 1) {
+							if (std::stoi(incomingInput[i]) >= 0 || std::stoi(incomingInput[i]) <= 4) {	
+								userPromptNumber = std::stoi(incomingInput[i]);
+							} else {
+								ColorChange("That is not an option for the prompt.", 2);
+							}
+						}
 					} else {
-						ColorChange("Invalid entry.", 2);
+						ColorChange("The number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "rm") {	
-					i++;
-					if (remove(incomingInput[i].c_str()) != 0)
-						DirectoryDelete(incomingInput[i]);
+					if (size > 1) {
+						i++;
+						if (remove(incomingInput[i].c_str()) != 0)
+							DirectoryDelete(incomingInput[i]);
+					} else {
+						ColorChange("The number of arguments was incorrect.", 2);
+					}
 				} else if (incomingInput[i] == "search") {
-					i++;
-					Search(incomingInput[i]);
+					if (size > 1) {
+						i++;
+						Search(incomingInput[i]);
+					} else {
+						ColorChange("The number of arguments was incorrect.", 2);
+					}
 				} else if (incomingInput[i] == "setenv") {
 					EnvironmentUtilites(1);
 				}
 			} else {																									//If the command is within T - Z (t - z).
 				if (incomingInput[i] == "time") {	
-					std::cout << "\t\t" << Utilities::date(8) << std::endl;
+					std::cout << "\t\t" << Utilities::date(2) << std::endl;
 				} else if (incomingInput[i] == "uid") {
 					std::cout << "\t\t" << "The user ID is: " << getuid() << std::endl;
 				} else if (incomingInput[i] == "unsetenv") {
 					EnvironmentUtilites(0);
-				} else if (incomingInput[i] == "updateuser") {
-					UserUtilities(4);
 				} else if (incomingInput[i] == "usage") {
 					fileName = informationDestination;
 					fileName += "/Usage.txt";
@@ -1227,27 +961,24 @@ int Thursday::SearchCommands(char * envp[], vector<std::string>incomingInput, in
 				} else if (incomingInput[i] == "wd") {
 					std::cout << "\t\t" << "The current directory is: " << currentPath << std::endl;
 				} else if (incomingInput[i] == "whereis") {
-					std::cout << std::endl;
-					random = "/";
-					DepthFirstSearch(random, incomingInput[i+1], 1, 1);
-					cout << endl;
-					i++;
+					if (size > 1) {
+						i++;
+						std::cout << std::endl;
+						random = "/";
+						DepthFirstSearch(random, incomingInput[i], 1, 1);
+						cout << endl;
+					} else {
+						ColorChange("The number of arguments was incorrect.", 2);
+					}
 				}
 			}
 		}
-	} else if ( signal == 2) {
+	} else if (signal == 1) {
 		for (int a = 0; a < size; a++)
 			arguments.push_back(incomingInput[a]);				
 		ExecuteFile(incomingInput[i], arguments); 
 		i = size;
-		return 3;
-	} else if ( signal == 1 ) {
-		int returnNumber = 0;
-		for (int a = 0; a < size; a++)																					//Loop through the given size of the vector.
-			arguments.push_back(incomingInput[a]);
-		returnNumber = ExecuteFile(incomingInput[i], arguments); 														//Pass the incoming command and the array filled with arguments.
-		i = size;
-		return returnNumber;
+		return;
 	}
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
@@ -1281,7 +1012,7 @@ void Thursday::SetupAndCloseSystem(int number) {
 	usersFileName += "/Users.txt";
 
 	std::vector<std::string> temp;
-	
+	std::cout << "CHECK" << std::endl;
 	if ( number == 1) {																									//Setting up the system.
 		ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);									//Loads the Thursday Commands
 		OSCommands = FileLoader(OSCommands, osCommandsFileName, 0);														//Loads the operating system commmands
@@ -1306,14 +1037,17 @@ void Thursday::SetupAndCloseSystem(int number) {
 						PathVector.push_back(stringTokens);																//Store one of the paths into the path vector.
 				}
 			}														
-		}	
+		}
+		temp.clear();	
 	} else if (number == 2) {																							//Closing up the system.
 		fstream GlobalInput;
 		fstream UsersInput;	
 		fstream OSInput;																				
-		UsersInput.open(usersFileName);																					//Opens the stream for the user file.
-		GlobalInput.open(globalFileName);																				//Opens the stream for the global file.
-		OSInput.open(osCommandsFileName);
+
+		UsersInput.open(usersFileName.c_str());																			//Opens the stream for the user file.
+		GlobalInput.open(globalFileName.c_str());																		//Opens the stream for the global file.
+		OSInput.open(osCommandsFileName.c_str());
+
 		if (!UsersInput) {
 			ColorChange("There was an error opening the file in the SetupAndCloseSystem method 1.", 2);
 			return;
@@ -1330,13 +1064,13 @@ void Thursday::SetupAndCloseSystem(int number) {
 			if (UsersVector[i] != " " || UsersVector[i] != "" || UsersVector[i] == "")									//Checks to see if the inputstreamm is not empty and NULL.
 				UsersInput << input << std::endl;																		//Stores it into the user vector.
 		}
-		
+
 		for (int i = 0; i < Environment.size(); i++) {																	//Loops until the end of the vector.
 			GlobalInput << Environment[i] << '#';																		//Print the variable to the file.
 			if (i % 2 == 0)																								//If the iterator is every second location.
 				std::cout << std::endl;																					//Print a new line in the file.
 		}
-		
+
 		for (int i = 0; i < OSCommands.size(); i++) {
 			OSInput << OSCommands[i] << '#';
 			i++;
@@ -1344,383 +1078,14 @@ void Thursday::SetupAndCloseSystem(int number) {
 			i++;
 			OSInput << OSCommands[i] << '#' << std::endl;
 		}
+		UsersInput.close();
+		GlobalInput.close();
+		OSInput.close();
 	}	
 	/*--------------------------------------------------------------------*/
-	temp.clear();
-
 	if (debugSwitch == 1)
 		ColorChange("Mission - You are leaving the SetupAndCloseSystem method.", 3);
  	/*--------------------------------------------------------------------*/
-	return;
-}
-
-std::string Thursday::StackPop() {
-	/*-------------------------------------------------------------------
-	Note: This method pops the paths off the stack and updates the current
-	* position. This method was last updated on 9/24/2017.
-	--------------------------------------------------------------------*/
-    if (debugSwitch == 1) 
-        ColorChange("Mission - You are in the StackPop method.", 3);
-	/*--------------------------------------------------------------------*/
-    if (currentPosition != -1) {										//Checks the current position in the stack.
-		std::string outcomingValue = "";						
-		outcomingValue = stackArray[currentPosition];					//Copies the path in the char array.
-        stackArray[currentPosition] = " ";								//Replaces the spot in the array with an empty character.
-        currentPosition--;												//Decrease the current pointer.
-        return outcomingValue;											//Return the path.
-    }
-}
-
-void Thursday::StackPush(std::string incomingPath) {
-	/*-------------------------------------------------------------------
-	Note: This method pushes paths into the char array. This method was 
-	* last updated on 9/24/2017.
-	--------------------------------------------------------------------*/
-    if (debugSwitch == 1) 
-        ColorChange("Mission - You are in the StackPush method.", 3);
-	/*--------------------------------------------------------------------*/
-    currentPosition++;													//Increments the stack iterator.
-    if (currentPosition < MAX) {										//If the current position is less than max.
-		stackArray[currentPosition] = incomingPath;						//Push the path into the array.
-    } else {
-        currentPosition--;												//If it is higher than max then decrement the position.
-    }
-	/*--------------------------------------------------------------------*/
-    if (debugSwitch == 1) 
-		ColorChange("Mission - You are leaving the StackPush method.", 3);
-	/*--------------------------------------------------------------------*/
-    return;
-}
-
-void Thursday::UserInformation(int number) {
-	/*-------------------------------------------------------------------
-	Note: This method gets the users information from the computer systems
-	* password struct. Depending on the number that is passed through, either 
-	* just the home directory is printed out or all the information is then 
-	* displayed. This method was last updated on 9/24/2017.
-	--------------------------------------------------------------------*/
-    if (debugSwitch == 1)
-        ColorChange("Mission - You are in the UserInformation method.", 3);
-	/*--------------------------------------------------------------------*/
-	int i = getuid();							//Returns the user id.
-    passwd * CurrUser;							//Creates a passwd structure pointer.
-    CurrUser = getpwuid(i);						//Has the pointer point to the passwd structure.
-   	uid_t Uid = CurrUser->pw_uid;				//Returns the user id from the passwd structure.
-	gid_t Gid = CurrUser->pw_gid;				//Returns the group id from the passwd structure.
-    //~ char * Directory = CurrUser->pw_dir;		//Returns the users home directory.
-    //~ char * UserName = CurrUser->pw_name;		//Returns the username from the passwd structure.
-	//~ char * Password = CurrUser->pw_passwd;		//Returns the encrypted passwd from the structure.
-	//~ char * Shell = CurrUser->pw_shell;			//Returns the location of where the default shell is.
-	std::string Directory = CurrUser->pw_dir;
-	std::string UserName = CurrUser->pw_name;
-	std::string Password = CurrUser->pw_passwd;
-	std::string Shell = CurrUser->pw_shell;
-	/*--------------------------------------------------------------------*/
-	if (number == 0) {
-		std::cout << "\t\t" << "Home Directory: " << Directory << std::endl;
-	} else if (number == 1) {
-		std::cout << "\t\t" << "Home Directory: " << Directory << std::endl;
-		std::cout << "\t\t" << "Admin: " << UserName << std::endl;
-		std::cout << "\t\t" << "Password: " << Password << std::endl;
-		std::cout << "\t\t" << "Uid: " << Uid << std::endl;
-		std::cout << "\t\t" << "Gid: " << Gid << std::endl;
-		std::cout << "\t\t" << "Shell: " << Shell << std::endl; 
-	}
-	/*--------------------------------------------------------------------*/
-	//~ free(UserName); free(Password); free(Shell); free(Directory);
-	//~ UserName = NULL, Password = NULL, Shell = NULL, Directory = NULL;
-
-    if (debugSwitch == 1) 
-        ColorChange("Mission - You are leaving the UserInformation method.", 3);
-	/*--------------------------------------------------------------------*/
-    return;
-}
-
-void Thursday::UserUtilities(int number) {
-	/*------------------------------------------------------------------
-	Note: This method will add, delete, and print users. Only admins are
-	* allowed to use this method. This method was last updated on 9/24/2017.
-	--------------------------------------------------------------------*/	
-	if (debugSwitch == 1)
-		ColorChange("Mission - You are in the UserUtilities method.", 3);
-	/*--------------------------------------------------------------------*/
-	std::string currName = "";
-	std::string currPass = "";
-	std::string currPrompt = "";
-	std::string copy = "";
-	int checkSwitch = 0;
-	int colorNumber =0;
-	int fileDescriptor = 0;
-	int counter = 0;
-	int key = 0;
-	int id = 0;
-	int promptNumber = 0;
-	
-	fstream InputData;
-	DirectoryChange(profileDestination, 0);																				//Move the system in to the profileDestination.
-	/*--------------------------------------------------------------------*/
-	if (userNumber == 0) {																								//If the user is an admin.					
-		if (number == 1) {																								//Add a user to the system.
-			while (checkSwitch == 0) {																					//Loop until a user with a non pre-existing username that is not already taken.
-				std::cout << "\t\t" << "Username of the new user: ";
-				std::getline(std::cin, currName);																		//Get the username from the user.							
-				for (int i = 0; i < UsersVector.size(); i++) {															//Loop through the users vector.	
-					if (currName == UsersVector[i])																		//Check to see if the username is not already taken.
-						checkSwitch = 1;																				//Set the check switch to true.
-				}
-				if (currName == "exit" || currName == "Exit" || currName == "EXIT") {									//If the user wants to exit the 
-					DirectoryChange(homeDestination, 0);																//Move back to the home directory.
-					return;		
-				}			
-				if (checkSwitch == 1) {																					//If the user name was found in the vector.
-					counter+=1;																							//Increment the counter if the name was wrong.
-					if (counter % 3 == 0)																				//If the name was wrong for the third time, repeating.
-						std::cout << "\t\t" << "If you don't want to add a new user, type exit" << std::endl;
-					ColorChange("Sorry that user name is already taken.", 2);
-					checkSwitch = 0; 																					//Reset the check switch.
-				} else {
-					currName = Cryptography(3, 0, currName);															//Uppercase the name.
-					UsersVector.push_back(currName);																	//Push the name in the user vector.
-					break;																								//Else break if the name was not found.
-				}
-			}
-			//--------------------------------------------------------------------------------
-			std::cout << "\t\t" << "Please enter your encryption key: ";
-			while(!(std::cin >> key)) {																					//Get the encryption key, and repeat until its an actual number.
-				ColorChange("Must be a number.", 2);
-				std::cin.clear();																						//Clear the input stream.
-				std::cin.ignore(100,'\n');																				//Clear the enter key after the stream.
-			}
-			std::cin.ignore();
-			currName = Cryptography(1, key, currName);																	//Encrypt the name given the key.
-			currName += ".txt";																							//Add the text file extenstion to the end of the encrypted name.
-			fileDescriptor = open(currName.c_str(), O_TRUNC |  O_RDWR | O_CREAT, S_IRWXU | S_IRGRP | S_IROTH );  		//Create and open the file using the encrypted name.		
-			if (fileDescriptor == -1) {																					//If the file was not able to be created.
-			  ColorChange("Open Failed", 2);
-			  DirectoryChange(homeDestination, 0);																		//Move the system to the home directory.
-			  return;
-			}
-			//--------------------------------------------------------------------------------
-			std::cout << '\t' << '\t' << "Password for the new user: ";
-			std::getline(std::cin, currPass);																			//Get the password from the user.
-			if (currPass.size() > 1) {																					//If the password is longer than one character.		
-				currPass = Cryptography(3, 0, currPass);																//Uppercase the password.
-				currPass = Cryptography(1, key, currPass);																//Encrypt the password.
-			} else {
-				ColorChange("There was an issue with the given password.", 2);
-				return;
-			}
-			//--------------------------------------------------------------------------------
-			std::cout << "\t\t" << "Is this new user an Admin ( 0 - Yes or 1 - No): ";
-			while(!(std::cin >> id)) {																					//Get the ID, and repeat until its an actual number.
-				ColorChange("Must be a number.", 2);
-				std::cin.clear();
-				std::cin.ignore(100,'\n');
-			}
-			std::cin.ignore();
-			//--------------------------------------------------------------------------------
-			cout << "\t\t" << "Prompt ID Number: ";
-			while(!(std::cin >>promptNumber)) {																			//Get the prompt ID, and repeat until its an actual number.
-				ColorChange((char*)"Must be a number.", 2);
-				cin.clear();
-				cin.ignore(100,'\n');
-			}
-			std::cin.ignore();
-			//--------------------------------------------------------------------------------
-			std::cout << "\t\t" << "Color ID Number: ";
-			while(!(std::cin >> colorNumber)) {																			//Get the color ID, and repeat until its an actual number.
-				ColorChange("Must be a number.", 2);
-				std::cin.clear();
-				std::cin.ignore(100,'\n');
-			}
-			std::cin.ignore();
-			//--------------------------------------------------------------------------------
-			std::cout << "\t\t" << "Custom prompt output: ";
-			std::getline(std::cin, currPrompt);																			//Get the current custom prompt.				
-			if (currPrompt.size() > 1) {
-				currPrompt += " #";
-			} else {
-				ColorChange("There was an issue with the given prompt.", 2);
-				return;
-			}
-			//--------------------------------------------------------------------------------
-			InputData.open(currName);																					//Open the file name, then write everything into the opened file.
-			InputData << currPass << endl;																				
-			InputData << id << endl;
-			InputData << promptNumber << endl;
-			InputData << currPrompt << endl;
-			//--------------------------------------------------------------------------------
-			close(fileDescriptor);																						//Close the file descriptor.			
-			SetupAndCloseSystem(2);																						//Update the system with the new user.	
-			std::cout << "\t\t" << "The user was added!" << std::endl;
-		} else if (number == 2) {																						//Deleteing a user from the system.
-			std::cout << "\t\t" << "Username: ";
-			std::getline(std::cin, currName);																			//Get the user name from the user.
-			if (currName != userName) {																					//If the user that was entered is not the same as the current user.
-				currName = Cryptography(3,0,currName);																	//Uppercase the username.				
-				for (int b = 0; b < UsersVector.size(); b++) {															//Loop through the users vector.
-					if (currName == UsersVector[b]) {																	//If the user was found in the vector
-						UsersVector.erase(UsersVector.begin()+b);														//Delete the user from the vector.		
-						checkSwitch = 1;																				//Turn the checkswitch on.
-					}
-				}
-				
-				if (checkSwitch == 1) {																					//If the user was found.
-					std::cout << "\t\t" << "Please enter your encryption key: ";
-					while(!(std::cin >> key)) {																			//Get the encryption key, and repeat until its an actual number.												
-						ColorChange("Must be a number.", 2);
-						std::cin.clear();
-						std::cin.ignore(100,'\n');
-					}
-					currName = Cryptography(1, key, currName);															//Encrypt the username with the given key.
-					currName += ".txt";																					//Add the text file extenstion to the encrypted username.
-					if (remove(currName.c_str()) != 0)																	//Delete the user profile from the system.
-						ColorChange("There was an issue deleteing the user", 2);
-				} else {
-					ColorChange("Sorry the user was not found.", 2);
-					DirectoryChange(homeDestination, 0);
-					return;
-				}
-			} else {
-				ColorChange("Sorry can't delete the current user.", 2);
-				DirectoryChange(homeDestination, 0);
-				return;
-			}
-			SetupAndCloseSystem(2);																						//Update the system records.
-		} else if (number == 3) {																						//Print all the current users
-			for (int a = 0; a < UsersVector.size(); a++)
-				std::cout << "\t\t" << UsersVector[a] << std::endl; 
-		} else if (number == 4) {																						//Update the current user.
-			while (checkSwitch == 0) {
-				std::cout << "\t\t" << "New / Old UserName: ";
-				std::getline(std::cin, currName);																		//Get the username from the user.
-				for (int i = 0; i < UsersVector.size(); i++) {															//Loop through the Users vector.
-					if (currName == UsersVector[i])																		//If found in the vector.	
-						checkSwitch = 1;																				//Turn the check switch on.
-				}		
-				if (checkSwitch == 1) {
-					checkSwitch = 0; 																					//Reset the check switch.		
-				} else {
-					break;																								//Else leave the loop.
-				}
-			}
-			//--------------------------------------------------------------------------------
-			std::cout << "\t\t" << "Please enter your encryption key: ";
-			while(!(std::cin >> key)) {																					//Get the encryption key, and repeat until its an actual number.
-				ColorChange("Must be a number.", 2);
-				std::cin.clear();																						//Clear the input stream.
-				std:;cin.ignore(100,'\n');																				//Clear the enter key after the stream.
-			}	
-			currName = Cryptography(3, 0, currName);																	//Uppercase the username.		
-			UsersVector.push_back(currName);																			//Put the username into the vector.
-			currName = Cryptography(1, key, currName);																	//Encrypt the name.						
-			currName += ".txt";																							//Add the file extensions.
-			fileDescriptor = open(currName.c_str(), O_TRUNC |  O_RDWR | O_CREAT, S_IRWXU | S_IRGRP | S_IROTH );  		//Create and open the file with the given encrypted username.
-			if (fileDescriptor == -1) {																					//If the file couldn't be opened.
-			  ColorChange("Open failed.", 2);
-			  DirectoryChange(homeDestination, 0);
-			  return;
-			}
-			std::cin.ignore();
-			//--------------------------------------------------------------------------------
-			std::cout << "\t\t" << "Password for the new user: ";
-			std::getline(std::cin, currPass);																			//Get the password from the user.
-			if (currPass.size() > 1) {																					//If the password is longer than one character.		
-				currPass = Cryptography(3, 0, currPass);																//Uppercase the password.
-				currPass = Cryptography(1, key, currPass);																//Encrypt the password.
-			} else {
-				ColorChange("There was an issue with the given password.", 2);
-				return;
-			}
-			//--------------------------------------------------------------------------------
-			std::cout << "\t\t" << "Is this new user an Admin ( 0 - Yes or 1 - No): ";
-			while(!(std::cin >> id)) {																					//Get the admin ID, and repeat until its an actual number.
-				ColorChange("Must be a number.", 2);
-				std::cin.clear();
-				std::cin.ignore(100,'\n');
-			}
-			//--------------------------------------------------------------------------------
-			std::cout << "\t\t" << "Prompt ID Number: ";
-			while(!(std::cin >> promptNumber)) {																		//Get the prompt number, and repeat until its an actual number.
-				ColorChange("Must be a number.", 2);
-				std::cin.clear();
-				std::cin.ignore(100,'\n');
-			}
-			std::cin.ignore();
-			//--------------------------------------------------------------------------------
-			std::cout << "\t\t" << "Custom prompt output: ";
-			std::getline(std::cin, currPrompt);																			//Get the current custom prompt.				
-			if (currPrompt.size() > 1) {
-				currPrompt += " #";
-			} else {
-				ColorChange("There was an issue with the given prompt.", 2);
-				return;
-			}
-			//--------------------------------------------------------------------------------
-			InputData.open(currName);																					//Open the file name, then write everything into the opened file.
-			InputData << currPass << endl;
-			InputData << id << endl;
-			InputData << promptNumber << endl;
-			InputData << currPrompt << endl;
-			//--------------------------------------------------------------------------------
-			close(fileDescriptor);
-			SetupAndCloseSystem(2);
-			
-			for (int b = 0; b < UsersVector.size(); b++) {																//Loop through the user vectors.
-				if (userName == UsersVector[b]) {																		//Find the old user name.
-					UsersVector.erase(UsersVector.begin()+b);															//Delete the user from the vector.
-					checkSwitch = 1;																					//Turn the check switch on.
-				}
-			}
-			
-			if (checkSwitch == 1) {																						//If the user was found.																						//Take the current user key and re
-				std::cout << "Make sure that this is uppercased: " << userName << std::endl;
-				userName = Cryptography(1, userKey, userName);															//Encrypt the old username.
-				userName += ".txt";																						//Add the file extension to the username.
-				if (remove(userName.c_str()) != 0)																		//Remove the old user profle.
-					ColorChange("There was an issue deleteing the user", 2);
-					
-			} else {
-				ColorChange("Sorry the user was not found.", 2);
-				DirectoryChange(homeDestination, 0);																	//Move the system into the old directory.	
-				return;
-			}			
-		} else if (number == 5) {
-			std::cout << "\t\t" << "Custom prompt output: ";
-			std::getline(std::cin, currPrompt);																			//Get the new custom prompt.
-			if (currPrompt.size() > 1) {																				//If the custom prompt has a length longer than one.
-				currPrompt += " ";																						//Add a space to the end of the prompt so that there is some clearance.
-				userPrompt = currPrompt;																				//Add the new custom prompt to the class variable.		
-				currPrompt += "#";																						//Terminate the custom prompt with this symbol so that the system can get the whole prompt.	
-				currName = userName;																					//Create the file name and open the user profile.
-				currName = Cryptography(3,0,currName);
-				currName = Cryptography(1,userKey,currName);
-				currName += ".txt";
-			} else {
-				ColorChange("Sorry there was an issue with the custom prompt.", 2);
-				return;
-			}
-			InputData.open(currName);																					//Open the file.
-			if (!InputData)
-				ColorChange("There was an issue opening the file in the UserUtilites Method", 2);
-
-			InputData << userPassword << endl;																			//Print the user profile into the file.	
-			InputData <<  userNumber << endl;
-			InputData << promptNumber << endl;
-			InputData << currPrompt << endl;
-			
-			std::cout << "\t\t" << "The prompt has been updated!" << std::endl;
-		}			
-	} else {
-		ColorChange("Admins only please!", 2);
-	}
-	
-	DirectoryChange(homeDestination, 0);																				//Move the system back into the home directory.
-	
-	/*--------------------------------------------------------------------*/
-    if (debugSwitch == 1) 
-        ColorChange("Mission - You are leaving the UserUtilities method.", 3);
-	/*--------------------------------------------------------------------*/
 	return;
 }
 
@@ -1729,12 +1094,8 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 	Color::Modifier def(Color::FG_DEFAULT, BoolVar);
 	if (colorSwitch == 1) {
 		if ( signal == 1 ) {
-			if ( colorOption == 0 ) {
-				Color::Modifier color(Color::FG_BLACK, BoolVar); 
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 1 ) {
-				Color::Modifier color(Color::FG_RED, BoolVar);
+			if ( colorOption == 1 ) {
+				Color::Modifier color(Color::FG_BLACK, BoolVar);
 				std::cout << color << sentence << def;
 				return;
 			} else if ( colorOption == 2 ) {
@@ -1800,11 +1161,11 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 			}
 		} else if ( signal == 2 ) {
 			Color::Modifier color(Color::FG_RED, BoolVar);
-			std::cout << "\t\t" << color << sentence << std::endl;
+			std::cout << "\t\t" << color << sentence << def << std::endl;
 			return;
 		} else if ( signal == 3 ) {
 			Color::Modifier color(Color::FG_YELLOW, BoolVar);
-			std::cout << "\t\t" << color << sentence << std::endl;
+			std::cout << "\t\t" << color << sentence << def << std::endl;
 			return;
 		}
 	} else {

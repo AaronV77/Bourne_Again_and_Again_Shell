@@ -1,11 +1,11 @@
-Game: Thursday.o AaronsUtilities.o
-	c++ AaronsUtilities.o Thursday.o ThursdayMain.cpp -o Thurs
+Game: Thursday.o Utilities.o
+	c++ Utilities.o Thursday.o ThursdayMain.cpp -o Thurs
 
 Thursday.o: Thursday.cpp Thursday.h
 	c++ -c Thursday.cpp
 
-AaronsUtilities.o: AaronsUtilities.cpp AaronsUtilities.h
-	c++ -c AaronsUtilities.cpp
+AaronsUtilities.o: Utilities.cpp Utilities.h
+	c++ -c Utilities.cpp
 		
 clean:
-	rm Thursday.o AaronsUtilities.o Thurs
+	rm Thursday.o Utilities.o Thurs

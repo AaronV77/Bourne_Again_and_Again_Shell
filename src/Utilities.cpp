@@ -30,10 +30,11 @@ std::string Utilities::date(int number) {
 	std::string year = std::to_string(timeinfo->tm_year + 1900);
 	std::string output = "";
 
-	if (number & 0x01) { output = month + " "; }
-	if (number & 0x02) { output = day + " "; }
-	if (number & 0x04) { output = year + " "; }
-	if (number & 0x08) { output = time + " "; }
+	if (number == 1) {
+		return month + " " + day + ", " + year;
+	} else if (number ==2) {
+		return time;
+	}
 	
 	return output;
 }
@@ -60,7 +61,22 @@ std::string Utilities::string_checker(std::string incomingString, int option) {
 	
 }
 
-
+int Utilities::isNumber(std::string incomingString) {
+	
+	int counter = 0;
+	int size = str.size();
+	
+	for (int i = 0;  i < size; i++) {
+		if (isdigit(str[i]))
+			counter++;
+	}
+	
+	if (counter == size)
+		return 1;
+	else
+		return 0;
+		
+}
 
 
 

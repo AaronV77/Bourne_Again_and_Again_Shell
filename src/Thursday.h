@@ -21,7 +21,7 @@
 #include <unistd.h>
 #include <vector>
 #include "colorModification.h"
-#include "AaronsUtilities.h"
+#include "Utilities.h"
 
 using namespace Utilities;
 using namespace Color;
@@ -29,18 +29,16 @@ using namespace Color;
 class Thursday {
  
 	static const int MAX_SIZE = 256;
-	static const long int MAX = 3000;
 	static char path[MAX_SIZE];
 	
 public:
 	Thursday();
 	Thursday(const Thursday& otherThursday);	
 	~Thursday();
-	int ArgumentChecker(std::string theCommands, char * envp[]);
+	void ArgumentChecker(std::vector<std::string> tokens, char * envp[]);
 	void CompressAndDecompress(int Number, std::string argument);
 	string Cryptography(int number, int key, std::string message);
 	void DepthFirstSearch(std::string path, std::string command, int number, int theSwitch);
-	void Destruction(int Number);
 	void DirectoryChange(std::string desiredPath, int number);
 	void DirectoryDelete(std::string dirname);
 	void DisplayDirectories(std::string searchWord, int number, int theSwitch); 
@@ -48,27 +46,18 @@ public:
 	std::vector<std::string> FileLoader(std::vector<std::string> incomingVector, std::string fileName, int signal);
 	void EnvironmentUtilites(int Number);
 	int ExecuteFile(std::string incomingCommand, std::vector<std::string> arguments);
+	void GetArgumentss(std::string theCommands, char * envp[]);
 	void Help(std::string argument);
-	void LoadSystemCommands();
-	void Login();	
 	void PromptDisplay();
 	void Search(std::string argument);
-	int SearchCommands(char * envp[], std::vector<std::string>incomingInput, int signal);
+	int SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]);
 	void SetupAndCloseSystem(int number);
-	std::string StackPop();
-	void StackPush(std::string incomingPath);
-	void UserInformation(int number);
-	void UserUtilities(int number);
-
-	std::string Cutter(std::string startpoint, std::string word, int numberOfCharacters);
-	void ColorChange(std::string sentence, int signal);
 	
 private:
 	int BoolVar;
 	int colorOption;
 	int colorSwitch;
-	int commandSwitch;
-	int currentPosition;	
+	int commandSwitch;	
 	int debugSwitch;
 	int errorSwitch;
 	int found;
@@ -77,27 +66,21 @@ private:
 	int ppid;
 	int uid;	
 	int userPromptNumber;	
-	int userNumber;
-	int userKey;
 		
 	std::string currentPath;
+	std::string currentPrompt;
 	std::string dictionaryDestination;
 	std::string homeDestination;
 	std::string hostName;
 	std::string informationDestination;
-	std::string userLogin;
-	std::string userPassword;
 	std::string profileDestination;
 	std::string srcDestination;
-	std::string userName;
-	std::string userPrompt;	
 	
-	std::string stackArray[MAX];
+	std::stack<std::string> stringStack;
     std::vector<std::string> Environment;
     std::vector<std::string> PathVector;
     std::vector<std::string> ThursdayCommands;
     std::vector<std::string> OSCommands;
-	std::vector<std::string> UsersVector;
     
 };
 
