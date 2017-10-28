@@ -264,7 +264,7 @@ void Thursday::DepthFirstSearch(std::string path, std::string command, int numbe
 		DirectoryChange(input, 1);																		//Use the poped path from the stack and change the directory that the system is looking at.
 		 
 		if (errorSwitch == 0) {																			//Check to make sure that the global error switch was not triggered.
-			DisplayDirectories(command, 0, theSwitch);													//Loop through the current directory, and push the directories onto the stack.
+			//~ DisplayDirectories(command, 0, theSwitch);													//Loop through the current directory, and push the directories onto the stack.
 		} else {
 			errorSwitch = 0;																			//Reset our error switch.
 		}		
@@ -360,53 +360,14 @@ void Thursday::DirectoryDelete(std::string dirname) {
 	return;
 }
 
-void Thursday::DisplayDirectories(std::string searchWord, int number, int theSwitch) {
+void Thursday::DisplayDirectories(std::string lsArgument) {
 	/*-------------------------------------------------------------------
 	Note: This method 
 	--------------------------------------------------------------------*/
 	if (debugSwitch == 1)
 		ColorChange("Mission - You are in the DisplayDirectories method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	struct stat s;
-	std::string addedPath = "";
-    DIR * dir = opendir((char*)".");
-    dirent * entry;
 
-    if (NULL==dir) {
-		if (number != 0)
-			ColorChange("LS File Closing Failure: ", 2);								//Print an error if we cannot close the directory.
-    } else {
-        while (entry = readdir(dir)) {
-			if (number == 0) {															//If 0 then we are using the whereis and find command, but if a 1, then we are using the ls command.
-				addedPath = currentPath;												//Add our current path to the addedPath variable.
-				if (currentPath != "/")													//Check to see that the current path does not already equal a backslash.
-					addedPath += "/";													//Add our back slash to add another directory to it.
-				addedPath = entry->d_name;												//Add the file / directory / or anything else that we are looking at in the directory to the path.
-				if (entry->d_name == searchWord) { 										//Check to see if what we are looking at matches what the user is searching for.
-					if (theSwitch == 1) 												//The commands find and whereis will be a 1, and dirs will be a 0.
-						std::cout << '\t' << '\t' << addedPath << std::endl;			//Print the absolute path of where the file the user is looking for.
-					found = 1;															//Set the found variable that the system has been able to find at least one location of the file that is being searched for.
-				} 
-				if ((entry->d_name !=  ".") && (entry->d_name != "..")) {				//Check to see if the system is looking at . and .. so that we don't store them.
-					if (lstat(addedPath.c_str(), &s) == 0) {							//Retrieves information on the directory that we are looking at.
-						if (s.st_mode & S_IFLNK) {										//Check the mask type to see if the directory is a symbolic link.
-							//~ cout << "Random2 is a Symbolic link" << endl;			//If so do not do anything.
-						} else {
-							if (s.st_mode & S_IFDIR) {									//If the path is a directory.
-								stringStack.push(addedPath);							//Push the path into the stack.
-							}
-						}
-					}
-				}
-				addedPath = "";
-			} else {
-				if ((entry->d_name !=  ".") && (entry->d_name != ".."))					//Make sure that we are not printing the (. and ..).
-					std::cout << '\t' << '\t' << entry->d_name << std::endl;			//Print the contents of the current directory.
-			}
-		}  
-        if (closedir(dir) == -1)														//make sure that we can close the directory that we are looking at.
-            ColorChange("LS File Closing Failure: ", 2);								//Print an error if we cannot close the directory.
-    }
     /*--------------------------------------------------------------------*/ 
     if (debugSwitch == 1) 
 		ColorChange("Mission - You are leaving the DisplayDirectories method.", 3);
@@ -849,7 +810,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "dirs") {	
-					DepthFirstSearch("/", "&&&&&", 0, 0);
+					//~ DepthFirstSearch("/", "&&&&&", 0, 0);
 				} else if (incomingInput[i] == "encrypt") {
 					if (size > 2) {
 						i++;
@@ -902,10 +863,16 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 					std::cout << "\t\t" << "The user's name is: " << userName << std::endl;
 					UserInformation(1);									
 				} else if (incomingInput[i] == "ls") {
-					std::cout << std::endl;
-					random = "";
-					DisplayDirectories(random, 1, 1); 
-					std::cout << std::endl;
+					if (size > 1) {
+						i++
+						std::cout << std::endl;
+						DisplayDirectories(incomingInput[i]); 
+						std::cout << std::endl;
+					} else {
+						std::cout << std::endl;
+						DisplayDirectories(""); 
+						std::cout << std::endl;
+					}
 				}
 			}
 		} else if (characterValue >= 109 && characterValue <= 122) {													//If the command is within M - Z (m - z).

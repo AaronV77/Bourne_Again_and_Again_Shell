@@ -41,7 +41,7 @@ public:
 	void DepthFirstSearch(std::string path, std::string command, int number, int theSwitch);
 	void DirectoryChange(std::string desiredPath, int number);
 	void DirectoryDelete(std::string dirname);
-	void DisplayDirectories(std::string searchWord, int number, int theSwitch); 
+	void DisplayDirectories(std::string lsArgument); 
 	std::string FileChecker(std::string argument);	
 	std::vector<std::string> FileLoader(std::vector<std::string> incomingVector, std::string fileName, int signal);
 	void EnvironmentUtilites(int Number);
