@@ -264,7 +264,7 @@ void Thursday::DepthFirstSearch(std::string path, std::string command, int numbe
 		DirectoryChange(input, 1);																		//Use the poped path from the stack and change the directory that the system is looking at.
 		 
 		if (errorSwitch == 0) {																			//Check to make sure that the global error switch was not triggered.
-			//~ DisplayDirectories(command, 0, theSwitch);													//Loop through the current directory, and push the directories onto the stack.
+			DepthFirstSearchHeart(commmand, 0, theSwitch);												//Loop through the current directory, and push the directories onto the stack.
 		} else {
 			errorSwitch = 0;																			//Reset our error switch.
 		}		
@@ -279,6 +279,56 @@ void Thursday::DepthFirstSearch(std::string path, std::string command, int numbe
 	/*--------------------------------------------------------------------*/ 
     return;
 }
+
+void Thursday::DepthFirstSearchHeart(std::string searchWord, int number, int theSwitch) {
+	/*-------------------------------------------------------------------
+	Note: This method 
+	--------------------------------------------------------------------*/
+	if (debugSwitch == 1)
+		ColorChange((char*)"Mission - You are in the DisplayDirectories method.", 3);
+	/*--------------------------------------------------------------------*/ 
+	struct stat s;
+	std::string addedPath = "";
+    DIR * dir = opendir(".");
+    dirent * entry;
+
+    if (NULL==dir) {
+		if (number != 0)
+			ColorChange("LS File Closing Failure: ", 2);								//Print an error if we cannot close the directory.
+    } else {
+        while (entry = readdir(dir)) {
+			if (number == 0) {															//If 0 then we are using the whereis and find command, but if a 1, then we are using the ls command.
+				addedPath = currentPath;												//Add our current path to the addedPath variable.
+				if (currentPath != "/")													//Check to see that the current path does not already equal a backslash.
+					addedPath += "/";													//Add our back slash to add another directory to it.
+				strcat(addedPath, strdup(entry->d_name));								//Add the file / directory / or anything else that we are looking at in the directory to the path.
+				if (!strcmp(entry->d_name, searchWord)) { 								//Check to see if what we are looking at matches what the user is searching for.
+					if (theSwitch == 1) 												//The commands find and whereis will be a 1, and dirs will be a 0.
+						cout << "\t\t" << addedPath << endl;							//Print the absolute path of where the file the user is looking for.
+					found = 1;															//Set the found variable that the system has been able to find at least one location of the file that is being searched for.
+				} 
+				if (strcmp(entry->d_name,  ".") && strcmp(entry->d_name, "..")) {		//Check to see if the system is looking at . and .. so that we don't store them.
+					if (lstat(addedPath, &s) == 0) {										//Retrieves information on the directory that we are looking at.
+						if (s.st_mode & S_IFLNK) {										//Check the mask type to see if the directory is a symbolic link.
+							//~ cout << "Random2 is a Symbolic link" << endl;			//If so do not do anything.
+						} else {
+							if (s.st_mode & S_IFDIR) {									//If the path is a directory.
+								StackPush(addedPath);									//Push the path into the stack.
+							}
+						}
+					}
+				}
+			}
+		}  
+        if (closedir(dir) == -1)														//make sure that we can close the directory that we are looking at.
+            ColorChange("LS File Closing Failure: ", 2);								//Print an error if we cannot close the directory.
+    }
+    /*--------------------------------------------------------------------*/ 
+    if (debugSwitch == 1) 
+		ColorChange((char*)"Mission - You are leaving the DisplayDirectories method.", 3);
+
+    return;
+} 
 
 void Thursday::DirectoryChange(std::string desiredPath, int number) {
 	/*-------------------------------------------------------------------
@@ -360,14 +410,90 @@ void Thursday::DirectoryDelete(std::string dirname) {
 	return;
 }
 
-void Thursday::DisplayDirectories(std::string lsArgument) {
+void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) {
 	/*-------------------------------------------------------------------
 	Note: This method 
 	--------------------------------------------------------------------*/
 	if (debugSwitch == 1)
 		ColorChange("Mission - You are in the DisplayDirectories method.", 3);
 	/*--------------------------------------------------------------------*/ 
-
+	if (pathName.size() == 0)
+		DIR * dir = opendir(".");
+	else 
+		DIR * dir = opendir(pathName);
+	
+	int argumentSwitch = 0;
+	std::size_t stringFind;
+	struct stat fileStruct;
+	dirent * entry;
+	std::vector<std::string> directories;
+	std::vector<std::string> regularFiles;
+	std::vector<std::string> executableFiles;
+	std::vector<std::string> random;
+	std::vector<std::string> symbolicFiles;	
+	
+	if (lsArgument == "all") {
+		//~ DepthFirstSearch("/", "&&&&&", 0, 0);
+	} else if (lsArgument == "" || lsArgument == "-l") {
+		while (entry = readdir(dir)) {
+			if (fileStruct.st_mode & S_IFDIR) {
+				directories.push_back(std::to_string(0));
+				directories.push_back(entry->d_name);
+			} else if (fileStruct.st_mode & S_IFLNK) {
+				symbolicFiles.push_back(std::to_string(1));
+				symbolicFiles.push_back(entry->d_name);
+			} else if (! access(pathName, X_OK) && (fileStruct.st_mode & S_IFREG)) {
+				executableFiles.push_back(std::to_string(2));
+				executableFiles.push_back(entry->d_name);
+			} else if (fileStruct.st_mode & S_IFREG) {
+				regularFiles.push_back(std::to_string(3));
+				regularFiles.push_back(entry->d_name);
+			} else {
+				random.push_back(std::to_string(4));
+				random.push_back(entry->d_name);
+			}	
+		}
+		
+        if (closedir(dir) == -1)
+            ColorChange("LS File Closing Failure: ", 2);
+		
+		int i = 0;
+		for (i = 0; i < directories.size(); i++) {
+			if (lsArgument == "-l") {
+				std::cout << std::left << std::setw(10) << permissions(directories[i]) << " " << std::left << std::setw(19) << ColorChange(directories[i], 4);
+			} else {
+				std::cout << "\t\t" << ColorChange(directories[i], 4);
+			}
+		}
+		for (i = 0; i < symbolicFiles.size(); i++) {
+			if (lsArgument == "-l") {
+				std::cout << std::left << std::setw(10) << permissions(symbolicFiles[i]) << " " << std::left << std::setw(19) << ColorChange(symbolicFiles[i], 5);
+			} else {
+				std::cout << "\t\t" << ColorChange(symbolicFiles[i], 5);
+			}
+		}
+		for (i = 0; i < executableFiles.size(); i++) {
+			if (lsArgument == "-l") {
+				std::cout << std::left << std::setw(10) << permissions(executableFiles[i]) << " " << std::left << std::setw(19) << ColorChange(executableFiles[i], 6);
+			} else {
+				std::cout << "\t\t" << ColorChange(executableFiles[i], 6);
+			}
+		}
+		for (i = 0; i < regularFiles.size(); i++) {
+			if (lsArgument == "-l") {
+				std::cout << std::left << std::setw(10) << permissions(regularFiles[i]) << " " << std::left << std::setw(19) << regularFiles[i] << std::endl;
+			} else {
+				std::cout << "\t\t" << regularFiles[i];
+			}
+		}
+		for (i = 0; i < random.size(); i++) {
+			if (lsArgument == "-l") {
+				std::cout << std::left << std::setw(10) << permissions(random[i]) << " " << std::left << std::setw(19) << ColorChange(random[i], 7);
+			} else {
+				std::cout << "\t\t" << ColorChange(random[i], 7);
+			}
+		}
+	}
     /*--------------------------------------------------------------------*/ 
     if (debugSwitch == 1) 
 		ColorChange("Mission - You are leaving the DisplayDirectories method.", 3);
@@ -481,7 +607,7 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
     return 1;
 }
 
-std::string Thursday::FileChecker(std::string argument) {
+std::string Thursday::FileChecker(std::string argument, int signal) {
 	/*-------------------------------------------------------------------
 	Note: This method takes an argument which is going to be a command that
 	* is predefined in the system. An example would be nano, so rather than
@@ -492,20 +618,32 @@ std::string Thursday::FileChecker(std::string argument) {
     if (debugSwitch == 1) 
         ColorChange("Mission - You are in the FileChecker method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	std::string incomingArgument = "";							
-	/*--------------------------------------------------------------------*/ 	
-	for (int i = 0; i < PathVector.size(); i++) {								//Loop through the path vector containing all the different locations commands and binaries.
-		incomingArgument = PathVector[i];										//Add one of the predefined locations to the pointer.
-		incomingArgument += "/";												//Add a back slash.
-		incomingArgument += argument;											//Add the command to the pointer to complete the path.
-		if (access(incomingArgument.c_str(), F_OK) == 0)						//Use a c function to check if the path is an actual location.
-			return incomingArgument;											//Return the working path.
+	if (singal == 0) {
+		std::string incomingArgument = "";						
+		for (int i = 0; i < PathVector.size(); i++) {								//Loop through the path vector containing all the different locations commands and binaries.
+			incomingArgument = PathVector[i];										//Add one of the predefined locations to the pointer.
+			incomingArgument += "/";												//Add a back slash.
+			incomingArgument += argument;											//Add the command to the pointer to complete the path.
+			if (access(incomingArgument.c_str(), F_OK) == 0)						//Use a c function to check if the path is an actual location.
+				return incomingArgument;											//Return the working path.
+		}
+	} else if (siganl == 1) {
+		struct stat fileCheck;
+		stat(argument, &fileCheck);
+		if (fileStruct.st_mode & S_IFDIR) {
+			return argument;
+		} else if (fileStruct.st_mode & S_IFLNK) {
+			return argument;
+		} else if (fileStruct.st_mode & S_IFREG) {
+			return argument;
+		}
+		return "";
 	}
 	/*--------------------------------------------------------------------*/ 
 	incomingArgument = "";
     if (debugSwitch == 1) 
         ColorChange("Mission - You are leaving the FileChecker method.", 3);
-	/*--------------------------------------------------------------------*/  
+
 	return argument;															//If there was no path found then just return the incoming command.
 }
 
@@ -809,8 +947,6 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
-				} else if (incomingInput[i] == "dirs") {	
-					//~ DepthFirstSearch("/", "&&&&&", 0, 0);
 				} else if (incomingInput[i] == "encrypt") {
 					if (size > 2) {
 						i++;
@@ -864,10 +1000,21 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 					UserInformation(1);									
 				} else if (incomingInput[i] == "ls") {
 					if (size > 1) {
+						bool lsArgumentSwitch = false;
+						bool lsPathSwitch = false;
 						i++
 						std::cout << std::endl;
 						DisplayDirectories(incomingInput[i]); 
 						std::cout << std::endl;
+						while (i < incomingInput.size()) {
+							if (incomingInput[i] == "-l" || incomingInput[i] == "all") {
+								lsArgumentSwitch = true;
+							} else {
+								if ((FileChecker(incomingInput[i], 1)).size() > 0) 
+									lsPathSwitch = true;
+							}
+						}
+						
 					} else {
 						std::cout << std::endl;
 						DisplayDirectories(""); 
@@ -1133,6 +1280,22 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 		} else if ( signal == 3 ) {
 			Color::Modifier color(Color::FG_YELLOW, BoolVar);
 			std::cout << "\t\t" << color << sentence << def << std::endl;
+			return;
+		} else if ( signal == 4 ) {
+			Color::Modifier color(Color::FG_MEGENTA, BoolVar);
+			std::cout << color << sentence << def << std::endl;
+			return;
+		} else if ( signal == 5 ) {
+			Color::Modifier color(Color::FG_CYAN, BoolVar);
+			std::cout << color << sentence << def << std::endl;
+			return;
+		} else if ( signal == 6 ) {
+			Color::Modifier color(Color::FG_LIGHT_GREEN, BoolVar);
+			std::cout << color << sentence << def << std::endl;
+			return;
+		} else if ( signal == 7 ) {
+			Color::Modifier color(Color::FG_RED, BoolVar);
+			std::cout << color << sentence << def << std::endl;
 			return;
 		}
 	} else {

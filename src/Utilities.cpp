@@ -78,9 +78,35 @@ int Utilities::isNumber(std::string incomingString) {
 		
 }
 
-
-
-
+std::string Utilities::fileInformation(std::string pathName) {
+	struct group *grp;
+	struct passwd *pwd;
+	struct stat fileStruct;
+	stat(pathName.c_str(), &fileStruct);
+	std::string fileInfo = "";
+	mode_t perm = fileStruct.st_mode;
+	
+	grp = getgrgid(fileStruct.st_gid);
+	pwd = getpwuid(fileStruct.st_uid );
+	
+	fileInfo = (perm & S_IFDIR) ? 'd' : '-';
+	fileInfo += (perm & S_IRUSR) ? 'r' : '-';
+	fileInfo += (perm & S_IWUSR) ? 'w' : '-';
+	fileInfo += (perm & S_IXUSR) ? 'x' : '-';
+	fileInfo += (perm & S_IRGRP) ? 'r' : '-';
+	fileInfo += (perm & S_IWGRP) ? 'w' : '-';
+	fileInfo += (perm & S_IXGRP) ? 'x' : '-';
+	fileInfo += (perm & S_IROTH) ? 'r' : '-';
+	fileInfo += (perm & S_IWOTH) ? 'w' : '-';
+	fileInfo += (perm & S_IXOTH) ? 'x' : '-';
+	fileInfo += " ";
+	fileInfo += static_cast<std::string>(grp->gr_name);
+	fileInfo += " ";
+	fileInfo += static_cast<std::string>(pwd->pw_name);
+	fileInfo += " "; 
+	
+	return fileInfo;
+}
 
 
 
