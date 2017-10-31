@@ -1,39 +1,29 @@
 bash#- This command will launch an instance of bash. Takes no other commands with it.#
-cd#- This command will move the user throughout the file hiearchy. Takes another command with
-it. Ex. .. /home, and /Docments/Linux.#
+cd#- This command will move the user throughout the file hiearchy.#
 clear#- This command will clear the screen of output. Takes no other commands with it.#
-compress#- This command will compress a directory for the user. Only takes the name of the
-directory with it.#
+compress#- This command will compress a directory for the user.#
 date#- This command will display the current date.#
 decompress#- This command will decompress a directory for the user. Only takes the name of the deirectory with it.# 
 debug#- This command will turn on all of the debug statements within the program. Takes no other commands with it.#
-decrypt#- This command will take a message and decrypt it using a key. This command will require
-a message to be included with it.#
+decrypt#- This command will take a message and decrypt it using a key.#
 dirs#- This command will print out all the directories in the system. Takes no other commands with it.#
-encrypt#- This command will take a message and encrypt it using a key. This command will require
-a message to included with it.#
-find#- This command will take a starting point to look for a file. The second argument is the 
-starting absolute path, and the next is the name of the file.#
-getenv#- This command will retrieve a bash global variable. Takes a name of the variable that you
-are wishing to see.#
+encrypt#- This command will take a message and encrypt it using a key.#
+find#- This command will take a starting point to look for a file.#
+getenv#- This command will retrieve a system global variable.#
 hd#- This command will display the home directory of the user. Takes no other commands with it.#
-help#- This commad will display a command that the user is looking for a description for. Takes 
-a command that you are seeking for more information on.#
+help#- This commad will display a command that the user is looking for a description for.#
 info#- This command will display all the information of the program process. Takes no other commands with it.#
 ls#- This command will dissplay the contents of a directory. Takes no other commands with it.#
 pid#- This command will output the process ID number. Takes no other commands with it.#
 ppid#- This command will output the parent process ID number. Takes no other commands with it.#
 printenv#- This command will print all the bash global variables. Takes no other commands with it.#
 prompt#- This command will change the commannd prompt.#
-search#- This command will search the dictionary for a meaning of the given word. Takes one word 
-that the user is looking for.#
+search#- This command will search the dictionary for a meaning of the given word.#
 setenv#- This command will set an environment variable to the bash global system. Takes one variable
 separated by a space and the value of the variable.#
 time#- This command will display the current time.#
 uid#- This command will display the user ID number. Takes no other commands with it.#
 usage#- This command will print out the basic details of Thursday. Takes no other commands with it.#
-unset#- This command will erase the variable and its value in the bash global system. Takes no other
-variables with it.#
+unset#- This command will erase the variable and its value in the bash global system.#
 wd#- This command displays the current working directory. Takes no other commands with it.#
-whereis#- This comand will loop through all of the system files looking for the file. Takes another 
-a file name as an argument.#
+whereis#- This comand will loop through all of the system files looking for the file.#
