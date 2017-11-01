@@ -1,7 +1,7 @@
 #include "Thursday.h"
 
 char Thursday::path[MAX_SIZE];
-	
+
 Thursday::Thursday() {
 	/*-------------------------------------------------------------------
 	Note: The constructor is just used to setup all the variables and load the
@@ -35,9 +35,7 @@ Thursday::Thursday() {
 	pid = getpid();									//Gets the process id for the process and saves it to an int variable.
 	ppid = getppid();								//Gets the parent process id for the process and saves it to an int variable.
 	uid = getuid();									//Gets the user id for the process and saves it to an int variable.
-	userPromptNumber = 3;							//For displaying the prompt and which one to display.
-	userNumber = 1;									//Used to asscoiate what the user id is.						
-	userKey = 0;									//The users current key to encrypt with.
+	promptNumber = 2;								//For displaying the prompt and which one to display.
 	/*--------------------------------------------------------------------*/
 	SetupAndCloseSystem(1);							//Will load the thursday and os commands, users, the environment, and path into vectors.
 	/*--------------------------------------------------------------------*/	
@@ -51,31 +49,7 @@ Thursday::~Thursday() {
 	ThursdayCommands.clear();
 	OSCommands.clear();
 	Environment.clear();
-	UsersVector.clear();
 	PathVector.clear();	
-}
-
-void Thursday::GetArguments(std::string theCommands, char* envp[]) {
-	/*-------------------------------------------------------------------
-	Note: 
-	--------------------------------------------------------------------*/
-    if (debugSwitch == true) 
-		ColorChange("Mission - You are in the GetArguments method.", 3);
-	/*--------------------------------------------------------------------*/ 
-	std::string incomingInput = "";
-	std::istringstream iss (theCommands);
-	std::vector<std::string> tokens;
-	
-	while (iss >> incomingInput)						// Loop through getting the tokens by the space character.
-		tokens.push_back(incomingInput);				// Put the contents into our vector to give to our ArgumentChecker method.
-
-	ArgumentChecker(tokens, envp);						
-	
-	/*--------------------------------------------------------------------*/
-    if (debugSwitch == true) 
-		ColorChange("Mission - You are leaving the GetArguments method.", 3);
-	/*--------------------------------------------------------------------*/ 
-	return;
 }
 
 void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
@@ -85,10 +59,9 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
     if (debugSwitch == true) 
 		ColorChange("Mission - You are in the ArgumentChecker method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	int argumentVectorSize = arguments.size();
 	int argumentPosition = 0;
 	bool commandFound = false;
-	bool notMindSwitch = false;
+	bool notMineSwitch = false;
 	std::size_t stringFind;
 	std::vector<std::string> commandAndArguments;
 	
@@ -103,7 +76,7 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
 				SearchCommands(commandAndArguments, 0, envp);								// Send it to our SearchCommands method for processing.
 			commandFound = false;															// Reset our switch. This is used to tell if the stuff in the vector is the applications commands or random commands.
 			notMineSwitch = false;															// Reset our switch. This is used to tell if someone is trying to execute script or code.
-			currentPosition = 0;															// I'm using thins to keep track of our position in the vector.
+			argumentPosition = 0;															// I'm using thins to keep track of our position in the vector.
 			if (commandAndArguments.size() > 0) 											// Reset the vector if the vector is not empty.
 				commandAndArguments.clear();												// Clear the contents of the vector correctly.
 		} else {
@@ -127,7 +100,7 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
 		if (tokens[i] == ">" || tokens[i] == "<" || tokens[i] == "|")						// Check to see if our token is an operator.
 			notMineSwitch = true;															// If we have found an operator, then what we have in our vector is not for my application to handle. I don't process operators so lets just give it to exec.
 	
-		currentPosition++;																	// Keep track of our current position. 
+		argumentPosition++;																	// Keep track of our current position. 
 	}
 
 	if (notMineSwitch == true && commandSwitch == false)									// Had to put this hear for commands that don't have a semicolon.
@@ -152,7 +125,7 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
 		ColorChange("Mission - You are in the CompressAndDecompress method.", 3);
 	/*--------------------------------------------------------------------*/ 
 	std::vector<std::string> arguments;		
-	string path = FileChecker("tar");
+	string path = FileChecker("tar", 0);
 	string fileName = argument;	
 	fileName += ".tgz";
 
@@ -254,9 +227,10 @@ void Thursday::DepthFirstSearch(std::string path, std::string command, int numbe
 		chdir(currentPath.c_str());																		//If the command is absolute then change the to that directory.
 	}
 
-    stringStack(path); 																					//Put the starting path into the stack.
+    stringStack.push(path); 																			//Put the starting path into the stack.
     while(!stringStack.empty()) {																		//Loop until the current position in the stack is negative.
-		input = stringStack.pop();																		//Pop off the last element in the stack.
+		input = stringStack.top();																		//Pop off the last element in the stack.
+		stringStack.pop();
 		
 		if (number == 0) 																				//If the incoming number is 0 then the user wants all the commands to be printed out.
 			std::cout << '\t' << '\t' << " Directory: " << input << std::endl;
@@ -264,7 +238,7 @@ void Thursday::DepthFirstSearch(std::string path, std::string command, int numbe
 		DirectoryChange(input, 1);																		//Use the poped path from the stack and change the directory that the system is looking at.
 		 
 		if (errorSwitch == 0) {																			//Check to make sure that the global error switch was not triggered.
-			DepthFirstSearchHeart(commmand, 0, theSwitch);												//Loop through the current directory, and push the directories onto the stack.
+			DepthFirstSearchHeart(command, 0, theSwitch);												//Loop through the current directory, and push the directories onto the stack.
 		} else {
 			errorSwitch = 0;																			//Reset our error switch.
 		}		
@@ -301,19 +275,19 @@ void Thursday::DepthFirstSearchHeart(std::string searchWord, int number, int the
 				addedPath = currentPath;												//Add our current path to the addedPath variable.
 				if (currentPath != "/")													//Check to see that the current path does not already equal a backslash.
 					addedPath += "/";													//Add our back slash to add another directory to it.
-				strcat(addedPath, strdup(entry->d_name));								//Add the file / directory / or anything else that we are looking at in the directory to the path.
-				if (!strcmp(entry->d_name, searchWord)) { 								//Check to see if what we are looking at matches what the user is searching for.
+				addedPath += entry->d_name;												//Add the file / directory / or anything else that we are looking at in the directory to the path.
+				if (entry->d_name == searchWord) { 										//Check to see if what we are looking at matches what the user is searching for.
 					if (theSwitch == 1) 												//The commands find and whereis will be a 1, and dirs will be a 0.
 						cout << "\t\t" << addedPath << endl;							//Print the absolute path of where the file the user is looking for.
 					found = 1;															//Set the found variable that the system has been able to find at least one location of the file that is being searched for.
 				} 
-				if (strcmp(entry->d_name,  ".") && strcmp(entry->d_name, "..")) {		//Check to see if the system is looking at . and .. so that we don't store them.
-					if (lstat(addedPath, &s) == 0) {										//Retrieves information on the directory that we are looking at.
+				if (entry->d_name !=  "." && entry->d_name != "..") {					//Check to see if the system is looking at . and .. so that we don't store them.
+					if (lstat(addedPath.c_str(), &s) == 0) {							//Retrieves information on the directory that we are looking at.
 						if (s.st_mode & S_IFLNK) {										//Check the mask type to see if the directory is a symbolic link.
 							//~ cout << "Random2 is a Symbolic link" << endl;			//If so do not do anything.
 						} else {
 							if (s.st_mode & S_IFDIR) {									//If the path is a directory.
-								StackPush(addedPath);									//Push the path into the stack.
+								stringStack.push(addedPath);							//Push the path into the stack.
 							}
 						}
 					}
@@ -417,21 +391,23 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 	if (debugSwitch == 1)
 		ColorChange("Mission - You are in the DisplayDirectories method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	if (pathName.size() == 0)
-		DIR * dir = opendir(".");
-	else 
-		DIR * dir = opendir(pathName);
 	
 	int argumentSwitch = 0;
 	std::size_t stringFind;
 	struct stat fileStruct;
+	DIR * dir;
 	dirent * entry;
 	std::vector<std::string> directories;
 	std::vector<std::string> regularFiles;
 	std::vector<std::string> executableFiles;
 	std::vector<std::string> random;
 	std::vector<std::string> symbolicFiles;	
-	
+
+	if (pathName.size() == 0)
+		dir = opendir(".");
+	else 
+		dir = opendir(pathName.c_str());
+		
 	if (lsArgument == "all") {
 		//~ DepthFirstSearch("/", "&&&&&", 0, 0);
 	} else if (lsArgument == "" || lsArgument == "-l") {
@@ -442,7 +418,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 			} else if (fileStruct.st_mode & S_IFLNK) {
 				symbolicFiles.push_back(std::to_string(1));
 				symbolicFiles.push_back(entry->d_name);
-			} else if (! access(pathName, X_OK) && (fileStruct.st_mode & S_IFREG)) {
+			} else if (! access(pathName.c_str(), X_OK) && (fileStruct.st_mode & S_IFREG)) {
 				executableFiles.push_back(std::to_string(2));
 				executableFiles.push_back(entry->d_name);
 			} else if (fileStruct.st_mode & S_IFREG) {
@@ -460,37 +436,37 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		int i = 0;
 		for (i = 0; i < directories.size(); i++) {
 			if (lsArgument == "-l") {
-				std::cout << std::left << std::setw(10) << permissions(directories[i]) << " " << std::left << std::setw(19) << ColorChange(directories[i], 4);
+				//~ std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19) << ColorChange(directories[i], 4);
 			} else {
-				std::cout << "\t\t" << ColorChange(directories[i], 4);
+				//~ std::cout << "\t\t" << ColorChange(directories[i], 4);
 			}
 		}
 		for (i = 0; i < symbolicFiles.size(); i++) {
 			if (lsArgument == "-l") {
-				std::cout << std::left << std::setw(10) << permissions(symbolicFiles[i]) << " " << std::left << std::setw(19) << ColorChange(symbolicFiles[i], 5);
+				//~ std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19) << ColorChange(symbolicFiles[i], 5);
 			} else {
-				std::cout << "\t\t" << ColorChange(symbolicFiles[i], 5);
+				//~ std::cout << "\t\t" << ColorChange(symbolicFiles[i], 5);
 			}
 		}
 		for (i = 0; i < executableFiles.size(); i++) {
 			if (lsArgument == "-l") {
-				std::cout << std::left << std::setw(10) << permissions(executableFiles[i]) << " " << std::left << std::setw(19) << ColorChange(executableFiles[i], 6);
+				//~ std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19) << ColorChange(executableFiles[i], 6);
 			} else {
-				std::cout << "\t\t" << ColorChange(executableFiles[i], 6);
+				//~ std::cout << "\t\t" << ColorChange(executableFiles[i], 6);
 			}
 		}
 		for (i = 0; i < regularFiles.size(); i++) {
 			if (lsArgument == "-l") {
-				std::cout << std::left << std::setw(10) << permissions(regularFiles[i]) << " " << std::left << std::setw(19) << regularFiles[i] << std::endl;
+				//~ std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19) << regularFiles[i] << std::endl;
 			} else {
-				std::cout << "\t\t" << regularFiles[i];
+				//~ std::cout << "\t\t" << regularFiles[i];
 			}
 		}
 		for (i = 0; i < random.size(); i++) {
 			if (lsArgument == "-l") {
-				std::cout << std::left << std::setw(10) << permissions(random[i]) << " " << std::left << std::setw(19) << ColorChange(random[i], 7);
+				//~ std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19) << ColorChange(random[i], 7);
 			} else {
-				std::cout << "\t\t" << ColorChange(random[i], 7);
+				//~ std::cout << "\t\t" << ColorChange(random[i], 7);
 			}
 		}
 	}
@@ -586,8 +562,8 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 	theArguments[i] = NULL;
    
     pid_t pid;																					//Create a data type to store a process number.
-	incomingCommand = FileChecker(incomingCommand);												//Send the incoming command to find in the location of the binary in the system. Will either return just the command or the location path.
-	std::cout << "1: " << incomingCommand << endl;
+	incomingCommand = FileChecker(incomingCommand, 0);											//Send the incoming command to find in the location of the binary in the system. Will either return just the command or the location path.
+
 	pid = fork();																				//Create another process.
 	if (pid == 0) {																				//If the process is the child.
 		if (execv(incomingCommand.c_str(), theArguments) == -1) {								//Execute with the given command / location path, and char array of arguments.
@@ -618,8 +594,9 @@ std::string Thursday::FileChecker(std::string argument, int signal) {
     if (debugSwitch == 1) 
         ColorChange("Mission - You are in the FileChecker method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	if (singal == 0) {
-		std::string incomingArgument = "";						
+	std::string incomingArgument = "";	
+	
+	if (signal == 0) {					
 		for (int i = 0; i < PathVector.size(); i++) {								//Loop through the path vector containing all the different locations commands and binaries.
 			incomingArgument = PathVector[i];										//Add one of the predefined locations to the pointer.
 			incomingArgument += "/";												//Add a back slash.
@@ -627,14 +604,14 @@ std::string Thursday::FileChecker(std::string argument, int signal) {
 			if (access(incomingArgument.c_str(), F_OK) == 0)						//Use a c function to check if the path is an actual location.
 				return incomingArgument;											//Return the working path.
 		}
-	} else if (siganl == 1) {
+	} else if (signal == 1) {
 		struct stat fileCheck;
-		stat(argument, &fileCheck);
-		if (fileStruct.st_mode & S_IFDIR) {
+		stat(argument.c_str(), &fileCheck);
+		if (fileCheck.st_mode & S_IFDIR) {
 			return argument;
-		} else if (fileStruct.st_mode & S_IFLNK) {
+		} else if (fileCheck.st_mode & S_IFLNK) {
 			return argument;
-		} else if (fileStruct.st_mode & S_IFREG) {
+		} else if (fileCheck.st_mode & S_IFREG) {
 			return argument;
 		}
 		return "";
@@ -702,6 +679,29 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 	return incomingVector;
 }
 
+void Thursday::GetArguments(std::string theCommands, char* envp[]) {
+	/*-------------------------------------------------------------------
+	Note: 
+	--------------------------------------------------------------------*/
+    if (debugSwitch == true) 
+		ColorChange("Mission - You are in the GetArguments method.", 3);
+	/*--------------------------------------------------------------------*/ 
+	std::string incomingInput = "";
+	std::istringstream iss (theCommands);
+	std::vector<std::string> tokens;
+	
+	while (iss >> incomingInput)						// Loop through getting the tokens by the space character.
+		tokens.push_back(incomingInput);				// Put the contents into our vector to give to our ArgumentChecker method.
+
+	ArgumentChecker(tokens, envp);						
+	
+	/*--------------------------------------------------------------------*/
+    if (debugSwitch == true) 
+		ColorChange("Mission - You are leaving the GetArguments method.", 3);
+	/*--------------------------------------------------------------------*/ 
+	return;
+}
+
 void Thursday::Help(std::string argument) {
 	/*------------------------------------------------------------------
 	Note: This method takes in an argument from the user. The argument is
@@ -760,21 +760,16 @@ void Thursday::PromptDisplay() {
         ColorChange("Mission - You are in the PromptDisplay method.", 3); 
  	/*--------------------------------------------------------------------*/
 	std::string thePrompt = "";						//A place to store the prompt that will be constructed.
-	if (userPromptNumber == 0) {					//The default option for a prompt.
+	if (promptNumber == 0) {						//The default option for a prompt.
 		thePrompt = "?: ";
-	} else if (userPromptNumber == 1) {				//The option for just having the hostname as a prompt.
+	} else if (promptNumber == 1) {					//The option for just having the hostname as a prompt.
 		thePrompt = hostName;
 		thePrompt += ": ";
-	} else if (userPromptNumber == 2) {				//The option to have the hostname and username as a prompt.
-		thePrompt = hostName;
-		thePrompt += "&";
-		thePrompt += userName;
-		thePrompt += ": ";
-	} else if (userPromptNumber == 3) {				//The option to have the current path as a prompt.
+	} else if (promptNumber == 2) {					//The option to have the current path as a prompt.
 		thePrompt = currentPath;
 		thePrompt += ": ";
-	} else if (userPromptNumber == 4) {				//The option to have the users custom prompt.
-		thePrompt = userPrompt;
+	} else if (promptNumber == 3) {					//The option to have the users custom prompt.
+		thePrompt = currentPrompt;
 	}
 	/*--------------------------------------------------------------------*/
 	ColorChange(thePrompt, 1);
@@ -888,7 +883,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 				} else if (incomingInput[i] == "cd") {
 					if (size > 1) {																						// Check to see if we have another argument in the vector.
 						i++;
-						stringFind = tokens[i].find('/');																// If there is a / in the path if so just try and change with that directory.																							
+						stringFind = incomingInput[i].find('/');																// If there is a / in the path if so just try and change with that directory.																							
 						if (stringFind != std::string::npos) {															// See if there is a / in the element.					
 							DirectoryChange(incomingInput[i], 0);														// Make the directory change if a / was found.
 						} else {
@@ -936,7 +931,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 				} else if (incomingInput[i] == "decrypt") {
 					if (size > 2) {
 						i++;
-						if (Utilities::isNumber(incomingInput[i]) == 1) {
+						if (Utilities::isNumber(incomingInput[i].c_str()) == 1) {
 							key = std::stoi(incomingInput[i]);	
 						} else {
 							ColorChange("Sorry the key was not a number.", 2);
@@ -995,9 +990,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 				} else if (incomingInput[i] == "info") {
 					std::cout << "\t\t" << "The user ID is: " << uid << std::endl;
 					std::cout << "\t\t" << "The process ID is: " << pid << std::endl;
-					std::cout << "\t\t" << "The parent process ID is: " << ppid << std::endl;
-					std::cout << "\t\t" << "The user's name is: " << userName << std::endl;
-					UserInformation(1);									
+					std::cout << "\t\t" << "The parent process ID is: " << ppid << std::endl;								
 				} else if (incomingInput[i] == "ls") {
 					if (size > 1) {
 						bool lsArgumentSwitch = false;
@@ -1005,7 +998,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						i++
 						std::cout << std::endl;
 						DisplayDirectories(incomingInput[i]); 
-						std::cout << std::endl;
+						std::cout << "" << std::endl;
 						while (i < incomingInput.size()) {
 							if (incomingInput[i] == "-l" || incomingInput[i] == "all") {
 								lsArgumentSwitch = true;
@@ -1013,6 +1006,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 								if ((FileChecker(incomingInput[i], 1)).size() > 0) 
 									lsPathSwitch = true;
 							}
+							i++;
 						}
 						
 					} else {
@@ -1035,7 +1029,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						i++; 
 						if (Utilities::isNumber(incomingInput[i]) == 1) {
 							if (std::stoi(incomingInput[i]) >= 0 || std::stoi(incomingInput[i]) <= 4) {	
-								userPromptNumber = std::stoi(incomingInput[i]);
+								promptNumber = std::stoi(incomingInput[i]);
 							} else {
 								ColorChange("That is not an option for the prompt.", 2);
 							}
@@ -1110,34 +1104,19 @@ void Thursday::SetupAndCloseSystem(int number) {
 		ColorChange("Mission - You are in the SetupAndCloseSystem method.", 3);
  	/*--------------------------------------------------------------------*/
 	std::string globalFileName = "";
-	std::string usersFileName = "";
 	std::string thursdayCommandsFileName = "";
-	std::string osCommandsFileName = "";
 	std::string input = "";
 	std:;string stringTokens = "";
 	
 	thursdayCommandsFileName = informationDestination;
 	thursdayCommandsFileName += "/ThursdayCommands.txt";
-	osCommandsFileName = informationDestination;
-	osCommandsFileName += "/OSCommands.txt";
 	globalFileName = informationDestination;
 	globalFileName += "/GlobalVariables.txt";
-	usersFileName = profileDestination;
-	usersFileName += "/Users.txt";
 
 	std::vector<std::string> temp;
 	std::cout << "CHECK" << std::endl;
 	if ( number == 1) {																									//Setting up the system.
 		ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);									//Loads the Thursday Commands
-		OSCommands = FileLoader(OSCommands, osCommandsFileName, 0);														//Loads the operating system commmands
-		temp = FileLoader(temp, usersFileName, 0);																		//Get the users.
-		for (int a = 0; a < temp.size(); a++) {																			//Loops until the end of the file.
-			input = Cryptography(2, 20, temp[a]);																		//Decrypts the contents of the file and saves it to inputStream.
-			if (input.size() > 1)																						//If the incoming user has a length greater than one.
-				UsersVector.push_back(input);																			//Stores it into the user vector.
-			input = "";
-		}	
-		temp.clear();
 		
 		temp = FileLoader(temp, globalFileName, 0);																		//Get the environment variables.
 		for (int b = 0; b < temp.size(); b++) {																			//Loop through the temp vector.
@@ -1155,46 +1134,20 @@ void Thursday::SetupAndCloseSystem(int number) {
 		temp.clear();	
 	} else if (number == 2) {																							//Closing up the system.
 		fstream GlobalInput;
-		fstream UsersInput;	
-		fstream OSInput;																				
 
-		UsersInput.open(usersFileName.c_str());																			//Opens the stream for the user file.
 		GlobalInput.open(globalFileName.c_str());																		//Opens the stream for the global file.
-		OSInput.open(osCommandsFileName.c_str());
 
-		if (!UsersInput) {
-			ColorChange("There was an error opening the file in the SetupAndCloseSystem method 1.", 2);
-			return;
-		} else if (!GlobalInput) {
+		if (!GlobalInput) {
 			ColorChange("There was an error opening the file in the SetupAndCloseSystem method 2.", 2);
 			return;	
-		} else if (!OSInput) {
-			ColorChange("There was an error opening the file in the SetupAndCloseSystem method 3.", 2);
-			return;
 		}
 		
-		for (int i = 0; i < UsersVector.size(); i++) {																	//Loops until the end of the vector.
-			input = Cryptography(1, 20, UsersVector[i]);																//Encrypts the users and saves it to the inputStream.
-			if (UsersVector[i] != " " || UsersVector[i] != "" || UsersVector[i] == "")									//Checks to see if the inputstreamm is not empty and NULL.
-				UsersInput << input << std::endl;																		//Stores it into the user vector.
-		}
-
 		for (int i = 0; i < Environment.size(); i++) {																	//Loops until the end of the vector.
 			GlobalInput << Environment[i] << '#';																		//Print the variable to the file.
 			if (i % 2 == 0)																								//If the iterator is every second location.
 				std::cout << std::endl;																					//Print a new line in the file.
 		}
-
-		for (int i = 0; i < OSCommands.size(); i++) {
-			OSInput << OSCommands[i] << '#';
-			i++;
-			OSInput << OSCommands[i] << '#';
-			i++;
-			OSInput << OSCommands[i] << '#' << std::endl;
-		}
-		UsersInput.close();
 		GlobalInput.close();
-		OSInput.close();
 	}	
 	/*--------------------------------------------------------------------*/
 	if (debugSwitch == 1)
@@ -1307,10 +1260,4 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 	}
 	return;
 }
-
-
-
-
-
-
 

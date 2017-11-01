@@ -8,6 +8,7 @@
 #include <libgen.h>
 #include <linux/input.h>
 #include <pwd.h>
+#include <stack>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -20,47 +21,15 @@
 #include <unistd.h>
 #include <vector>
 
-std::string permissions(std::string pathName) {
-	struct group *grp;
-	struct passwd *pwd;
-	struct stat fileStruct;
-	stat(pathName.c_str(), &fileStruct);
-	std::string modeval = "";
-	mode_t perm = fileStruct.st_mode;
-	
-	grp = getgrgid(fileStruct.st_gid);
-	pwd = getpwuid(fileStruct.st_uid );
-	
-	modeval = (perm & S_IFDIR) ? 'd' : '-';
-	modeval += (perm & S_IRUSR) ? 'r' : '-';
-	modeval += (perm & S_IWUSR) ? 'w' : '-';
-	modeval += (perm & S_IXUSR) ? 'x' : '-';
-	modeval += (perm & S_IRGRP) ? 'r' : '-';
-	modeval += (perm & S_IWGRP) ? 'w' : '-';
-	modeval += (perm & S_IXGRP) ? 'x' : '-';
-	modeval += (perm & S_IROTH) ? 'r' : '-';
-	modeval += (perm & S_IWOTH) ? 'w' : '-';
-	modeval += (perm & S_IXOTH) ? 'x' : '-';
-	modeval += " ";
-	modeval += static_cast<std::string>(grp->gr_name);
-	modeval += " ";
-	modeval += static_cast<std::string>(pwd->pw_name);
-	modeval += " "; 
-	
-	return modeval;
-}
-
 int main() {
-
-	DIR * dir = opendir(".");
-	std::string file = "";
-	dirent * entry;
+	std::string str = "HELLO MOM";
+	std::string str2 = "";
+	std::stack<std::string> myStack;
 	
-	while (entry = readdir(dir)) {
-		file = static_cast<std::string>(entry->d_name);
-		std::cout << "1: " << std::left << std::setw(10) << permissions(file) << " " << std::left << std::setw(19) << entry->d_name << std::endl;
-	}
-
-  return 0;
+	myStack.push(str);
+	
+	str2 = myStack.pop()
+	
+	return 0;
 }
 

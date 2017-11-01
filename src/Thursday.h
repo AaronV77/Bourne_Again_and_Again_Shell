@@ -5,10 +5,12 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <libgen.h>
 #include <linux/input.h>
 #include <pwd.h>
+#include <stack>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -33,21 +35,21 @@ class Thursday {
 	
 public:
 	Thursday();
-	Thursday(const Thursday& otherThursday);	
 	~Thursday();
 	void ArgumentChecker(std::vector<std::string> tokens, char * envp[]);
+	void ColorChange(std::string sentence, int signal);
 	void CompressAndDecompress(int Number, std::string argument);
 	string Cryptography(int number, int key, std::string message);
 	void DepthFirstSearch(std::string path, std::string command, int number, int theSwitch);
-	void Thursday::DepthFirstSearchHeart(std::string searchWord, int number, int theSwitch) {
+	void DepthFirstSearchHeart(std::string searchWord, int number, int theSwitch);
 	void DirectoryChange(std::string desiredPath, int number);
 	void DirectoryDelete(std::string dirname);
-	void DisplayDirectories(std::string lsArgument); 
+	void DisplayDirectories(std::string lsArgument, std::string pathName); 
 	std::string FileChecker(std::string argument, int signal);	
 	std::vector<std::string> FileLoader(std::vector<std::string> incomingVector, std::string fileName, int signal);
 	void EnvironmentUtilites(int Number);
 	int ExecuteFile(std::string incomingCommand, std::vector<std::string> arguments);
-	void GetArgumentss(std::string theCommands, char * envp[]);
+	void GetArguments(std::string theCommands, char * envp[]);
 	void Help(std::string argument);
 	void PromptDisplay();
 	void Search(std::string argument);
@@ -55,6 +57,7 @@ public:
 	void SetupAndCloseSystem(int number);
 	
 private:
+
 	int BoolVar;
 	int colorOption;
 	int colorSwitch;
@@ -66,7 +69,7 @@ private:
 	int pid;
 	int ppid;
 	int uid;	
-	int userPromptNumber;	
+	int promptNumber;	
 		
 	std::string currentPath;
 	std::string currentPrompt;

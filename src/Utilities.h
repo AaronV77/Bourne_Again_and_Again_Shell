@@ -14,6 +14,6 @@ namespace Utilities {
     std::string	date(int number);   
 	std::string	string_checker(std::string incomingString, int option);
 	int isNumber (char * incomingString);
-	std::string Utilities::fileInformation(std::string pathName);
+	std::string fileInformation(std::string pathName);
 };
 #endif
