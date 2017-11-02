@@ -5,26 +5,25 @@ int getche(void);
 int main (int argc, char * argv[], char *envp[])
 {					
 	std::vector<std::string> incomingInput;									
-	std::vector<std::string> incomingCommands;																		//Used to store the incoming commands from the user and will be checked.
+	std::vector<std::string> incomingCommands;																	//Used to store the incoming commands from the user and will be checked.
 	int BoolVar = 1;
-	int characterNumber = 0;																						//Used to store the ascii value of the character from the keyboard.
-	int LeftAndRightIterator = 0;																					//Used to keep track of where the cursor is on the screen.
-	int returnNumber = 0;																							//Used to control the second loop.
+	int characterNumber = 0;																					//Used to store the ascii value of the character from the keyboard.
+	int LeftAndRightIterator = 0;																				//Used to keep track of where the cursor is on the screen.
 	int size = 0;
-	int UpAndDownIterator = 0;																						//Used to keep track of where the system is in the commands vector.
+	int UpAndDownIterator = 0;																					//Used to keep track of where the system is in the commands vector.
 	char path[256];
 	std::string character = "";
 	std::string theCommands = "";
-	struct termios oldattr, newattr;																				//Setup terminal variables.
+	struct termios oldattr, newattr;																			//Setup terminal variables.
 	
-	Thursday home;																									//Create an instance of the class.																																			
+	Thursday home;																								//Create an instance of the class.																																			
 	
 	incomingInput.push_back("reset");
 	home.ExecuteFile("reset", incomingInput);
 	incomingInput.clear();
-	home.PromptDisplay();																							//Print basic prompt out.																	
+	home.PromptDisplay();																						//Print basic prompt out.																	
 
-	while (1) {																										//Loop for indeffinately.
+	while (1) {																									//Loop for indeffinately.
 		tcgetattr(STDIN_FILENO, &oldattr);																		//Get the terminal setting for standard in.				
 		newattr = oldattr;																						//Save the settings to a different terminal variable.
 		newattr.c_lflag &= ~( ICANON | ECHO );																	//Turn off the echo feature and line editing to still occur.
@@ -34,7 +33,7 @@ int main (int argc, char * argv[], char *envp[])
 		switch(characterNumber) {																				//Use a switch statment to do specific actions for certain characters.
 			case 10: 																							//When an enter key was pressed.
 				if (theCommands != "") {																		//Make sure that the char pointer is not empty / NULL.
-					returnNumber = home.GetArguments(theCommands, envp);									//Send the commands in the incomingInput vector to the search commands method.
+					home.GetArguments(theCommands, envp);														//Send the commands in the incomingInput vector to the search commands method.
 					incomingCommands.push_back(theCommands);													//Store the old commands in this vector.				
 					incomingInput.clear();																		//Clear the vector after processing.					
 					home.PromptDisplay();																		//Display the prompt.

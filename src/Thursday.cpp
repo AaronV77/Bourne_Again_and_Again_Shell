@@ -409,7 +409,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		dir = opendir(pathName.c_str());
 		
 	if (lsArgument == "all") {
-		//~ DepthFirstSearch("/", "&&&&&", 0, 0);
+		DepthFirstSearch("/", "&&&&&", 0, 0);
 	} else if (lsArgument == "" || lsArgument == "-l") {
 		while (entry = readdir(dir)) {
 			if (fileStruct.st_mode & S_IFDIR) {
@@ -436,37 +436,45 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		int i = 0;
 		for (i = 0; i < directories.size(); i++) {
 			if (lsArgument == "-l") {
-				//~ std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19) << ColorChange(directories[i], 4);
+				std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19);
+				ColorChange(directories[i], 4);
 			} else {
-				//~ std::cout << "\t\t" << ColorChange(directories[i], 4);
+				std::cout << "\t\t";
+				ColorChange(directories[i], 4);
 			}
 		}
 		for (i = 0; i < symbolicFiles.size(); i++) {
 			if (lsArgument == "-l") {
-				//~ std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19) << ColorChange(symbolicFiles[i], 5);
+				std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19);
+				ColorChange(symbolicFiles[i], 5);
 			} else {
-				//~ std::cout << "\t\t" << ColorChange(symbolicFiles[i], 5);
+				std::cout << "\t\t";
+				ColorChange(directories[i], 5);				
 			}
 		}
 		for (i = 0; i < executableFiles.size(); i++) {
 			if (lsArgument == "-l") {
-				//~ std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19) << ColorChange(executableFiles[i], 6);
+				std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19);
+				ColorChange(executableFiles[i], 6);
 			} else {
-				//~ std::cout << "\t\t" << ColorChange(executableFiles[i], 6);
+				std::cout << "\t\t";
+				ColorChange(directories[i], 6);				
 			}
 		}
 		for (i = 0; i < regularFiles.size(); i++) {
 			if (lsArgument == "-l") {
-				//~ std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19) << regularFiles[i] << std::endl;
+				std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19) << regularFiles[i] << std::endl;
 			} else {
-				//~ std::cout << "\t\t" << regularFiles[i];
+				std::cout << "\t\t" << regularFiles[i];
 			}
 		}
 		for (i = 0; i < random.size(); i++) {
 			if (lsArgument == "-l") {
-				//~ std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19) << ColorChange(random[i], 7);
+				std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19);
+				ColorChange(random[i], 7);
 			} else {
-				//~ std::cout << "\t\t" << ColorChange(random[i], 7);
+				std::cout << "\t\t";
+				ColorChange(directories[i], 7);				
 			}
 		}
 	}
@@ -931,11 +939,11 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 				} else if (incomingInput[i] == "decrypt") {
 					if (size > 2) {
 						i++;
-						if (Utilities::isNumber(incomingInput[i].c_str()) == 1) {
+						if (Utilities::isNumber(incomingInput[i]) == 1) {
 							key = std::stoi(incomingInput[i]);	
 						} else {
 							ColorChange("Sorry the key was not a number.", 2);
-							break;
+							return 0;
 						}
 						i++;
 						std::cout << "\t\t" << Cryptography(2, key, incomingInput[i]) << std::endl;
@@ -949,7 +957,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 							key = std::stoi(incomingInput[i]);	
 						} else {
 							ColorChange("Sorry the key was not a number.", 2);
-							break;
+							return 0;
 						}
 						i++;
 						std::cout << "\t\t" << Cryptography(1, key, incomingInput[i]) << std::endl;	
@@ -979,7 +987,8 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 				if (incomingInput[i] == "getenv") {
 					EnvironmentUtilites(2); 
 				} else if (incomingInput[i] == "hd") {
-					UserInformation(0);
+					passwd * CurrUser = getpwuid(getuid());
+					std::cout << "\t\t" << CurrUser->pw_dir << std::endl;
 				} else if (incomingInput[i] == "help") {
 					if (size > 1) {
 						i++;
@@ -995,23 +1004,38 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 					if (size > 1) {
 						bool lsArgumentSwitch = false;
 						bool lsPathSwitch = false;
-						i++
-						std::cout << std::endl;
-						DisplayDirectories(incomingInput[i]); 
+						std::string lsPath = "";
+						std::string lsArgument = "";
+						
 						std::cout << "" << std::endl;
 						while (i < incomingInput.size()) {
 							if (incomingInput[i] == "-l" || incomingInput[i] == "all") {
-								lsArgumentSwitch = true;
+								if (lsArgumentSwitch == false) {
+									lsArgumentSwitch = true;
+									lsArgument = incomingInput[i];
+								}
 							} else {
 								if ((FileChecker(incomingInput[i], 1)).size() > 0) 
-									lsPathSwitch = true;
+									if (lsPathSwitch == false) {
+										lsPathSwitch = true;
+										lsPath = incomingInput[i];
+									}
 							}
 							i++;
 						}
-						
+						if (lsArgumentSwitch == true && lsPathSwitch == true) {
+							DisplayDirectories(lsArgument, lsPath);
+						} else if (lsArgumentSwitch == true) {
+							DisplayDirectories(lsArgument, "");
+						} else if (lsPathSwitch == true) {
+							DisplayDirectories("", lsPath);
+						} else {
+							DisplayDirectories("", "");
+						}
+						std::cout << "" << std::endl;
 					} else {
 						std::cout << std::endl;
-						DisplayDirectories(""); 
+						DisplayDirectories("",""); 
 						std::cout << std::endl;
 					}
 				}
@@ -1086,7 +1110,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 			arguments.push_back(incomingInput[a]);				
 		ExecuteFile(incomingInput[i], arguments); 
 		i = size;
-		return;
+		return 0;
 	}
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 

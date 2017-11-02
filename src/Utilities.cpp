@@ -1,5 +1,4 @@
-
-#include "AaronsUtilities.h"
+#include "Utilities.h"
 
 const char* MONTHS[] = {
   "January", "February", "March", "April", "May", "June",
@@ -64,10 +63,10 @@ std::string Utilities::string_checker(std::string incomingString, int option) {
 int Utilities::isNumber(std::string incomingString) {
 	
 	int counter = 0;
-	int size = str.size();
+	int size = incomingString.size();
 	
 	for (int i = 0;  i < size; i++) {
-		if (isdigit(str[i]))
+		if (isdigit(incomingString[i]))
 			counter++;
 	}
 	
