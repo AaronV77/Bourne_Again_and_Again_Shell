@@ -18,8 +18,8 @@ int main (int argc, char * argv[], char *envp[])
 	
 	Thursday home;																								//Create an instance of the class.																																			
 	
-	incomingInput.push_back("reset");
-	home.ExecuteFile("reset", incomingInput);
+	//~ incomingInput.push_back("reset");
+	//~ home.ExecuteFile("reset", incomingInput);
 	incomingInput.clear();
 	home.PromptDisplay();																						//Print basic prompt out.																	
 

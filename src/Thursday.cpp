@@ -66,6 +66,7 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
 	std::vector<std::string> commandAndArguments;
 	
 	for (int i = 0; i < tokens.size(); i++) {												// Loop through the tokens.
+		std::cout << "Looking at: " << tokens[i] << std::endl;
 		stringFind = tokens[i].find(';');													// See if the argument that we are looking at has a semicolon. A semicolon represents an end of a command.
 		if (stringFind != std::string::npos) {												// If there is a semicolon.
 			tokens[i].erase(tokens[i].begin()+(tokens[i].size() - 1), tokens[i].end());		// Delete if off the end of our token.
@@ -87,7 +88,9 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
 		
 		if (argumentPosition == 0) {														// If we are at the beginning of the loop lets see if we can't find our command. I don't want to keep searching for a command if we didn't find it in the beginning. If we find something that is ours afterwards then there is trouble.
 			for (int a = 0; a < ThursdayCommands.size(); a++) {								// Loop through my vector of acceptable commands that the application can use.
-				if (ThursdayCommands[i] == tokens[i]) {										// Check to see if the token matches the element in the ThrusdayCommands vector.
+				std::cout << "Here: " << ThursdayCommands[a] << " " << tokens[i] << std::endl;
+				if (ThursdayCommands[a] == tokens[i]) {										// Check to see if the token matches the element in the ThrusdayCommands vector.
+					std::cout << "Command was found!" << std::endl;
 					commandFound = true;													// If it does then we set our switch to true.
 					break;																	// If the command is found then lets get out of the loop.
 				}														
@@ -103,11 +106,13 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
 		argumentPosition++;																	// Keep track of our current position. 
 	}
 
-	if (notMineSwitch == true && commandSwitch == false)									// Had to put this hear for commands that don't have a semicolon.
+	if (notMineSwitch == true && commandSwitch == false) {									// Had to put this hear for commands that don't have a semicolon.
+		std::cout << "Aaron" << std::endl;
 		SearchCommands(commandAndArguments, 1, envp);										// Send it to our SearchCommands method for exec.
-	else 
+	} else {
+		std::cout << "Valoroso" << std::endl;
 		SearchCommands(commandAndArguments, 0, envp);										// Send it to our SearchCommands method for processing.
-		
+	}
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == true) 
 		ColorChange("Mission - You are leaving the ArgumentChecker method.", 3);
@@ -407,29 +412,25 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		dir = opendir(".");
 	else 
 		dir = opendir(pathName.c_str());
-		
+
 	if (lsArgument == "all") {
 		DepthFirstSearch("/", "&&&&&", 0, 0);
 	} else if (lsArgument == "" || lsArgument == "-l") {
 		while (entry = readdir(dir)) {
+			stat(entry->d_name, &fileStruct);
 			if (fileStruct.st_mode & S_IFDIR) {
-				directories.push_back(std::to_string(0));
 				directories.push_back(entry->d_name);
 			} else if (fileStruct.st_mode & S_IFLNK) {
-				symbolicFiles.push_back(std::to_string(1));
 				symbolicFiles.push_back(entry->d_name);
 			} else if (! access(pathName.c_str(), X_OK) && (fileStruct.st_mode & S_IFREG)) {
-				executableFiles.push_back(std::to_string(2));
 				executableFiles.push_back(entry->d_name);
 			} else if (fileStruct.st_mode & S_IFREG) {
-				regularFiles.push_back(std::to_string(3));
 				regularFiles.push_back(entry->d_name);
 			} else {
-				random.push_back(std::to_string(4));
 				random.push_back(entry->d_name);
 			}	
 		}
-		
+			
         if (closedir(dir) == -1)
             ColorChange("LS File Closing Failure: ", 2);
 		
@@ -653,6 +654,7 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 	if ( signal == 0) {															//This option will take anything from a file that is # ending and push the contents into an array.
 		while (!InputData.eof()) {
 			std::getline(InputData, input, '#');
+			std::cout << "Input: " << input << std::endl;
 			input = Utilities::string_checker(input, 0);
 			if (input.size() > 0)
 				incomingVector.push_back(input);
@@ -1106,6 +1108,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 			}
 		}
 	} else if (signal == 1) {
+		std::cout << "HERE" << std::endl;
 		for (int a = 0; a < size; a++)
 			arguments.push_back(incomingInput[a]);				
 		ExecuteFile(incomingInput[i], arguments); 
@@ -1259,11 +1262,11 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 			std::cout << "\t\t" << color << sentence << def << std::endl;
 			return;
 		} else if ( signal == 4 ) {
-			Color::Modifier color(Color::FG_MEGENTA, BoolVar);
+			Color::Modifier color(Color::FG_CYAN, BoolVar);
 			std::cout << color << sentence << def << std::endl;
 			return;
 		} else if ( signal == 5 ) {
-			Color::Modifier color(Color::FG_CYAN, BoolVar);
+			Color::Modifier color(Color::FG_LIGHT_YELLOW, BoolVar);
 			std::cout << color << sentence << def << std::endl;
 			return;
 		} else if ( signal == 6 ) {
