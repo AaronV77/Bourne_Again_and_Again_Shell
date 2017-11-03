@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -21,14 +22,20 @@
 #include <unistd.h>
 #include <vector>
 
+using namespace std;
+
 int main() {
-	std::string str = "HELLO MOM";
-	std::string str2 = "";
-	std::stack<std::string> myStack;
-	
-	myStack.push(str);
-	
-	str2 = myStack.pop()
+    std::vector<string> vector2;
+    const char *programname = "abc";
+
+    const char **argv = new const char* [vector2.size()+2];   // extra room for program name and sentinel
+    argv[0] = programname;         // by convention, argv[0] is program name
+    for (int j = 0;  j < vector2.size()+1;  ++j)     // copy args
+            argv[j+1] = vector2[j].c_str();
+
+    argv [vector2.size()+1] = NULL;  // end of arguments sentinel is NULL
+
+    execv (programname, (char **)argv);
 	
 	return 0;
 }

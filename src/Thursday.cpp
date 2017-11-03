@@ -66,7 +66,6 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
 	std::vector<std::string> commandAndArguments;
 	
 	for (int i = 0; i < tokens.size(); i++) {												// Loop through the tokens.
-		std::cout << "Looking at: " << tokens[i] << std::endl;
 		stringFind = tokens[i].find(';');													// See if the argument that we are looking at has a semicolon. A semicolon represents an end of a command.
 		if (stringFind != std::string::npos) {												// If there is a semicolon.
 			tokens[i].erase(tokens[i].begin()+(tokens[i].size() - 1), tokens[i].end());		// Delete if off the end of our token.
@@ -88,13 +87,13 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
 		
 		if (argumentPosition == 0) {														// If we are at the beginning of the loop lets see if we can't find our command. I don't want to keep searching for a command if we didn't find it in the beginning. If we find something that is ours afterwards then there is trouble.
 			for (int a = 0; a < ThursdayCommands.size(); a++) {								// Loop through my vector of acceptable commands that the application can use.
-				std::cout << "Here: " << ThursdayCommands[a] << " " << tokens[i] << std::endl;
 				if (ThursdayCommands[a] == tokens[i]) {										// Check to see if the token matches the element in the ThrusdayCommands vector.
-					std::cout << "Command was found!" << std::endl;
 					commandFound = true;													// If it does then we set our switch to true.
 					break;																	// If the command is found then lets get out of the loop.
 				}														
 			}
+			if (commandFound == false)
+				notMineSwitch = true;
 			commandAndArguments.push_back(tokens[i]);										// Add the token to the vector regardless if it is ours or not.	
 		} else {
 			commandAndArguments.push_back(tokens[i]);										// If we are not looking at the front of the command string, then lets add it anyway.
@@ -107,10 +106,8 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
 	}
 
 	if (notMineSwitch == true && commandSwitch == false) {									// Had to put this hear for commands that don't have a semicolon.
-		std::cout << "Aaron" << std::endl;
 		SearchCommands(commandAndArguments, 1, envp);										// Send it to our SearchCommands method for exec.
 	} else {
-		std::cout << "Valoroso" << std::endl;
 		SearchCommands(commandAndArguments, 0, envp);										// Send it to our SearchCommands method for processing.
 	}
 	/*--------------------------------------------------------------------*/
@@ -396,7 +393,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 	if (debugSwitch == 1)
 		ColorChange("Mission - You are in the DisplayDirectories method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	
+	std::cout << "argument: " << lsArgument << " path: " << pathName << std::endl;
 	int argumentSwitch = 0;
 	std::size_t stringFind;
 	struct stat fileStruct;
@@ -412,19 +409,19 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		dir = opendir(".");
 	else 
 		dir = opendir(pathName.c_str());
-
+	
 	if (lsArgument == "all") {
 		DepthFirstSearch("/", "&&&&&", 0, 0);
 	} else if (lsArgument == "" || lsArgument == "-l") {
 		while (entry = readdir(dir)) {
 			stat(entry->d_name, &fileStruct);
-			if (fileStruct.st_mode & S_IFDIR) {
+			if ((fileStruct.st_mode & S_IFMT) == S_IFDIR) {
 				directories.push_back(entry->d_name);
-			} else if (fileStruct.st_mode & S_IFLNK) {
+			} else if ((fileStruct.st_mode & S_IFMT) == S_IFLNK) {
 				symbolicFiles.push_back(entry->d_name);
-			} else if (! access(pathName.c_str(), X_OK) && (fileStruct.st_mode & S_IFREG)) {
+			} else if (! access(entry->d_name, X_OK) && ((fileStruct.st_mode & S_IFMT) == S_IFREG)) {
 				executableFiles.push_back(entry->d_name);
-			} else if (fileStruct.st_mode & S_IFREG) {
+			} else if ((fileStruct.st_mode & S_IFMT) == S_IFREG) {
 				regularFiles.push_back(entry->d_name);
 			} else {
 				random.push_back(entry->d_name);
@@ -434,44 +431,54 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
         if (closedir(dir) == -1)
             ColorChange("LS File Closing Failure: ", 2);
 		
+		std::sort(directories.begin(), directories.end());
+		std::sort(symbolicFiles.begin(), symbolicFiles.end());
+		std::sort(executableFiles.begin(), executableFiles.end());
+		std::sort(regularFiles.begin(), regularFiles.end());
+		std:;sort(random.begin(), random.end());
+		
 		int i = 0;
 		for (i = 0; i < directories.size(); i++) {
 			if (lsArgument == "-l") {
-				std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19);
+				std::cout << "\t\t" << Utilities::fileInformation(directories[i]) << " " << std::left;
 				ColorChange(directories[i], 4);
 			} else {
 				std::cout << "\t\t";
 				ColorChange(directories[i], 4);
 			}
 		}
+		directories.clear();
 		for (i = 0; i < symbolicFiles.size(); i++) {
 			if (lsArgument == "-l") {
-				std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19);
+				std::cout << "\t\t" << Utilities::fileInformation(symbolicFiles[i]) << " " << std::left;
 				ColorChange(symbolicFiles[i], 5);
 			} else {
 				std::cout << "\t\t";
 				ColorChange(directories[i], 5);				
 			}
 		}
+		symbolicFiles.clear();
 		for (i = 0; i < executableFiles.size(); i++) {
 			if (lsArgument == "-l") {
-				std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19);
+				std::cout << "\t\t" << Utilities::fileInformation(executableFiles[i]) << " " << std::left;
 				ColorChange(executableFiles[i], 6);
 			} else {
 				std::cout << "\t\t";
 				ColorChange(directories[i], 6);				
 			}
 		}
+		executableFiles.clear();
 		for (i = 0; i < regularFiles.size(); i++) {
 			if (lsArgument == "-l") {
-				std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19) << regularFiles[i] << std::endl;
+				std::cout << "\t\t" << Utilities::fileInformation(directories[i]) << " " << std::left << regularFiles[i] << std::endl;
 			} else {
-				std::cout << "\t\t" << regularFiles[i];
+				std::cout << "\t\t" << regularFiles[i] << std::endl;
 			}
 		}
+		regularFiles.clear();
 		for (i = 0; i < random.size(); i++) {
 			if (lsArgument == "-l") {
-				std::cout << std::left << std::setw(10) << Utilities::fileInformation(directories[i]) << " " << std::left << std::setw(19);
+				std::cout << "\t\t" << Utilities::fileInformation(random[i]) << " " << std::left;
 				ColorChange(random[i], 7);
 			} else {
 				std::cout << "\t\t";
@@ -479,9 +486,11 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 			}
 		}
 	}
-    /*--------------------------------------------------------------------*/ 
+	random.clear();
+    /*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
 		ColorChange("Mission - You are leaving the DisplayDirectories method.", 3);
+		
 	/*--------------------------------------------------------------------*/ 
     return;
 } 
@@ -563,19 +572,18 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
         ColorChange("Mission - You are in the ExecuteFile method.", 3);
 	/*--------------------------------------------------------------------*/
 	int i = 0;    
-    char ** theArguments = new char *[200];
-    for (int i = 0; i < arguments.size(); i++) {
-		strcpy(theArguments[i], arguments[i].c_str());
-	}
-	i++;
-	theArguments[i] = NULL;
+	char * dicks[20];
+	for (i = 0; i < arguments.size(); i++)
+		strcpy(dicks[i], arguments[i].c_str());
+	dicks[i++] = NULL;
+	
    
     pid_t pid;																					//Create a data type to store a process number.
 	incomingCommand = FileChecker(incomingCommand, 0);											//Send the incoming command to find in the location of the binary in the system. Will either return just the command or the location path.
 
 	pid = fork();																				//Create another process.
 	if (pid == 0) {																				//If the process is the child.
-		if (execv(incomingCommand.c_str(), theArguments) == -1) {								//Execute with the given command / location path, and char array of arguments.
+		if (execv(incomingCommand.c_str(), dicks) == -1) {										//Execute with the given command / location path, and char array of arguments.
 			ColorChange("Something went wrong with the execution of the command.", 2);			//If there is an error a messeage will be printed.
 			return 0;
 		}
@@ -584,11 +592,10 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 			waitpid(pid, NULL, 0);																//Wait for the process to finish executing.
 	}
 	
-	delete[] theArguments;
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
         ColorChange("Mission - You are leaving the ExecuteFile method.", 3);
-	/*--------------------------------------------------------------------*/
+
     return 1;
 }
 
@@ -616,11 +623,11 @@ std::string Thursday::FileChecker(std::string argument, int signal) {
 	} else if (signal == 1) {
 		struct stat fileCheck;
 		stat(argument.c_str(), &fileCheck);
-		if (fileCheck.st_mode & S_IFDIR) {
+		if ((fileCheck.st_mode & S_IFMT) == S_IFDIR) {
 			return argument;
-		} else if (fileCheck.st_mode & S_IFLNK) {
+		} else if ((fileCheck.st_mode & S_IFMT) == S_IFLNK) {
 			return argument;
-		} else if (fileCheck.st_mode & S_IFREG) {
+		} else if ((fileCheck.st_mode & S_IFMT) == S_IFREG) {
 			return argument;
 		}
 		return "";
@@ -654,7 +661,6 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 	if ( signal == 0) {															//This option will take anything from a file that is # ending and push the contents into an array.
 		while (!InputData.eof()) {
 			std::getline(InputData, input, '#');
-			std::cout << "Input: " << input << std::endl;
 			input = Utilities::string_checker(input, 0);
 			if (input.size() > 0)
 				incomingVector.push_back(input);
@@ -1003,12 +1009,12 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 					std::cout << "\t\t" << "The process ID is: " << pid << std::endl;
 					std::cout << "\t\t" << "The parent process ID is: " << ppid << std::endl;								
 				} else if (incomingInput[i] == "ls") {
-					if (size > 1) {
+					if (size > 1 && size <= 2) {
 						bool lsArgumentSwitch = false;
 						bool lsPathSwitch = false;
 						std::string lsPath = "";
 						std::string lsArgument = "";
-						
+						i++;
 						std::cout << "" << std::endl;
 						while (i < incomingInput.size()) {
 							if (incomingInput[i] == "-l" || incomingInput[i] == "all") {
@@ -1141,7 +1147,6 @@ void Thursday::SetupAndCloseSystem(int number) {
 	globalFileName += "/GlobalVariables.txt";
 
 	std::vector<std::string> temp;
-	std::cout << "CHECK" << std::endl;
 	if ( number == 1) {																									//Setting up the system.
 		ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);									//Loads the Thursday Commands
 		
@@ -1151,7 +1156,6 @@ void Thursday::SetupAndCloseSystem(int number) {
 				Environment.push_back(temp[b]);																			//Put the variable into the Environment vector.
 				if (temp[b] == "PATH") {																				//If the variable matches with PATH.
 					b++;
-					std::cout << temp[b] << std::endl;
 					istringstream iss (temp[b]);																		//Tokenize the variable of the predetermined paths, when PATH was found.
 					while (std::getline(iss,stringTokens,':'))															//Loop through until there are no more tokens.
 						PathVector.push_back(stringTokens);																//Store one of the paths into the path vector.

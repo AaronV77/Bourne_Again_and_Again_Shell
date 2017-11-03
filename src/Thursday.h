@@ -1,6 +1,7 @@
 #ifndef THURS_H
 #define THURS_H
 
+#include <algorithm>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
