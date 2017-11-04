@@ -19,6 +19,7 @@ pid#
 ppid#
 printenv#
 prompt#
+rm#
 search#
 setenv#
 time#

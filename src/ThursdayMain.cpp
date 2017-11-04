@@ -18,6 +18,23 @@ int main (int argc, char * argv[], char *envp[])
 	
 	Thursday home;																								//Create an instance of the class.																																			
 	
+	if (argc > 0) {
+		int i = 0;
+		std::size_t stringFind;
+		std::string str = "";
+		while (i < argc) {
+			if (!strcmp(argv[i], "debug=on")) {
+				std::cout << "In here" << std::endl;	
+				home.DebugSwitch(1);
+			}
+			if (!strcmp(argv[i], "color=off")) {
+				std::cout << "In here2" << std::endl;
+				home.ColorSwitch(0);
+			}
+			i++;
+		}
+	}
+	
 	//~ incomingInput.push_back("reset");
 	//~ home.ExecuteFile("reset", incomingInput);
 	incomingInput.clear();
@@ -33,6 +50,7 @@ int main (int argc, char * argv[], char *envp[])
 		switch(characterNumber) {																				//Use a switch statment to do specific actions for certain characters.
 			case 10: 																							//When an enter key was pressed.
 				if (theCommands != "") {																		//Make sure that the char pointer is not empty / NULL.
+					std::cout << "Going in: " << theCommands << std::endl;
 					home.GetArguments(theCommands, envp);														//Send the commands in the incomingInput vector to the search commands method.
 					incomingCommands.push_back(theCommands);													//Store the old commands in this vector.				
 					incomingInput.clear();																		//Clear the vector after processing.					

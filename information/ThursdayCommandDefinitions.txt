@@ -1,6 +1,7 @@
 bash#- This command will launch an instance of bash. Takes no other commands with it.#
 cd#- This command will move the user throughout the file hiearchy.#
 clear#- This command will clear the screen of output. Takes no other commands with it.#
+commands#- This command will display all the special commands that this application can take.#
 compress#- This command will compress a directory for the user.#
 date#- This command will display the current date.#
 decompress#- This command will decompress a directory for the user. Only takes the name of the deirectory with it.# 
@@ -18,6 +19,7 @@ pid#- This command will output the process ID number. Takes no other commands wi
 ppid#- This command will output the parent process ID number. Takes no other commands with it.#
 printenv#- This command will print all the bash global variables. Takes no other commands with it.#
 prompt#- This command will change the commannd prompt.#
+rm#- This command will remove any file or directory without having to have arguments.#
 search#- This command will search the dictionary for a meaning of the given word.#
 setenv#- This command will set an environment variable to the bash global system. Takes one variable
 separated by a space and the value of the variable.#

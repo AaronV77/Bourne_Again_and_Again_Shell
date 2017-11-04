@@ -39,7 +39,9 @@ public:
 	~Thursday();
 	void ArgumentChecker(std::vector<std::string> tokens, char * envp[]);
 	void ColorChange(std::string sentence, int signal);
+	void ColorSwitch(int signal);
 	void CompressAndDecompress(int Number, std::string argument);
+	void DebugSwitch(int signal);
 	string Cryptography(int number, int key, std::string message);
 	void DepthFirstSearch(std::string path, std::string command, int number, int theSwitch);
 	void DepthFirstSearchHeart(std::string searchWord, int number, int theSwitch);

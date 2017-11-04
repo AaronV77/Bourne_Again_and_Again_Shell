@@ -32,6 +32,15 @@ std::string Utilities::date(int number) {
 	if (number == 1) {
 		return month + " " + day + ", " + year;
 	} else if (number ==2) {
+		std::string currentTime;
+		currentTime += time[0];
+		currentTime += time[1];
+		time += " ";
+		if (std::stoi(currentTime) >= 12)
+			time += "PM";
+		else
+			time += "AM";
+			
 		return time;
 	}
 	

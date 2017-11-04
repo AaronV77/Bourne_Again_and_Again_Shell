@@ -28,7 +28,7 @@ Thursday::Thursday() {
 	colorOption = 11;								//Color switch for turning on and off the colors for the program.
 	colorSwitch = 1; 								//Color switch so that the color is turned either on or off.
 	commandSwitch = 0;								//Switch for when & is found in the incoming input.
-	debugSwitch = 1;								//Switch for turning on and off the debug statments.
+	debugSwitch = 0;								//Switch for turning on and off the debug statments.
     found = 0;										//To tell the DFS algorithm that a path was able to be found.
 	errorSwitch = 0;								//A switch to tell the DFS algorithm that there was an error in the change directtory method.
 	gid = getgid();									//Gets the group id for the process and saves it to an int variable.
@@ -117,6 +117,122 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
 	return;
 }
 
+void Thursday::ColorChange(std::string sentence, int signal) {
+	string color = "";
+	Color::Modifier def(Color::FG_DEFAULT, BoolVar);
+
+	if (colorSwitch == 1) {
+		if ( signal == 1 ) {
+			if ( colorOption == 1 ) {
+				Color::Modifier color(Color::FG_BLACK, BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 2 ) {
+				Color::Modifier color(Color::FG_RED,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 3 ) {
+				Color::Modifier color(Color::FG_GREEN,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 4 ) {
+				Color::Modifier color(Color::FG_YELLOW,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 5 ) { 
+				Color::Modifier color(Color::FG_BLUE,BoolVar);	
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 6 ) { 
+				Color::Modifier color(Color::FG_MEGENTA,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 7 ) {
+				Color::Modifier color(Color::FG_CYAN,BoolVar);	
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 8 ) {		
+				Color::Modifier color(Color::FG_LIGHT_GRAY,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 9 ) {
+				Color::Modifier color(Color::FG_DARK_GRAY,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 10 ) {
+				Color::Modifier color(Color::FG_LIGHT_RED,BoolVar);	
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 11 ) {
+				Color::Modifier color(Color::FG_LIGHT_GREEN,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 12 ) {
+				Color::Modifier color(Color::FG_LIGHT_YELLOW,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 13 ) {
+				Color::Modifier color(Color::FG_LIGHT_BLUE,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 14 ) {
+				Color::Modifier color(Color::FG_LIGHT_MAGENTA,BoolVar);	
+				std::cout << color << sentence << def;
+				return;
+			} else if ( colorOption == 15 ) {
+				Color::Modifier color(Color::FG_LIGHT_CYAN,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			} else {
+				Color::Modifier color(Color::FG_WHITE,BoolVar);
+				std::cout << color << sentence << def;
+				return;
+			}
+		} else if ( signal == 2 ) {
+			Color::Modifier color(Color::FG_RED, BoolVar);
+			std::cout << "\t\t" << color << sentence << def << std::endl;
+			return;
+		} else if ( signal == 3 ) {
+			Color::Modifier color(Color::FG_YELLOW, BoolVar);
+			std::cout << "\t\t" << color << sentence << def << std::endl;
+			return;
+		} else if ( signal == 4 ) {
+			Color::Modifier color(Color::FG_CYAN, BoolVar);
+			std::cout << color << sentence << def << std::endl;
+			return;
+		} else if ( signal == 5 ) {
+			Color::Modifier color(Color::FG_LIGHT_YELLOW, BoolVar);
+			std::cout << color << sentence << def << std::endl;
+			return;
+		} else if ( signal == 6 ) {
+			Color::Modifier color(Color::FG_LIGHT_GREEN, BoolVar);
+			std::cout << color << sentence << def << std::endl;
+			return;
+		} else if ( signal == 7 ) {
+			Color::Modifier color(Color::FG_RED, BoolVar);
+			std::cout << color << sentence << def << std::endl;
+			return;
+		}
+	} else {
+		if (signal == 1) {
+			std::cout << sentence;
+		} else {
+			std::cout << sentence << endl;
+		}
+	}
+	return;
+}
+
+void Thursday::ColorSwitch(int signal) {
+	
+	if (signal == 1) {
+		colorSwitch = 1;
+	} else if (signal == 0) {
+		colorSwitch = 0;
+	}
+	
+}
+
 void Thursday::CompressAndDecompress(int Number, std::string argument) {
 	/*-------------------------------------------------------------------
 	Note: This method will use the tgz binaries within the system to 
@@ -126,21 +242,30 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
     if (debugSwitch == true) 
 		ColorChange("Mission - You are in the CompressAndDecompress method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	std::vector<std::string> arguments;		
-	string path = FileChecker("tar", 0);
+	std::vector<std::string> arguments;	
 	string fileName = argument;	
-	fileName += ".tgz";
-
-	if (Number == 0) {													//Store the arguments for compressing.
+	std::size_t stringFind;	
+	string path = FileChecker("tar", 0);
+	
+	if (Number == 0) {													//Store the arguments for compressing.	
+		fileName += ".tgz";
 		arguments.push_back(path);
 		arguments.push_back("cvzf");
 		arguments.push_back(fileName);
 		arguments.push_back(argument);
 	} else if (Number == 1) {											//Store the arguments for decompressing.
 		arguments.push_back(path);
-		arguments.push_back("-xvzf");
-		arguments.push_back(fileName);
-		arguments.push_back(argument);
+		arguments.push_back("xvzf");
+		stringFind = argument.find(".tgz");
+		if (stringFind != std::string::npos) {
+			arguments.push_back(fileName);
+			argument.erase(argument.begin()+(argument.size() - 4), argument.end());	
+			arguments.push_back(argument);
+		} else {
+			fileName += ".tgz";
+			arguments.push_back(fileName);
+			arguments.push_back(argument);
+		}
 	}
 	
 	ExecuteFile(path, arguments);										//Send arguments and path over to be executed.
@@ -148,7 +273,7 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
 	/*--------------------------------------------------------------------*/ 
     if (debugSwitch == true) 
 		ColorChange("Mission - You are leaving the CompressAndDecompress method.", 3);
-	/*--------------------------------------------------------------------*/
+
 	return;
 }
 
@@ -160,13 +285,11 @@ std::string Thursday::Cryptography(int number, int key, std::string message) {
     if (debugSwitch == true) 
 		ColorChange("Mission - You are in the Cryptography method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	int length = message.size();
 	int input = 0;
 	std::string output = "";
-	std::string theString = message;
 
 	if (number == 1) {													//If user wants the message to be encrypted.
-		for (int i = 0; i < length; i++) {								//Loop through the number of characters of the given message.
+		for (int i = 0; i < message.size(); i++) {						//Loop through the number of characters of the given message.
 			input = message[i];											//Set the nth element of the message to a number.
 			if (input != 32) {											//If the character doesn't equal a space.
 				if (input > 57 || input < 48) {							//If the character is not a number
@@ -178,10 +301,11 @@ std::string Thursday::Cryptography(int number, int key, std::string message) {
 						input -= 26;									//Subtract 26 from the input.
 				}
 			}	
-			output += std::to_string(input);							//Convert the number back to a char pointer and store it into the output array.		
+			output += input;											//Convert the number back to a char pointer and store it into the output array.	
+			std::cout << "i: " << output << std::endl;
 		}	
 	} else if (number == 2) {											//If the user wants the message to be decrypted.
-		for (int i = 0; i < length; i++) {								//Loop through the number of characters of the given message.
+		for (int i = 0; i < message.size(); i++) {						//Loop through the number of characters of the given message.
 			input = message[i];											//Set the nth element of the message to a number.
 			if (input != 32) {											//If the character doesn't equal a space.
 				if (input > 57 || input < 48) {							//If the character is not a number.
@@ -193,22 +317,32 @@ std::string Thursday::Cryptography(int number, int key, std::string message) {
 						input += 26;									//Add 26 to the input.
 				}
 			}	
-			output += std::to_string(input);							//Convert the number back to a char pointer and store it into the output array.
-		}
+			output += input;											//Convert the number back to a char pointer and store it into the output array.
+		}	
 	} else {
-		for (int i = 0; i < length; i++) {								//Looping through the messsage to uppercase every character.
+		for (int i = 0; i < message.size(); i++) {						//Looping through the messsage to uppercase every character.
 			input = message[i];											//Grab a character and convert it to an int.
 			if (input >= 97 && input <= 122)							//Check to see if the character lies between the lower case letters.
 				input -= 32;											//If so then subtract 32 from the number to make it a bigger letter.
 
-			output += std::to_string(input);							//Conver the number to a char and store it into output.
+			output += input;											//Conver the number to a char and store it into output.
 		}	
 	}
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == true) 
 		ColorChange("Mission - You are leaving the Cryptography method.", 3);
-	/*--------------------------------------------------------------------*/
+
 	return output;
+}
+
+void Thursday::DebugSwitch(int signal) {
+		
+	if (signal == 1) {
+		debugSwitch = 1;
+	} else if (signal == 0) {
+		debugSwitch = 0;
+	}
+
 }
 
 void Thursday::DepthFirstSearch(std::string path, std::string command, int number, int theSwitch) {  
@@ -393,7 +527,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 	if (debugSwitch == 1)
 		ColorChange("Mission - You are in the DisplayDirectories method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	std::cout << "argument: " << lsArgument << " path: " << pathName << std::endl;
+
 	int argumentSwitch = 0;
 	std::size_t stringFind;
 	struct stat fileStruct;
@@ -571,13 +705,15 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
     if (debugSwitch == 1) 
         ColorChange("Mission - You are in the ExecuteFile method.", 3);
 	/*--------------------------------------------------------------------*/
-	int i = 0;    
-	char * dicks[20];
-	for (i = 0; i < arguments.size(); i++)
-		strcpy(dicks[i], arguments[i].c_str());
+	int i = 0;  
+	size_t arrSize = 100;  
+	char ** dicks = new char * [arrSize];
+	for (i = 0; i < arguments.size(); i++) {
+		dicks[i] = new char [arrSize];
+		strcpy(dicks[i], strdup(arguments[i].c_str()));
+	}
 	dicks[i++] = NULL;
-	
-   
+
     pid_t pid;																					//Create a data type to store a process number.
 	incomingCommand = FileChecker(incomingCommand, 0);											//Send the incoming command to find in the location of the binary in the system. Will either return just the command or the location path.
 
@@ -591,7 +727,12 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 		if (commandSwitch == false)																//If the running in the back ground command is false.
 			waitpid(pid, NULL, 0);																//Wait for the process to finish executing.
 	}
-	
+
+	for (i = 0; i < arguments.size(); i++)
+		delete dicks[i];
+
+	delete [] dicks;
+	dicks = NULL;
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
         ColorChange("Mission - You are leaving the ExecuteFile method.", 3);
@@ -646,6 +787,7 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 		ColorChange((char*)"Mission - You are in the FileLoader method.", 3);
  	/*--------------------------------------------------------------------*/
  	int mySwitch = 0;
+ 	int i = 0;
  	std::string type = "";
  	std::string input = "";
  	std::string word = "";
@@ -668,9 +810,8 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 	} else if ( signal == 1) {													//This option will display just the basic contents of a file that is # ending.
 		while (!InputData.eof()) {
 			std::getline(InputData, input, '#');
-			input = Utilities::string_checker(input, 0);
 			if (input.size() > 0)
-				std::cout << "\t\t" << input << std::endl;
+				std::cout << "\t\t" << input;
 		}
 	} else if ( signal == 2) {													//This option takes a command file and displays the contents of the file that is # ending.
 		while (!InputData.eof()) {												//Loop through the file.
@@ -683,7 +824,8 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 			if (word.size() > 0) {
 				word += " ";
 				word += definition;
-				std::cout << "\t\t" << word << std::endl;
+				std::cout << "\t\t" << i << ": " << word << std::endl;
+				i++;
 			}
 		}
 	}
@@ -817,7 +959,7 @@ void Thursday::Search(std::string argument) {
     } else if (argument[0] >= 97 && argument[0] <= 122) {							//If the first letter in the argument is lowercase.	
         wordChar = argument[0];														//Get the first character.	
         wordChar -= 32;																//Decrement the variable by 32, to make it lowercase.	
-        letter += std::to_string(wordChar);											//Convert the modified first character and give it to the letter variable.
+        letter += wordChar;															//Convert the modified first character and give it to the letter variable.
         searchWord += letter;														//Add it to the search word variable.
 		for (int i = 1; i < argument.size(); i++)									//Loop through the remaining characters in the argument.
 			searchWord += argument[i];
@@ -914,8 +1056,10 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 				} else if (incomingInput[i] == "color") {				
 					if (size > 1) {
 						i++;
-						if (std::stoi(incomingInput[i]))
-							colorOption = std::stoi(incomingInput[i]);
+						if (Utilities::isNumber(incomingInput[i]) == 1) {
+							if (std::stoi(incomingInput[i]) > 0 )
+								colorOption = std::stoi(incomingInput[i]);
+						}
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
@@ -950,7 +1094,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						if (Utilities::isNumber(incomingInput[i]) == 1) {
 							key = std::stoi(incomingInput[i]);	
 						} else {
-							ColorChange("Sorry the key was not a number.", 2);
+							ColorChange("Sorry the first argument was not a number (key).", 2);
 							return 0;
 						}
 						i++;
@@ -964,11 +1108,11 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						if (Utilities::isNumber(incomingInput[i]) == 1) {
 							key = std::stoi(incomingInput[i]);	
 						} else {
-							ColorChange("Sorry the key was not a number.", 2);
+							ColorChange("Sorry the first argument was not a number (key).", 2);
 							return 0;
 						}
 						i++;
-						std::cout << "\t\t" << Cryptography(1, key, incomingInput[i]) << std::endl;	
+						std::cout << "\t\t Here: " << Cryptography(1, key, incomingInput[i]) << std::endl;	
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
@@ -1060,8 +1204,13 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 					if (size > 1) { 
 						i++; 
 						if (Utilities::isNumber(incomingInput[i]) == 1) {
-							if (std::stoi(incomingInput[i]) >= 0 || std::stoi(incomingInput[i]) <= 4) {	
+							if (std::stoi(incomingInput[i]) >= 0 || std::stoi(incomingInput[i]) <= 2) {	
 								promptNumber = std::stoi(incomingInput[i]);
+							} else if (std::stoi(incomingInput[i]) == 3) {
+								if (currentPrompt.size() > 0)
+									promptNumber = std::stoi(incomingInput[i]);
+								else 
+									ColorChange("Sorry but the current prompt is empty.", 2);
 							} else {
 								ColorChange("That is not an option for the prompt.", 2);
 							}
@@ -1081,6 +1230,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 					if (size > 1) {
 						i++;
 						Search(incomingInput[i]);
+						std::cout << "" << std::endl;
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
@@ -1114,11 +1264,9 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 			}
 		}
 	} else if (signal == 1) {
-		std::cout << "HERE" << std::endl;
 		for (int a = 0; a < size; a++)
 			arguments.push_back(incomingInput[a]);				
 		ExecuteFile(incomingInput[i], arguments); 
-		i = size;
 		return 0;
 	}
 	/*--------------------------------------------------------------------*/
@@ -1184,111 +1332,6 @@ void Thursday::SetupAndCloseSystem(int number) {
 	if (debugSwitch == 1)
 		ColorChange("Mission - You are leaving the SetupAndCloseSystem method.", 3);
  	/*--------------------------------------------------------------------*/
-	return;
-}
-
-void Thursday::ColorChange(std::string sentence, int signal) {
-	string color = "";
-	Color::Modifier def(Color::FG_DEFAULT, BoolVar);
-	if (colorSwitch == 1) {
-		if ( signal == 1 ) {
-			if ( colorOption == 1 ) {
-				Color::Modifier color(Color::FG_BLACK, BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 2 ) {
-				Color::Modifier color(Color::FG_RED,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 3 ) {
-				Color::Modifier color(Color::FG_GREEN,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 4 ) {
-				Color::Modifier color(Color::FG_YELLOW,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 5 ) { 
-				Color::Modifier color(Color::FG_BLUE,BoolVar);	
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 6 ) { 
-				Color::Modifier color(Color::FG_MEGENTA,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 7 ) {
-				Color::Modifier color(Color::FG_CYAN,BoolVar);	
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 8 ) {		
-				Color::Modifier color(Color::FG_LIGHT_GRAY,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 9 ) {
-				Color::Modifier color(Color::FG_DARK_GRAY,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 10 ) {
-				Color::Modifier color(Color::FG_LIGHT_RED,BoolVar);	
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 11 ) {
-				Color::Modifier color(Color::FG_LIGHT_GREEN,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 12 ) {
-				Color::Modifier color(Color::FG_LIGHT_YELLOW,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 13 ) {
-				Color::Modifier color(Color::FG_LIGHT_BLUE,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 14 ) {
-				Color::Modifier color(Color::FG_LIGHT_MAGENTA,BoolVar);	
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 15 ) {
-				Color::Modifier color(Color::FG_LIGHT_CYAN,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else {
-				Color::Modifier color(Color::FG_WHITE,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			}
-		} else if ( signal == 2 ) {
-			Color::Modifier color(Color::FG_RED, BoolVar);
-			std::cout << "\t\t" << color << sentence << def << std::endl;
-			return;
-		} else if ( signal == 3 ) {
-			Color::Modifier color(Color::FG_YELLOW, BoolVar);
-			std::cout << "\t\t" << color << sentence << def << std::endl;
-			return;
-		} else if ( signal == 4 ) {
-			Color::Modifier color(Color::FG_CYAN, BoolVar);
-			std::cout << color << sentence << def << std::endl;
-			return;
-		} else if ( signal == 5 ) {
-			Color::Modifier color(Color::FG_LIGHT_YELLOW, BoolVar);
-			std::cout << color << sentence << def << std::endl;
-			return;
-		} else if ( signal == 6 ) {
-			Color::Modifier color(Color::FG_LIGHT_GREEN, BoolVar);
-			std::cout << color << sentence << def << std::endl;
-			return;
-		} else if ( signal == 7 ) {
-			Color::Modifier color(Color::FG_RED, BoolVar);
-			std::cout << color << sentence << def << std::endl;
-			return;
-		}
-	} else {
-		if (signal == 1) {
-			std::cout << sentence;
-		} else {
-			std::cout << sentence << endl;
-		}
-	}
 	return;
 }
 
