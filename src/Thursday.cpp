@@ -52,7 +52,7 @@ Thursday::~Thursday() {
 	PathVector.clear();	
 }
 
-void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
+void Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std::string> quotes, char * envp[]) {
 	/*-------------------------------------------------------------------
 	Note: 
 	--------------------------------------------------------------------*/
@@ -60,8 +60,10 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
 		ColorChange("Mission - You are in the ArgumentChecker method.", 3);
 	/*--------------------------------------------------------------------*/ 
 	int argumentPosition = 0;
-	bool commandFound = false;
+	int currentQuote = 0;
+	bool commandSwitch = false;
 	bool notMineSwitch = false;
+	bool quoteSwitch = false;
 	std::size_t stringFind;
 	std::vector<std::string> commandAndArguments;
 	
@@ -74,36 +76,49 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
 				SearchCommands(commandAndArguments, 1, envp);								// Send it to our SearchCommands method for exec.
 			else 
 				SearchCommands(commandAndArguments, 0, envp);								// Send it to our SearchCommands method for processing.
-			commandFound = false;															// Reset our switch. This is used to tell if the stuff in the vector is the applications commands or random commands.
+			commandSwitch = false;															// Reset our switch. This is used to tell if the stuff in the vector is the applications commands or random commands.
 			notMineSwitch = false;															// Reset our switch. This is used to tell if someone is trying to execute script or code.
 			argumentPosition = 0;															// I'm using thins to keep track of our position in the vector.
 			if (commandAndArguments.size() > 0) 											// Reset the vector if the vector is not empty.
 				commandAndArguments.clear();												// Clear the contents of the vector correctly.
-		} else {
-			stringFind = tokens[i].find("./");												// Look for the execution of something.
-			if (stringFind != std::string::npos)											// See if we have found anything.
-				notMineSwitch = true;														// Set our switch to true.
-		}
-		
-		if (argumentPosition == 0) {														// If we are at the beginning of the loop lets see if we can't find our command. I don't want to keep searching for a command if we didn't find it in the beginning. If we find something that is ours afterwards then there is trouble.
-			for (int a = 0; a < ThursdayCommands.size(); a++) {								// Loop through my vector of acceptable commands that the application can use.
-				if (ThursdayCommands[a] == tokens[i]) {										// Check to see if the token matches the element in the ThrusdayCommands vector.
-					commandFound = true;													// If it does then we set our switch to true.
-					break;																	// If the command is found then lets get out of the loop.
-				}														
-			}
-			if (commandFound == false)
-				notMineSwitch = true;
-			commandAndArguments.push_back(tokens[i]);										// Add the token to the vector regardless if it is ours or not.	
-		} else {
-			commandAndArguments.push_back(tokens[i]);										// If we are not looking at the front of the command string, then lets add it anyway.
 		}
 
+		stringFind = tokens[i].find("./");													// Look for the execution of something.
+		if (stringFind != std::string::npos)												// See if we have found anything.
+			notMineSwitch = true;															// Set our switch to true.
+
+		if (Utilities::isNumber(tokens[i]) == 1) {
+			int number = std::stoi(tokens[i]);
+			if (number == currentQuote) {				
+				commandAndArguments.push_back(quotes[currentQuote]);
+				currentQuote++;
+				quoteSwitch = true;
+			}
+		}
+		if (quoteSwitch == false) {
+			if (argumentPosition == 0) {													// If we are at the beginning of the loop lets see if we can't find our command. I don't want to keep searching for a command if we didn't find it in the beginning. If we find something that is ours afterwards then there is trouble.
+				for (int a = 0; a < ThursdayCommands.size(); a++) {							// Loop through my vector of acceptable commands that the application can use.
+					if (ThursdayCommands[a] == tokens[i]) {									// Check to see if the token matches the element in the ThrusdayCommands vector.
+						commandSwitch = true;												// If it does then we set our switch to true.
+						break;																// If the command is found then lets get out of the loop.
+					}														
+				}
+				if (commandSwitch == false)
+					notMineSwitch = true;
+				commandAndArguments.push_back(tokens[i]);									// Add the token to the vector regardless if it is ours or not.	
+			} else {
+				commandAndArguments.push_back(tokens[i]);									// If we are not looking at the front of the command string, then lets add it anyway.
+			}
+		} else {
+			quoteSwitch = false;
+		}
+		
 		if (tokens[i] == ">" || tokens[i] == "<" || tokens[i] == "|")						// Check to see if our token is an operator.
 			notMineSwitch = true;															// If we have found an operator, then what we have in our vector is not for my application to handle. I don't process operators so lets just give it to exec.
-	
+
 		argumentPosition++;																	// Keep track of our current position. 
 	}
+
 
 	if (notMineSwitch == true && commandSwitch == false) {									// Had to put this hear for commands that don't have a semicolon.
 		SearchCommands(commandAndArguments, 1, envp);										// Send it to our SearchCommands method for exec.
@@ -113,7 +128,7 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, char * envp[]) {
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == true) 
 		ColorChange("Mission - You are leaving the ArgumentChecker method.", 3);
-	/*--------------------------------------------------------------------*/ 
+
 	return;
 }
 
@@ -837,7 +852,7 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 	return incomingVector;
 }
 
-void Thursday::GetArguments(std::string theCommands, char* envp[]) {
+void Thursday::GetArguments(std::string theCommands, std::vector<std::string> quotes, char* envp[]) {
 	/*-------------------------------------------------------------------
 	Note: 
 	--------------------------------------------------------------------*/
@@ -851,7 +866,7 @@ void Thursday::GetArguments(std::string theCommands, char* envp[]) {
 	while (iss >> incomingInput)						// Loop through getting the tokens by the space character.
 		tokens.push_back(incomingInput);				// Put the contents into our vector to give to our ArgumentChecker method.
 
-	ArgumentChecker(tokens, envp);						
+	ArgumentChecker(tokens, quotes, envp);						
 	
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == true) 

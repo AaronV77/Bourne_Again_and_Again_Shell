@@ -2,18 +2,22 @@
 
 int getche(void);
 
-int main (int argc, char * argv[], char *envp[])
-{					
-	std::vector<std::string> incomingInput;									
-	std::vector<std::string> incomingCommands;																	//Used to store the incoming commands from the user and will be checked.
-	int BoolVar = 1;
+int main (int argc, char * argv[], char *envp[]) {					
+
+	char path[256];
 	int characterNumber = 0;																					//Used to store the ascii value of the character from the keyboard.
 	int LeftAndRightIterator = 0;																				//Used to keep track of where the cursor is on the screen.
 	int size = 0;
+	int quoteCounter =0;
 	int UpAndDownIterator = 0;																					//Used to keep track of where the system is in the commands vector.
-	char path[256];
+	bool quoteFound = false;	
 	std::string character = "";
 	std::string theCommands = "";
+	std::string theQuote = "";
+	std::string everything = "";
+	std::vector<std::string> incomingInput;									
+	std::vector<std::string> incomingCommands;																	//Used to store the incoming commands from the user and will be checked.
+	std::vector<std::string> quotes;	
 	struct termios oldattr, newattr;																			//Setup terminal variables.
 	
 	Thursday home;																								//Create an instance of the class.																																			
@@ -50,9 +54,8 @@ int main (int argc, char * argv[], char *envp[])
 		switch(characterNumber) {																				//Use a switch statment to do specific actions for certain characters.
 			case 10: 																							//When an enter key was pressed.
 				if (theCommands != "") {																		//Make sure that the char pointer is not empty / NULL.
-					std::cout << "Going in: " << theCommands << std::endl;
-					home.GetArguments(theCommands, envp);														//Send the commands in the incomingInput vector to the search commands method.
-					incomingCommands.push_back(theCommands);													//Store the old commands in this vector.				
+					home.GetArguments(theCommands, quotes, envp);												//Send the commands in the incomingInput vector to the search commands method.
+					incomingCommands.push_back(everything);														//Store the old commands in this vector.				
 					incomingInput.clear();																		//Clear the vector after processing.					
 					home.PromptDisplay();																		//Display the prompt.
 				}
@@ -61,7 +64,26 @@ int main (int argc, char * argv[], char *envp[])
 				LeftAndRightIterator = 0;
 				character = "";
 				theCommands = "";
-				break;																							//Break out of the switch staatement.
+				everything = "";
+				break;																							//Break out of the switch statement.
+			case 34:
+				if (quoteFound == false) {
+					quoteFound = true;
+					theQuote += characterNumber;
+					everything += characterNumber;
+				} else {
+					quoteFound = false;
+					theQuote += characterNumber;
+					quotes.push_back(theQuote);
+					theCommands += " ";
+					theCommands += std::to_string(quoteCounter);
+					theCommands += " ";
+					everything += characterNumber;
+					theQuote = "";
+					quoteCounter++;
+				}
+				
+				break;
 			case 127: 																							//Backspace character.
 				if (LeftAndRightIterator > 0) {																	//Delete the characters in the pointer, but no further than what was typed.
 					printf("\b \b");																			//Deletes a character on the current line and moves the pointer back one.
@@ -130,7 +152,13 @@ int main (int argc, char * argv[], char *envp[])
 				break;
 			default: 																							//Catch every other character.
 				if (characterNumber < 195 || characterNumber > 204) {											//Look for any letter between a - z.
-					theCommands += characterNumber;
+					if (quoteFound == false) {
+						theCommands += characterNumber;
+						everything += characterNumber;
+					} else {
+						theQuote += characterNumber;
+						everything += characterNumber;
+					}
 					LeftAndRightIterator++;
 				}
 				break;
