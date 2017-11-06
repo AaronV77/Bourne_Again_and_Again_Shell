@@ -49,7 +49,6 @@ int main (int argc, char * argv[], char *envp[]) {
 		switch(characterNumber) {																				//Use a switch statment to do specific actions for certain characters.
 			case 10: 																							//When an enter key was pressed.
 				if (theCommands != "") {																		//Make sure that the char pointer is not empty / NULL.
-					cin.ignore();																				//Reset the user input stream?@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 					returnNumber = home.GetArguments(theCommands, quotes, envp);								//Send the commands in the incomingInput vector to the search commands method.
 					if (returnNumber == 1)																		//See if the user is trying to exit the program, which returns a 1.
 						return 0;																				//Exit the program.
