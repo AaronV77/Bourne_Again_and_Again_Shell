@@ -3,22 +3,12 @@
 
 #include <algorithm>
 #include <dirent.h>
-#include <errno.h>
-#include <fcntl.h>
 #include <fstream>
-#include <iomanip>
 #include <iostream>
-#include <libgen.h>
-#include <linux/input.h>
-#include <pwd.h>
 #include <stack>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string>
 #include <string.h>
 #include <sstream>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <termios.h>
 #include <unistd.h>
@@ -37,22 +27,22 @@ class Thursday {
 public:
 	Thursday();
 	~Thursday();
-	void ArgumentChecker(std::vector<std::string> tokens, std::vector<std::string> quotes, char * envp[]);
+	int ArgumentChecker(std::vector<std::string> tokens, std::vector<std::string> quotes, char * envp[]);
 	void ColorChange(std::string sentence, int signal);
 	void ColorSwitch(int signal);
 	void CompressAndDecompress(int Number, std::string argument);
 	void DebugSwitch(int signal);
 	string Cryptography(int number, int key, std::string message);
 	void DepthFirstSearch(std::string path, std::string command, int number, int theSwitch);
-	void DepthFirstSearchHeart(std::string searchWord, int number, int theSwitch);
+	void DepthFirstSearchHeart(std::string searchWord, int theSwitch);
 	void DirectoryChange(std::string desiredPath, int number);
 	void DirectoryDelete(std::string dirname);
 	void DisplayDirectories(std::string lsArgument, std::string pathName); 
 	std::string FileChecker(std::string argument, int signal);	
 	std::vector<std::string> FileLoader(std::vector<std::string> incomingVector, std::string fileName, int signal);
-	void EnvironmentUtilites(int Number);
+	void EnvironmentUtilites(int Number, std::string variable, std::string variableValue);
 	int ExecuteFile(std::string incomingCommand, std::vector<std::string> arguments);
-	void GetArguments(std::string theCommands, std::vector<std::string> quotes, char * envp[]);
+	int GetArguments(std::string theCommands, std::vector<std::string> quotes, char * envp[]);
 	void Help(std::string argument);
 	void PromptDisplay();
 	void Search(std::string argument);

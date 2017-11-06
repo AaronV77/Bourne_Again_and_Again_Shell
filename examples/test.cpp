@@ -25,17 +25,11 @@
 using namespace std;
 
 int main() {
-    std::vector<string> vector2;
-    const char *programname = "abc";
-
-    const char **argv = new const char* [vector2.size()+2];   // extra room for program name and sentinel
-    argv[0] = programname;         // by convention, argv[0] is program name
-    for (int j = 0;  j < vector2.size()+1;  ++j)     // copy args
-            argv[j+1] = vector2[j].c_str();
-
-    argv [vector2.size()+1] = NULL;  // end of arguments sentinel is NULL
-
-    execv (programname, (char **)argv);
+	std::string str = "/home";
+	std::cout << str[0] << std::endl;
+	
+	if (str[0] == '/') 
+		std::cout << "We are here!" << std::endl;
 	
 	return 0;
 }
