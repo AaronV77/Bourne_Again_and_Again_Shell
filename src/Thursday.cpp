@@ -244,6 +244,22 @@ void Thursday::ColorSwitch(int signal) {
 		colorSwitch = 0;
 	}
 	
+<<<<<<< HEAD
+=======
+	/*--------------------------------------------------------------------*/
+	free(theCommands); theCommands = NULL;
+	free(input); input = NULL;
+	free(inputCheck); inputCheck = NULL;
+	free(argument); argument = NULL;
+	
+	badCommands.clear();
+	commandArguments.clear();
+	goodCommands.clear();
+    if (debugSwitch == true) 
+		ColorChange((char*)"Mission - You are leaving the ArgumentChecker method.", 3);
+	/*--------------------------------------------------------------------*/ 
+	return 0;
+>>>>>>> master
 }
 
 void Thursday::CompressAndDecompress(int Number, std::string argument) {
@@ -284,6 +300,12 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
 	ExecuteFile(path, arguments);															//Send arguments and path over to be executed.
 	
 	/*--------------------------------------------------------------------*/ 
+<<<<<<< HEAD
+=======
+	free(path); free(fileName); free(argument);
+	path = NULL, fileName = NULL; argument = NULL;
+	
+>>>>>>> master
     if (debugSwitch == true) 
 		ColorChange("Mission - You are leaving the CompressAndDecompress method.", 3);
 
@@ -323,6 +345,11 @@ std::string Thursday::Cryptography(int number, int key, std::string message) {
 		}	
 	}
 	/*--------------------------------------------------------------------*/
+<<<<<<< HEAD
+=======
+	free(theString); theString = NULL;
+	
+>>>>>>> master
     if (debugSwitch == true) 
 		ColorChange("Mission - You are leaving the Cryptography method.", 3);
 
@@ -382,7 +409,13 @@ void Thursday::DepthFirstSearch(std::string path, std::string command, int numbe
 			ColorChange("The file could not be found in the starting directory.", 3);
 	}
 	/*--------------------------------------------------------------------*/ 
+<<<<<<< HEAD
 	currentPath = thePath;																				//
+=======
+	free(input); input = NULL;
+	free(path); path = NULL;
+	free(command); command = NULL;
+>>>>>>> master
 	
     if (debugSwitch == true) 
 		ColorChange("Mission - You are leaving the DepthFirstSearch method.", 3);
@@ -508,8 +541,14 @@ void Thursday::DirectoryDelete(std::string dirname) {
 		ColorChange("Couldn't open the directory", 3);										//Print out a statement if the directory was NULL.
 	}
  	/*--------------------------------------------------------------------*/
+<<<<<<< HEAD
  	remove(dirname.c_str());																//Remove the directory from the hiearchy. 
 
+=======
+ 	remove(dirname);																//Remove the directory from the hiearchy. 
+ 	free(dirname); dirname = NULL;
+ 	
+>>>>>>> master
 	if (debugSwitch == 1)
 		ColorChange("Mission - You are leaving the DirectoryChange method.", 3);
  	/*--------------------------------------------------------------------*/
@@ -576,6 +615,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 				std::cout << "\t\t";																										//
 				ColorChange(directories[i], 4);																								//
 			}
+<<<<<<< HEAD
 		}
 		directories.clear();																												//
 		for (i = 0; i < symbolicFiles.size(); i++) {																						//
@@ -618,6 +658,16 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 	}
 	random.clear();																															//
     /*--------------------------------------------------------------------*/
+=======
+		}  
+        if (closedir(dir) == -1)														//make sure that we can close the directory that we are looking at.
+            ColorChange((char*)"LS File Closing Failure: ", 2);							//Print an error if we cannot close the directory.
+    }
+    /*--------------------------------------------------------------------*/ 
+    free(addedPath); addedPath = NULL;
+    free(searchWord); searchWord = NULL;
+    
+>>>>>>> master
     if (debugSwitch == 1) 
 		ColorChange("Mission - You are leaving the DisplayDirectories method.", 3);
 		
@@ -761,7 +811,13 @@ std::string Thursday::FileChecker(std::string argument, int signal) {
 		}
 	}
 	/*--------------------------------------------------------------------*/ 
+<<<<<<< HEAD
 	incomingArgument = "";															//
+=======
+	free(incomingArgument);
+	incomingArgument = NULL;
+	
+>>>>>>> master
     if (debugSwitch == 1) 
         ColorChange("Mission - You are leaving the FileChecker method.", 3);
 
@@ -820,6 +876,14 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 	}
 	InputData.close();																		//
    	/*--------------------------------------------------------------------*/
+<<<<<<< HEAD
+=======
+	free(input); input = NULL;
+	free(fileName); fileName = NULL;
+	free(word); word = NULL;
+	free(definition); definition = NULL;
+	
+>>>>>>> master
     if (debugSwitch == 1) 
 		ColorChange("Mission - You are leaving the FileLoader method.", 3);
 
@@ -885,14 +949,127 @@ void Thursday::Help(std::string argument) {
 			mySwitch = 1;																		//
 		}
 	}
+<<<<<<< HEAD
 	if (mySwitch != 1)																			//
 		ColorChange("Nothing found in our database!", 3);
+=======
+	if (mySwitch != 1)
+		ColorChange((char*)"Nothing found in our database!", 2);
+	cout << endl;
+   	/*--------------------------------------------------------------------*/
+   	free(definition); definition = NULL;
+   	free(type); type = NULL;
+   	free(word); word = NULL;
+   	free(fileName);	fileName = NULL;
+   	free(argument); argument = NULL;
+   
+    if (debugSwitch == 1) 
+        ColorChange((char*)"Mission - You are in the ArgumentChecker method.", 3);
+	/*--------------------------------------------------------------------*/
+	return;
+}
+>>>>>>> master
 
    	/*--------------------------------------------------------------------*/	
     if (debugSwitch == 1) 
         ColorChange("Mission - You are in the ArgumentChecker method.", 3);
 
+<<<<<<< HEAD
 	return;
+=======
+    cout << endl;
+    cout << "Welcome to the Thursday Program!" << endl;
+    cout << "The Key: ";
+	while(!(cin >>userKey)) {																//Loop until a number is actually entered.
+		cout << '\t' << '\t' << "Must be a number" << endl;
+		cin.clear();
+		cin.ignore(100,'\n');
+	}
+
+    while (found == 0) {																	//Loop until the username has been found.
+		cout << "Login: ";
+		cin >> login;
+		if (!strcmp(login, "exit") || !strcmp(login, "Exit")) {								//Check to see if exit was entered if so then leave.
+			free(thePassword); thePassword = NULL;
+			free(input); input = NULL;
+			free(login); login = NULL;		
+			exit(0);																		//Exit call and will leave the program.
+		}
+			
+		userName = strdup(login);															//Save the username to the class variable.
+		strcpy(login, Cryptography(3, 0, login));											//Convert the username to all uppercase.
+		strcpy(login, Cryptography(1, userKey, login));										//Then encrypt the password.
+		strcat(login, ".txt");																//Add the file extension to the username.
+		InputData.open(login);																//Open the file with the given username.
+		if (!InputData) {																	//If doesnt open then display error, else exit loop.
+			ColorChange((char*)"Error - Username Information", 2);
+			cout << "------------------------------------" << endl;
+		} else {
+			found = 1;																		//If the login was found then exit the loop.
+		}
+    }
+							
+    InputData >> thePassword;																//Grab the encrypted password from the file.
+    userPassword = strdup(thePassword);														//Copy the password to class variable.
+    InputData >> input;																		//Grab the userNumber from the file.
+    userNumber = Utilities::string_to_int(input);											//Copy the password to the class variable.
+    InputData >> input;																		//Grab the userPromptNumber from the file.
+    userPromptNumber = Utilities::string_to_int(input);										//Copy the userPromptNumber to the class variable.
+    InputData >> input;
+    colorOption = Utilities::string_to_int(input);											//Grab the color option for the user.
+    cout << "Color: " << colorOption << endl;
+    InputData.getline(input, 100, '#');														//Grab the custom user prompt from the file.
+    strcpy(input, Utilities::string_checker(input, 0));										//Check for bad characters in the input.
+    userPrompt = strdup(input);																//Copy the prompt to the class variable.
+
+	while (1) {																				//Loop until exited.
+		termios oldt, newt;																	//Create a terminal variable.
+		tcgetattr(STDIN_FILENO, &oldt);														//Get the terminal settings for standard in.
+		newt = oldt;																		//Save the terminal settings of standard in.
+		newt.c_lflag &= ~ECHO;																//Turn off the echo setting for typing.
+		tcsetattr(STDIN_FILENO, TCSANOW, &newt);											//Apply the new terminl variable to standard in.
+		cout << "Password: ";
+		cin >> thePassword;
+		if (!strcmp(thePassword, "exit") || !strcmp(thePassword, "Exit"))					//Check to see if exit was entered if so then leave.
+			return;																			//Exit call and will leave the program.
+		thePassword = Cryptography(3, 0, thePassword);										//Uppdercase the incoming password.
+		thePassword = Cryptography(1, userKey, thePassword);								//Decrypt the password.
+		tcsetattr(STDIN_FILENO, TCSANOW, &oldt);											//Apply the old settings to standard in. 
+		if (!strcmp(thePassword, userPassword)) {											//Compare the incoming password and the one from the file, if the same it will go in.
+			ExecuteFile(reset, resetArguments);												//set the screen on the terminal.
+			DirectoryChange(homeDestination, 0);											//Go back to the home directory.
+			free(thePassword); thePassword = NULL;
+			free(input); input = NULL;
+			free(login); login = NULL;	
+			cin.ignore();
+			return;
+		} else {
+			errorCode = 2;																	//Set the errorCode and display the error message and try grabbing the password again.
+		}
+
+		if (counter >= 3) {																	//If the counter its more than three, ask the user if they want to try a new key.
+			cout << "Would you like to try a new key (0-Yes / 1-NO): ";
+			cin >> counter;
+			if (counter == 0) {																//If the user wants to re-try logging in again.
+				free(thePassword); thePassword = NULL;
+				free(input); input = NULL;
+				free(login); login = NULL;	
+				DirectoryChange(homeDestination, 0);										//Change the directory again.
+				Login();																	//Try loging in again.
+				errorCode = 0;
+			}
+			counter == 0;																	//Reset the counter.
+		}
+
+		if (errorCode == 2) {
+			ColorChange((char*)"Error - Password Information", 3);
+			cout << "------------------------------------" << endl;
+			errorCode = 0;
+		}
+		counter++;																			//Increment the counter on the number of failed attempts to logging in.
+	}	
+	/*--------------------------------------------------------------------*/
+>>>>>>> master
 }
 
 void Thursday::PromptDisplay() {
@@ -920,9 +1097,16 @@ void Thursday::PromptDisplay() {
 	} else if (promptNumber == 4) {					//The option to have the users custom prompt.
 		thePrompt = currentPrompt;
 	}
+<<<<<<< HEAD
 
 	ColorChange(thePrompt, 1);						//
 
+=======
+	/*--------------------------------------------------------------------*/
+	ColorChange(thePrompt, 1);
+	free(thePrompt); thePrompt = NULL;
+	/*--------------------------------------------------------------------*/
+>>>>>>> master
     return;
 }
 
@@ -1279,6 +1463,14 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 		return 0;
 	}
 	/*--------------------------------------------------------------------*/
+<<<<<<< HEAD
+=======
+	free(fileName); fileName = NULL;
+	for (int a = 0; a < 20; a++) {
+		arguments[a] = NULL;
+		free(arguments[a]);
+	}
+>>>>>>> master
     if (debugSwitch == 1) 
 		ColorChange("Mission - You are leaving the SearchCommands method.", 3);
 
@@ -1339,8 +1531,426 @@ void Thursday::SetupAndCloseSystem(int number) {
 		GlobalInput.close();																//
 	}	
 	/*--------------------------------------------------------------------*/
+<<<<<<< HEAD
 	if (debugSwitch == 1)
 		ColorChange("Mission - You are leaving the SetupAndCloseSystem method.", 3);
+=======
+	temp.clear();
+	free(input); input = NULL;
+	free(globalFileName); globalFileName = NULL;
+	free(usersFileName); usersFileName = NULL;
+	free(thursdayCommandsFileName); thursdayCommandsFileName = NULL;
+	free(osCommandsFileName); osCommandsFileName = NULL;
+		
+	if (debugSwitch == 1)
+			ColorChange((char*)"Mission - You are leaving the SetupAndCloseSystem method.", 3);
+ 	/*--------------------------------------------------------------------*/
+	return;
+}
+
+char * Thursday::StackPop() {
+	/*-------------------------------------------------------------------
+	Note: This method pops the paths off the stack and updates the current
+	* position. This method was last updated on 9/24/2017.
+	--------------------------------------------------------------------*/
+    if (debugSwitch == 1) 
+        ColorChange((char*)"Mission - You are in the StackPop method.", 3);
+	/*--------------------------------------------------------------------*/
+    if (currentPosition != -1) {										//Checks the current position in the stack.
+		char * outcomingValue = (char*)malloc(300);						
+		strcpy(outcomingValue, stackArray[currentPosition]);			//Copies the path in the char array.
+        strcpy(stackArray[currentPosition], " ");						//Replaces the spot in the array with an empty character.
+        currentPosition--;												//Decrease the current pointer.
+        return outcomingValue;											//Return the path.
+    }
+}
+
+void Thursday::StackPush(char * incomingPath) {
+	/*-------------------------------------------------------------------
+	Note: This method pushes paths into the char array. This method was 
+	* last updated on 9/24/2017.
+	--------------------------------------------------------------------*/
+    if (debugSwitch == 1) 
+        ColorChange((char*)"Mission - You are in the StackPush method.", 3);
+	/*--------------------------------------------------------------------*/
+    currentPosition++;													//Increments the stack iterator.
+    if (currentPosition < MAX) {										//If the current position is less than max.
+		strcpy(stackArray[currentPosition] , incomingPath);				//Push the path into the array.
+    } else {
+        currentPosition--;												//If it is higher than max then decrement the position.
+    }
+	/*--------------------------------------------------------------------*/
+    if (debugSwitch == 1) 
+		ColorChange((char*)"Mission - You are leaving the StackPush method.", 3);
+	/*--------------------------------------------------------------------*/
+    return;
+}
+
+void Thursday::UserInformation(int number) {
+	/*-------------------------------------------------------------------
+	Note: This method gets the users information from the computer systems
+	* password struct. Depending on the number that is passed through, either 
+	* just the home directory is printed out or all the information is then 
+	* displayed. This method was last updated on 9/24/2017.
+	--------------------------------------------------------------------*/
+    if (debugSwitch == 1)
+        ColorChange((char*)"Mission - You are in the UserInformation method.", 3);
+	/*--------------------------------------------------------------------*/
+	int i = getuid();							//Returns the user id.
+    passwd * CurrUser;							//Creates a passwd structure pointer.
+    CurrUser = getpwuid(i);						//Has the pointer point to the passwd structure.
+   	uid_t Uid = CurrUser->pw_uid;				//Returns the user id from the passwd structure.
+	gid_t Gid = CurrUser->pw_gid;				//Returns the group id from the passwd structure.
+    char * Directory = CurrUser->pw_dir;		//Returns the users home directory.
+    char * UserName = CurrUser->pw_name;		//Returns the username from the passwd structure.
+	char * Password = CurrUser->pw_passwd;		//Returns the encrypted passwd from the structure.
+	char * Shell = CurrUser->pw_shell;			//Returns the location of where the default shell is.
+	/*--------------------------------------------------------------------*/
+	if (number == 0) {
+		cout << '\t' << '\t' << "Home Directory: " << Directory << endl;
+	} else if (number == 1) {
+		cout << '\t' << '\t' << "Home Directory: " << Directory << endl;
+		cout << '\t' << '\t' << "Admin: " << UserName << endl;
+		cout << '\t' << '\t' << "Password: " << Password << endl;
+		cout << '\t' << '\t' << "Uid: " << Uid << endl;
+		cout << '\t' << '\t' << "Gid: " << Gid << endl;
+		cout << '\t' << '\t' << "Shell: " << Shell << endl; 
+	}
+	/*--------------------------------------------------------------------*/ 
+	free(UserName); free(Password); free(Shell); free(Directory);
+	UserName = NULL, Password = NULL, Shell = NULL, Directory = NULL;
+
+    if (debugSwitch == 1) 
+        ColorChange((char*)"Mission - You are leaving the UserInformation method.", 3);
+	/*--------------------------------------------------------------------*/
+    return;
+}
+
+void Thursday::UserUtilities(int number) {
+	/*------------------------------------------------------------------
+	Note: This method will add, delete, and print users. Only admins are
+	* allowed to use this method. This method was last updated on 9/24/2017.
+	--------------------------------------------------------------------*/	
+	if (debugSwitch == 1)
+		ColorChange((char*)"Mission - You are in the UserUtilities method.", 3);
+	/*--------------------------------------------------------------------*/
+	char * currName = (char*)malloc(100);
+	char * currPass = (char*)malloc(100);
+	char * currPrompt = (char*)malloc(200);
+	char * copy = (char*)malloc(100);
+	int checkSwitch = 0;
+	int colorNumber =0;
+	int fileDescriptor = 0;
+	int counter = 0;
+	int key = 0;
+	int id = 0;
+	int promptNumber = 0;
+	
+	fstream InputData;
+	DirectoryChange(profileDestination, 0);																				//Move the system in to the profileDestination.
+	/*--------------------------------------------------------------------*/
+	if (userNumber == 0) {																								//If the user is an admin.					
+		if (number == 1) {																								//Add a user to the system.
+			while (checkSwitch == 0) {																					//Loop until a user with a non pre-existing username that is not already taken.
+				cout << '\t' << '\t' << "Username of the new user: ";
+				cin.getline(currName, 100);																				//Get the username from the user.							
+				for (int i = 0; i < UsersVector.size(); i++) {															//Loop through the users vector.	
+					if (!strcmp(currName, UsersVector[i]))																//Check to see if the username is not already taken.
+						checkSwitch = 1;																				//Set the check switch to true.
+				}
+				if (!strcmp(currName, "exit") || !strcmp(currName, "Exit") || !strcmp(currName, "EXIT")) {				//If the user wants to exit the 
+					DirectoryChange(homeDestination, 0);																//Move back to the home directory.
+					return;		
+				}			
+				if (checkSwitch == 1) {																					//If the user name was found in the vector.
+					counter+=1;																							//Increment the counter if the name was wrong.
+					if (counter % 3 == 0)																				//If the name was wrong for the third time, repeating.
+						cout << '\t' << '\t' << "If you don't want to add a new user, type exit" << endl;
+					ColorChange((char*)"Sorry that user name is already taken.", 3);
+					checkSwitch = 0; 																					//Reset the check switch.
+				} else {
+					currName = Cryptography(3, 0, currName);															//Uppercase the name.
+					UsersVector.push_back(currName);																	//Push the name in the user vector.
+					break;																								//Else break if the name was not found.
+				}
+			}
+			//--------------------------------------------------------------------------------
+			cout << '\t' << '\t' << "Please enter your encryption key: ";
+			while(!(cin >>key)) {																						//Get the encryption key, and repeat until its an actual number.
+				ColorChange((char*)"Must be a number.", 2);
+				cin.clear();																							//Clear the input stream.
+				cin.ignore(100,'\n');																					//Clear the enter key after the stream.
+			}
+			cin.ignore();
+			currName = Cryptography(1, key, currName);																	//Encrypt the name given the key.
+			strcat(currName, ".txt");																					//Add the text file extenstion to the end of the encrypted name.
+			fileDescriptor = open(currName, O_TRUNC |  O_RDWR | O_CREAT, S_IRWXU | S_IRGRP | S_IROTH );  				//Create and open the file using the encrypted name.		
+			if (fileDescriptor == -1) {																					//If the file was not able to be created.
+			  ColorChange((char*)"Open Failed", 2);
+			  DirectoryChange(homeDestination, 0);																		//Move the system to the home directory.
+			  return;
+			}
+			//--------------------------------------------------------------------------------
+			cout << '\t' << '\t' << "Password for the new user: ";
+			cin.getline(currPass, 100);																					//Get the password from the user.
+			if ((unsigned)strlen(currPass) > 1) {																		//If the password is longer than one character.		
+				currPass = Cryptography(3, 0, currPass);																//Uppercase the password.
+				currPass = Cryptography(1, key, currPass);																//Encrypt the password.
+			} else {
+				ColorChange((char*)"There was an issue with the given password.", 2);
+				return;
+			}
+			//--------------------------------------------------------------------------------
+			cout << '\t' << '\t' << "Is this new user an Admin ( 0 - Yes or 1 - No): ";
+			while(!(cin >>id)) {																						//Get the ID, and repeat until its an actual number.
+				ColorChange((char*)"Must be a number.", 2);
+				cin.clear();
+				cin.ignore(100,'\n');
+			}
+			cin.ignore();
+			//--------------------------------------------------------------------------------
+			cout << '\t' << '\t' << "Prompt ID Number: ";
+			while(!(cin >>promptNumber)) {																				//Get the prompt ID, and repeat until its an actual number.
+				ColorChange((char*)"Must be a number.", 2);
+				cin.clear();
+				cin.ignore(100,'\n');
+			}
+			cin.ignore();
+			//--------------------------------------------------------------------------------
+			cout << '\t' << '\t' << "Color ID Number: ";
+			while(!(cin >>colorNumber)) {																				//Get the color ID, and repeat until its an actual number.
+				ColorChange((char*)"Must be a number.", 2);
+				cin.clear();
+				cin.ignore(100,'\n');
+			}
+			cin.ignore();
+			//--------------------------------------------------------------------------------
+			cout << '\t' << '\t' << "Custom prompt output: ";
+			cin.getline(currPrompt, 200);																				//Get the current custom prompt.				
+			if ((unsigned)strlen(currPrompt) > 1) {
+				strcat(currPrompt, " #");
+			} else {
+				ColorChange((char*)"There was an issue with the given prompt.", 2);
+				return;
+			}
+			//--------------------------------------------------------------------------------
+			InputData.open(currName);																					//Open the file name, then write everything into the opened file.
+			InputData << currPass << endl;																				
+			InputData << id << endl;
+			InputData << promptNumber << endl;
+			InputData << currPrompt << endl;
+			//--------------------------------------------------------------------------------
+			close(fileDescriptor);																						//Close the file descriptor.			
+			SetupAndCloseSystem(2);																						//Update the system with the new user.	
+			cout << '\t' << '\t' << "The user was added!" << endl;
+		} else if (number == 2) {																						//Deleteing a user from the system.
+			cout << '\t' << '\t' << "Username: ";
+			cin.getline(currName, 100);																					//Get the user name from the user.
+			if (strcmp(currName, userName)) {																			//If the user that was entered is not the same as the current user.
+				currName = Cryptography(3,0,currName);																	//Uppercase the username.				
+				
+				for (int b = 0; b < UsersVector.size(); b++) {															//Loop through the users vector.
+					if (!strcmp(currName, UsersVector[b])) {															//If the user was found in the vector
+						UsersVector.erase(UsersVector.begin()+b);														//Delete the user from the vector.		
+						checkSwitch = 1;																				//Turn the checkswitch on.
+					}
+				}
+				
+				if (checkSwitch == 1) {																					//If the user was found.
+					cout << '\t' << '\t' << "Please enter your encryption key: ";
+					while(!(cin >>key)) {																				//Get the encryption key, and repeat until its an actual number.												
+						ColorChange((char*)"Must be a number.", 2);
+						cin.clear();
+						cin.ignore(100,'\n');
+					}
+					currName = Cryptography(1, key, currName);															//Encrypt the username with the given key.
+					strcat(currName, ".txt");																			//Add the text file extenstion to the encrypted username.
+					if (remove(currName) != 0)																			//Delete the user profile from the system.
+						ColorChange((char*)"There was an issue deleteing the user", 2);
+				} else {
+					ColorChange((char*)"Sorry the user was not found.", 2);
+					DirectoryChange(homeDestination, 0);
+					return;
+				}
+			} else {
+				ColorChange((char*)"Sorry can't delete the current user.", 2);
+				DirectoryChange(homeDestination, 0);
+				return;
+			}
+			SetupAndCloseSystem(2);																						//Update the system records.
+		} else if (number == 3) {																						//Print all the current users
+			for (int a = 0; a < UsersVector.size(); a++)
+				cout << '\t' << '\t' << UsersVector[a] << endl; 
+		} else if (number == 4) {																						//Update the current user.
+			while (checkSwitch == 0) {
+				cout << '\t' << '\t' << "New / Old UserName: ";
+				cin.getline(currName, 100);																				//Get the username from the user.
+				for (int i = 0; i < UsersVector.size(); i++) {															//Loop through the Users vector.
+					if (!strcmp(currName, UsersVector[i]))																//If found in the vector.	
+						checkSwitch = 1;																				//Turn the check switch on.
+				}		
+				if (checkSwitch == 1) {
+					checkSwitch = 0; 																					//Reset the check switch.		
+				} else {
+					break;																								//Else leave the loop.
+				}
+			}
+			//--------------------------------------------------------------------------------
+			cout << '\t' << '\t' << "Please enter your encryption key: ";
+			while(!(cin >>key)) {																						//Get the encryption key, and repeat until its an actual number.
+				ColorChange((char*)"Must be a number.", 2);
+				cin.clear();																							//Clear the input stream.
+				cin.ignore(100,'\n');																					//Clear the enter key after the stream.
+			}	
+			currName = Cryptography(3, 0, currName);																	//Uppercase the username.		
+			UsersVector.push_back(currName);																			//Put the username into the vector.
+			currName = Cryptography(1, key, currName);																	//Encrypt the name.						
+			strcat(currName, ".txt");																					//Add the file extensions.
+			fileDescriptor = open(currName, O_TRUNC |  O_RDWR | O_CREAT, S_IRWXU | S_IRGRP | S_IROTH );  				//Create and open the file with the given encrypted username.
+			if (fileDescriptor == -1) {																					//If the file couldn't be opened.
+			  ColorChange((char*)"Open failed.", 2);
+			  DirectoryChange(homeDestination, 0);
+			  return;
+			}
+			cin.ignore();
+			//--------------------------------------------------------------------------------
+			cout << '\t' << '\t' << "Password for the new user: ";
+			cin.getline(currPass, 100);																					//Get the password from the user.
+			if ((unsigned)strlen(currPass) > 1) {																		//If the password is longer than one character.		
+				currPass = Cryptography(3, 0, currPass);																//Uppercase the password.
+				currPass = Cryptography(1, key, currPass);																//Encrypt the password.
+			} else {
+				ColorChange((char*)"There was an issue with the given password.", 2);
+				return;
+			}
+			//--------------------------------------------------------------------------------
+			cout << '\t' << '\t' << "Is this new user an Admin ( 0 - Yes or 1 - No): ";
+			while(!(cin >>id)) {																						//Get the admin ID, and repeat until its an actual number.
+				ColorChange((char*)"Must be a number.", 2);
+				cin.clear();
+				cin.ignore(100,'\n');
+			}
+			//--------------------------------------------------------------------------------
+			cout << '\t' << '\t' << "Prompt ID Number: ";
+			while(!(cin >>promptNumber)) {																				//Get the prompt number, and repeat until its an actual number.
+				ColorChange((char*)"Must be a number.", 2);
+				cin.clear();
+				cin.ignore(100,'\n');
+			}
+			cin.ignore();
+			//--------------------------------------------------------------------------------
+			cout << '\t' << '\t' << "Custom prompt output: ";
+			cin.getline(currPrompt, 200);																				//Get the current custom prompt.				
+			if ((unsigned)strlen(currPrompt) > 1) {
+				strcat(currPrompt, " #");
+			} else {
+				ColorChange((char*)"There was an issue with the given prompt.", 2);
+				return;
+			}
+			//--------------------------------------------------------------------------------
+			InputData.open(currName);																					//Open the file name, then write everything into the opened file.
+			InputData << currPass << endl;
+			InputData << id << endl;
+			InputData << promptNumber << endl;
+			InputData << currPrompt << endl;
+			//--------------------------------------------------------------------------------
+			close(fileDescriptor);
+			SetupAndCloseSystem(2);
+			
+			for (int b = 0; b < UsersVector.size(); b++) {																//Loop through the user vectors.
+				if (!strcmp(userName, UsersVector[b])) {																//Find the old user name.
+					UsersVector.erase(UsersVector.begin()+b);															//Delete the user from the vector.
+					checkSwitch = 1;																					//Turn the check switch on.
+				}
+			}
+			
+			if (checkSwitch == 1) {																						//If the user was found.																						//Take the current user key and re
+				cout << "Make sure that this is uppercased: " << userName << endl;
+				userName = Cryptography(1, userKey, userName);															//Encrypt the old username.
+				strcat(userName, ".txt");																				//Add the file extension to the username.
+				if (remove(userName) != 0)																				//Remove the old user profle.
+					ColorChange((char*)"There was an issue deleteing the user", 2);
+					
+			} else {
+				ColorChange((char*)"Sorry the user was not found.", 2);
+				DirectoryChange(homeDestination, 0);																	//Move the system into the old directory.	
+				return;
+			}			
+		} else if (number == 5) {
+			cout << '\t' << '\t' << "Custom prompt output: ";
+			cin.getline(currPrompt, 200);																				//Get the new custom prompt.
+			if ((unsigned)strlen(currPrompt) > 1) {																		//If the custom prompt has a length longer than one.
+				strcat(currPrompt, " ");																				//Add a space to the end of the prompt so that there is some clearance.
+				userPrompt = strdup(currPrompt);																		//Add the new custom prompt to the class variable.		
+				strcat(currPrompt, "#");																				//Terminate the custom prompt with this symbol so that the system can get the whole prompt.	
+				currName = strdup(userName);																			//Create the file name and open the user profile.
+				currName = Cryptography(3,0,currName);
+				currName = Cryptography(1,userKey,currName);
+				strcat(currName, ".txt");
+			} else {
+				ColorChange((char*)"Sorry there was an issue with the custom prompt.", 2);
+				return;
+			}
+			InputData.open(currName);																					//Open the file.
+			if (!InputData)
+				ColorChange((char*)"There was an issue opening the file in the UserUtilites Method", 2);
+
+				
+			InputData << userPassword << endl;																			//Print the user profile into the file.	
+			InputData <<  userNumber << endl;
+			InputData << promptNumber << endl;
+			InputData << currPrompt << endl;
+			
+			cout << '\t' << '\t' << "The prompt has been updated!" << endl;
+		}			
+	} else {
+		ColorChange((char*)"Admins only please!", 2);
+	}
+	
+	DirectoryChange(homeDestination, 0);																				//Move the system back into the home directory.
+	
+	/*--------------------------------------------------------------------*/
+    if (debugSwitch == 1) 
+        ColorChange((char*)"Mission - You are leaving the UserUtilities method.", 3);
+	/*--------------------------------------------------------------------*/
+	return;
+}
+
+char * Thursday::Cutter(char * startPoint, char * word, int numberOfCharacters) {
+	/*-------------------------------------------------------------------
+	Note: This method will either remove characters from the end or the 
+	* beginning of the incoming sentence. This method was last updated on 9/24/2017.
+	--------------------------------------------------------------------*/	
+    if (debugSwitch == true) 
+		ColorChange((char*)"Mission - You are in the Cutter method.", 3);
+	/*--------------------------------------------------------------------*/ 
+	int letter;
+	int wordLength = strlen(word);
+	int middleLength = (wordLength - numberOfCharacters);
+	char * temp = (char*)malloc(middleLength);
+	
+	if (middleLength > 0) {												//Want to make sure that the decremented word is not less than zero.
+		strcpy(temp, strdup(word));										//Get a copy of the word so that we can cedit the word.
+		memset(word, 0, sizeof word);									//Reset the word.
+		if (!strcmp(startPoint, "begin")) {								//If the user wants to remove characters from the begining. 
+			for (int a = numberOfCharacters; a < wordLength; a++)		//Loop through the pointer, starting at the number of characters that the user wants to get rid of.
+				strcat(word, Utilities::int_to_char(temp[a]));			//Convert the character over to a pointer and then strcat it.
+		} else if (!strcmp(startPoint, "end")) {						//If the user wants to get rid of the characters at the end of the sentence.
+			//~ for (int b = 0; b < middleLength; b++)					
+				//~ strcat(word, Utilities::int_to_char(temp[b]));
+			strcpy(word, strndup(temp, middleLength));					//We take the length of the word and subtract the number of characters that we are getting rid of from the length.
+		}
+		free(temp); temp = NULL;									
+	}
+	/*--------------------------------------------------------------------*/ 
+	free(startPoint); startPoint = NULL;
+	
+    if (debugSwitch == true) 
+		ColorChange((char*)"Mission - You are in the Cutter method.", 3);
+	/*--------------------------------------------------------------------*/ 
+	return word;
+}
+>>>>>>> master
 
 	return;
 }
