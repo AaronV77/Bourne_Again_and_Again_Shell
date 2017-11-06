@@ -70,8 +70,6 @@ private:
 	std::string homeDestination;
 	std::string hostName;
 	std::string informationDestination;
-	std::string profileDestination;
-	std::string srcDestination;
 	
 	std::stack<std::string> stringStack;
     std::vector<std::string> Environment;
