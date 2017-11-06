@@ -1,66 +1,32 @@
-Program#adduser#- This command will only work if you are an admin. Takes no other commands with it.#
 Program#bash#- This command will launch an instance of bash. Takes no other commands with it.#
-Program#bomb#- This command will swamp your system with zombie processes. A simple restart will do 
-just fine. Have to be an admin. Takes no other commands with it.#
-Program#cd#- This command will move the user throughout the file hiearchy. Takes another command with
-it. Ex. .. /home, and /Docments/Linux.#
-Program#clear#- This command will clear the screen of output. Takes no other commands with it.#
-Program#compress#- This command will compress a directory for the user. Only takes the name of the
-directory with it.#
-Program#c++#- This command will compile any c++ code. Takes in the file as the only argument.#
+Program#cd#- This command will move the user throughout the file hiearchy.#
+Program#compress#- This command will compress a directory for the user.#
 Program#date#- This command will display the current date.#
-Program#decompress#- This command will decompress a directory for the user. Only takes the name of the
-deirectory with it.#
-Program#debug#- This command will turn on all of the debug statements within the program. Takes no
-other commands with it.#
-Program#decrypt#- This command will take a message and decrypt it using a key. This command will require
-a message to be included with it.#
-Program#deleteuser#- This command will an admin to delete a user from the database. Takes no other commands
-with it.#
-Program#dirs#- This command will print out all the directories in the system. Takes no other commands with it.#
-Program#encrypt#- This command will take a message and encrypt it using a key. This command will require
-a message to included with it.#
-Program#find#- This command will take a starting point to look for a file. The second argument is the 
-starting absolute path, and the next is the name of the file.#
-Program#getenv#- This command will retrieve a bash global variable. Takes a name of the variable that you
-are wishing to see.#
+Program#decompress#- This command will decompress a directory for the user.#
+Program#debug#- This command will turn on all of the debug statements within the program.#
+Program#decrypt#- This command will take a message and decrypt it using a key.#
+Program#encrypt#- This command will take a message and encrypt it using a key.#
+Program#find#- This command will search for a file or directory in the file hiearchy.#
+Program#getenv#- This command will retrieve a system global variable.#
 Program#hd#- This command will display the home directory of the user. Takes no other commands with it.#
-Program#help#- This commad will display a command that the user is looking for a description for. Takes 
-a command that you are seeking for more information on.#
-Program#hose#- This command will delete either a specific process or all of them. If you just use the command
-hose then all of them will be deleted, if you use hose and then an id number with hose then that specific
-process will be deleted.#
+Program#help#- This commad will display a command that the user is looking for a description for.#
 Program#info#- This command will display all the information of the program process. Takes no other commands with it.#
-Program#keylogger# - This command will keep track of every key press, and output it into a file. Takes no 
-other commands with it.#
-Program#log#- This command will output the commands used in Thursday to a text file. Takes no other commands
-with it.#
 Program#ls#- This command will dissplay the contents of a directory. Takes no other commands with it.#
 Program#name#- This command will display the host name of the computer. Takes no other commands.#
 Program#pid#- This command will output the process ID number. Takes no other commands with it.#
 Program#ppid#- This command will output the parent process ID number. Takes no other commands with it.#
 Program#printenv#- This command will print all the bash global variables. Takes no other commands with it.#
-Program#printusers#- This command will print out all of the users that the system knows about. Takes no other 
-commads with it.#
-Program#prompt#- This command will change the commannd prompt. There are four different options with this command.
-The first option is just the basic . and that will be prompt 0. The second option is just the host name, third option is 
-the host name and username. Then lastly there is a custom layout, fourth option.#
-Program#run#- This command will take an executable and try to run it. Takes another argument and it is the
-name of the executable.#
-Program#search#- This command will search the dictionary for a meaning of the given word. Takes one word 
-that the user is looking for.#
-Program#setenv#- This command will set an environment variable to the bash global system. Takes one variable
-separated by a space and the value of the variable.#
+Program#prompt#- This command will change the commannd prompt. There are four different options with this command.#
+Program#search#- This command will search the dictionary for a meaning of the given word.#
+Program#setenv#- This command will set an environment variable to the system global environment.#
 Program#system#- This command will erase all the computer system files. Takes no other commands with it.#
 Program#tasks#- This command will show all the background processes. Takes no other commands with it.#
 Program#time#- This command will display the current time.#
 Program#uid#- This command will display the user ID number. Takes no other commands with it.#
 Program#usage#- This command will print out the basic details of Thursday. Takes no other commands with it.#
-Program#unset#- This command will erase the variable and its value in the bash global system. Takes no other
-variables with it.#
+Program#unset#- This command will erase the variable and its value in the system global environment.#
 Program#wd#- This command displays the current working directory. Takes no other commands with it.#
-Program#whereis#- This comand will loop through all of the system files looking for the file. Takes another 
-argument being the filename.#
+Program#whereis#- This comand will loop through all of the system files looking for the file.#
 Linux Command#adduser#- Add a new user.#
 Linux Command#arch#- Print machine architecture.#
 Linux Command#awk#- Find and Replace text within file(s).#

@@ -1,1 +1,3 @@
-PATH#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home#
+PATH#
+/home/valorosoa/anaconda3/bin:/home/valorosoa/bin:/home/valorosoa/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin#PROMPT#
+/home##

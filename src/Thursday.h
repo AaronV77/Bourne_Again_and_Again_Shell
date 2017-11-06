@@ -1,74 +1,60 @@
 #ifndef THURS_H
 #define THURS_H
 
+#include <algorithm>
 #include <dirent.h>
-#include <errno.h>
-#include <fcntl.h>
 #include <fstream>
 #include <iostream>
-#include <libgen.h>
-#include <linux/input.h>
-#include <pwd.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <stack>
+#include <string>
 #include <string.h>
 #include <sstream>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <termios.h>
 #include <unistd.h>
 #include <vector>
 #include "colorModification.h"
-#include "AaronsUtilities.h"
+#include "Utilities.h"
 
-using namespace std;
 using namespace Utilities;
 using namespace Color;
 
 class Thursday {
  
- 	static char * reset;
 	static const int MAX_SIZE = 256;
-	static const long int MAX = 3000;
 	static char path[MAX_SIZE];
 	
 public:
 	Thursday();
-	Thursday(const Thursday& otherThursday);	
 	~Thursday();
-	int ArgumentChecker(char * theCommands, char * envp[]);
-	void CompressAndDecompress(int Number, char * argument);
-	char * Cryptography(int number, int key, char * message);
-	void DepthFirstSearch(char * path, char * command, int number, int theSwitch);
-	void Destruction(int Number);
-	void DirectoryChange(char * desiredPath, int number);
-	void DirectoryDelete(char* dirname);
-	void DisplayDirectories(char * searchWord, int number, int theSwitch); 
-	char * FileChecker(char * argument);	
-	vector<char*> FileLoader(vector<char*> incomingVector, char * fileName, int signal);
-	void EnvironmentUtilites(int Number);
-	int ExecuteFile(char * incomingCommand, char * args[]);
-	void Help(char * argument);
-	void LoadSystemCommands();
-	void Login();	
+	int ArgumentChecker(std::vector<std::string> tokens, std::vector<std::string> quotes, char * envp[]);
+	void ColorChange(std::string sentence, int signal);
+	void ColorSwitch(int signal);
+	void CompressAndDecompress(int Number, std::string argument);
+	void DebugSwitch(int signal);
+	string Cryptography(int number, int key, std::string message);
+	void DepthFirstSearch(std::string path, std::string command, int number, int theSwitch);
+	void DepthFirstSearchHeart(std::string searchWord, int theSwitch);
+	void DirectoryChange(std::string desiredPath, int number);
+	void DirectoryDelete(std::string dirname);
+	void DisplayDirectories(std::string lsArgument, std::string pathName); 
+	std::string FileChecker(std::string argument, int signal);	
+	std::vector<std::string> FileLoader(std::vector<std::string> incomingVector, std::string fileName, int signal);
+	void EnvironmentUtilites(int Number, std::string variable, std::string variableValue);
+	int ExecuteFile(std::string incomingCommand, std::vector<std::string> arguments);
+	int GetArguments(std::string theCommands, std::vector<std::string> quotes, char * envp[]);
+	void Help(std::string argument);
 	void PromptDisplay();
-	void Search(char * argument);
-	int SearchCommands(char * envp[], vector<char*>incomingInput, int signal);
+	void Search(std::string argument);
+	int SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]);
 	void SetupAndCloseSystem(int number);
-	char * StackPop();
-	void StackPush(char * incomingPath);
-	void UserInformation(int number);
-	void UserUtilities(int number);
-
-	char * Cutter(char * startpoint, char * word, int numberOfCharacters);
-	void ColorChange(char * sentence, int signal);
 	
 private:
+
 	int BoolVar;
 	int colorOption;
-	int commandSwitch;
-	int currentPosition;	
+	int colorSwitch;
+	int commandSwitch;	
 	int debugSwitch;
 	int errorSwitch;
 	int found;
@@ -76,28 +62,20 @@ private:
 	int pid;
 	int ppid;
 	int uid;	
-	int userPromptNumber;	
-	int userNumber;
-	int userKey;
+	int promptNumber;	
 		
-	char * currentPath;
-	char * dictionaryDestination;	
-	char * homeDestination;
-	char * hostName;
-	char * informationDestination;
-	char * userLogin;
-	char * userPassword;
-	char * profileDestination;
-	char * srcDestination;
-	char * userName;
-	char * userPrompt;
+	std::string currentPath;
+	std::string currentPrompt;
+	std::string dictionaryDestination;
+	std::string homeDestination;
+	std::string hostName;
+	std::string informationDestination;
 	
-	char stackArray[MAX][200];
-    vector<char*> Environment;
-    vector<char*> PathVector;
-    vector<char*> ThursdayCommands;
-    vector<char*> OSCommands;
-	vector<char*> UsersVector;
+	std::stack<std::string> stringStack;
+    std::vector<std::string> Environment;
+    std::vector<std::string> PathVector;
+    std::vector<std::string> ThursdayCommands;
+    std::vector<std::string> OSCommands;
     
 };
 
