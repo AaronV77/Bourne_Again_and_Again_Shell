@@ -4,7 +4,7 @@ This project started in Linux Programming class my Junior year of undergraduate.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system. If you want the production version then (git checkout master), if you want the development version then (git checkout development).
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ## Warnings
 
