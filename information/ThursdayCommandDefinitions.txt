@@ -1,5 +1,6 @@
 bash#- This command will launch an instance of bash. Takes no other commands with it. Takes no other arguments.#
 cd#- This command will move the user throughout the file hiearchy. Takes one argument, that should be a path.#
+color#- This command will either turn the color on and off or change the color. Takes one and no arguments. The first option will change the color when a number is given 0 - 15, and the second option will turn the color on and off.#
 commands#- This command will display all the special commands that this application can take. Takes no other arguments.#
 compress#- This command will compress a directory for the user. Takes one argument, and is the file that you want to compresss.#
 date#- This command will display the current date. Takes no other argument.#

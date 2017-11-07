@@ -27,4 +27,4 @@ uid#
 unsetenv#
 usage#
 wd#
-whereis#
+

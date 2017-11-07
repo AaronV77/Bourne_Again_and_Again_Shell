@@ -22,7 +22,7 @@ Thursday::Thursday() {
 	//--------------------------------------------------------------------
 	BoolVar = 1;									// Used for the color of the system.
 	colorOption = 11;								// Color switch for turning on and off the colors for the program.
-	colorSwitch = 1; 								// Color switch so that the color is turned either on or off.
+	colorSwitch = 0; 								// Color switch so that the color is turned either on or off.
 	commandSwitch = 0;								// Switch for when & is found in the incoming input.
 	debugSwitch = 0;								// Switch for turning on and off the debug statments.
     found = 0;										// To tell the DFS algorithm that a path was able to be found.
@@ -125,6 +125,8 @@ int Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std::
 		
 	if (notMineSwitch == true && commandSwitch == false) {									// Had to put this hear for commands that don't have a semicolon.
 		return SearchCommands(commandAndArguments, 1, envp);								// Send it to our SearchCommands method for exec.
+	} else if (notMineSwitch == false && commandSwitch == false) {
+		return SearchCommands(commandAndArguments, 1, envp);								// Send it to our SearchCommands method for processing.
 	} else {
 		return SearchCommands(commandAndArguments, 0, envp);								// Send it to our SearchCommands method for processing.
 	}
@@ -244,7 +246,8 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 
 void Thursday::ColorSwitch(int signal) {
 	/*-------------------------------------------------------------------
-	Note: 
+	Note: This method just turns the color on and off easily for the main.
+	* This method was last updated on 11/6/2017.
 	--------------------------------------------------------------------*/
 	if (signal == 1) {
 		colorSwitch = 1;
@@ -339,7 +342,8 @@ std::string Thursday::Cryptography(int number, int key, std::string message) {
 
 void Thursday::DebugSwitch(int signal) {
 	/*-------------------------------------------------------------------
-	Note: This method just turns the debug statments on and off.
+	Note: This method just turns the debug statments on and off. This method
+	* was last updated on 11/6/2017.
 	--------------------------------------------------------------------*/	
 	if (signal == 1) {
 		debugSwitch = 1;
@@ -707,6 +711,7 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 	char ** dicks = new char * [arrSize];														// Used to allocat a char array pointer.
 	for (i = 0; i < arguments.size(); i++) {													// Loop through the incoming arguments.
 		dicks[i] = new char [arrSize];															// Allcocate memory for each element in the array.
+		std::cout << "Looking at: " << arguments[i] << std::endl;
 		strcpy(dicks[i], strdup(arguments[i].c_str()));											// Copy the incoming argument to the element in the array.
 	}
 	dicks[i++] = NULL;																			// Null terminate the array for the exec command.
@@ -1016,12 +1021,13 @@ void Thursday::Search(std::string argument) {
 
 int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char * envp[]) {
 	/*------------------------------------------------------------------
-	Note: 
+	Note: This method takes in the command and runs it through the big 
+	* if statment. The if statments are categorize by alphanumeric. 
+	* This method was last update on 11/6/2017.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
 		ColorChange("Mission - You are in the SearchCommands method.", 3);
  	/*--------------------------------------------------------------------*/
-								
 	std::string fileName = ""; 
 	std::string random = ""; 
 	std::size_t stringFind; 
@@ -1064,6 +1070,11 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 							if (std::stoi(incomingInput[i]) > 0 ) 
 								colorOption = std::stoi(incomingInput[i]); 
 						}
+					} else if (size == 1) {
+						if (colorSwitch == 0)
+							colorSwitch = 1;
+						else
+							colorSwitch = 0;
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
@@ -1286,6 +1297,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 			}
 		}
 	} else if (signal == 1) {																// If the incoming vector of commands is not associated with this application.
+		std::cout << "RIGHT HERE" << std::endl;
 		ExecuteFile(incomingInput[i], incomingInput); 										// Send the first argument and then send the rest of the vector.
 		return 0;
 	}

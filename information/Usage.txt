@@ -13,11 +13,14 @@
 #that I can do it.#
 
 #Notes / Help - Thursday is incorporated with multiple methods to assist anyone with using this system.#
-#If you need help using the commands just type help (command), and it will output the description of# 
-#the command and what is needed. Below is listed all the commands that are incorporated as of right now.# 
+#If you need help using the commands just type help (commands), and it will output the description of# 
+#all the commands. Another option is the command help and then following the command that your looking#
+#for more information on.#
 #You will have to enter commands in all lowercase.# 
 
-#Commands - Just type commands alone and they will all be displayed.#
+#commands - Just type commands and all the commands will be displayed.#
+#help cd - Just type the commad help and then another command option that you are looking for.#
 
 #Author: Aaron Valoroso#
+#Date: 11/6/2017#
 
