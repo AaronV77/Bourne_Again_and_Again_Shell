@@ -33,20 +33,18 @@ To install the system, just run the setup.sh script in the base directory of Thu
 
 There are no tests as or right now.
 
-### Authors
-
-Aaron A. Valoroso
+### Author: Aaron A. Valoroso
 
 ## Inspiring Quotes
 
  The programmers of tomorrow are the wizards of the future. You're going to look like you have magic  powers compared to everybody else.
  
-   - Gabe Newell
+ - Gabe Newell
    
   When 99% of people doubt your idea, you're either gravely wrong or about to make history.
   
-    - Scott Belsky
+   - Scott Belsky
 
   Most good programmers do programming not because they expect to get paid or get adulation by the publicc, but because it is fun to       program.
 
-    - Linux Torvalds
+   - Linux Torvalds
