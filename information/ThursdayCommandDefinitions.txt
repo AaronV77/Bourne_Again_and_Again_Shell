@@ -1,31 +1,27 @@
-bash#- This command will launch an instance of bash. Takes no other commands with it.#
-cd#- This command will move the user throughout the file hiearchy.#
-clear#- This command will clear the screen of output. Takes no other commands with it.#
-commands#- This command will display all the special commands that this application can take.#
-compress#- This command will compress a directory for the user.#
-date#- This command will display the current date.#
-decompress#- This command will decompress a directory for the user. Only takes the name of the deirectory with it.# 
+bash#- This command will launch an instance of bash. Takes no other commands with it. Takes no other arguments.#
+cd#- This command will move the user throughout the file hiearchy. Takes one argument, that should be a path.#
+commands#- This command will display all the special commands that this application can take. Takes no other arguments.#
+compress#- This command will compress a directory for the user. Takes one argument, and is the file that you want to compresss.#
+date#- This command will display the current date. Takes no other argument.#
+decompress#- This command will decompress a directory for the user. Takes one argument, and is the file you want to decompress.# 
 debug#- This command will turn on all of the debug statements within the program. Takes no other commands with it.#
-decrypt#- This command will take a message and decrypt it using a key.#
-dirs#- This command will print out all the directories in the system. Takes no other commands with it.#
-encrypt#- This command will take a message and encrypt it using a key.#
-find#- This command will take a starting point to look for a file.#
-getenv#- This command will retrieve a system global variable.#
-hd#- This command will display the home directory of the user. Takes no other commands with it.#
-help#- This commad will display a command that the user is looking for a description for.#
-info#- This command will display all the information of the program process. Takes no other commands with it.#
-ls#- This command will dissplay the contents of a directory. Takes no other commands with it.#
+decrypt#- This command will take a message and decrypt it using a key.Takes two arguments, the first is the key and the last is the string you want to decrypt.#
+encrypt#- This command will take a message and encrypt it using a key.Takes two arguments, the first is the key and the last is the string you want to encrypt.#
+find#- This command will take a starting point to look for a file. Takes either one or two arguments. The first option is just the file, and will search the whole directory. The second option is the file and a starting point in the filesystem.#
+getenv#- This command will retrieve a system global variable.Takes one argument, the variable that you are looking for.#
+hd#- This command will display the home directory of the user. Takes no other commands with it. Takes no other arguments.#
+help#- This commad will display a command that the user is looking for a description of. Takes only one argument, and the command you are looking for.# 
+info#- This command will display all the information of the program process. Takes no other commands with it. Takes no other argument.#
+ls#- This command will dissplay the contents of a directory. Takes no other commands with it. Takes one argument it can either be -l or all, -l will give you extra information about the file#
 pid#- This command will output the process ID number. Takes no other commands with it.#
 ppid#- This command will output the parent process ID number. Takes no other commands with it.#
 printenv#- This command will print all the bash global variables. Takes no other commands with it.#
-prompt#- This command will change the commannd prompt.#
-rm#- This command will remove any file or directory without having to have arguments.#
-search#- This command will search the dictionary for a meaning of the given word.#
-setenv#- This command will set an environment variable to the bash global system. Takes one variable
-separated by a space and the value of the variable.#
-time#- This command will display the current time.#
+prompt#- This command will change the commannd prompt. Takes one argument and is a number between 1 - 5. The first four options will change the users prompt, the last opiton will set the custom prompt.#
+rm#- This command will remove any file or directory without having to have arguments. Takes one argument wither it be a directory or a file.#
+search#- This command will search the dictionary for a meaning of the given word. Takes one argument and is the word you are searching for.#
+setenv#- This command will set an environment variable to the bash global system. Takes two arguemnts, the first being the name of the global variable and then the value. The system will not allow you to have two fo the same global variable name.#
+time#- This command will display the current time. Takes no other argument.#
 uid#- This command will display the user ID number. Takes no other commands with it.#
 usage#- This command will print out the basic details of Thursday. Takes no other commands with it.#
-unset#- This command will erase the variable and its value in the bash global system.#
+unset#- This command will erase the variable and its value in the bash global system. Takes one argument it is the global variable that you want to unset.#
 wd#- This command displays the current working directory. Takes no other commands with it.#
-whereis#- This comand will loop through all of the system files looking for the file.#

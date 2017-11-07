@@ -527,105 +527,105 @@ void Thursday::DirectoryDelete(std::string dirname) {
 
 void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) {
 	/*-------------------------------------------------------------------
-	Note: This method 
+	Note: This method is used to get the contents of a directory and print
+	* the files. This method is jused just for the ls command. This method
+	* was last updated on 11/6/2017.
 	--------------------------------------------------------------------*/
 	if (debugSwitch == 1)
 		ColorChange("Mission - You are in the DisplayDirectories method.", 3);
 	/*--------------------------------------------------------------------*/ 
-
-	int argumentSwitch = 0;																													//
-	std::size_t stringFind;																													//
-	struct stat fileStruct;																													//
-	DIR * dir;																																//
-	dirent * entry;																															//
-	std::vector<std::string> directories;																									//
-	std::vector<std::string> regularFiles;																									//
-	std::vector<std::string> executableFiles;																								//
-	std::vector<std::string> random;																										//
-	std::vector<std::string> symbolicFiles;																									//
+	std::size_t stringFind;																													// Used to find strings within strings.
+	struct stat fileStruct;																													// Used to access information about a file.
+	DIR * dir;																																// Used to open a directory and see what files are in it.
+	dirent * entry;																															// Used to access the contents of a directroy using the previous variable.
+	std::vector<std::string> directories;																									// Used to store the directories.
+	std::vector<std::string> regularFiles;																									// Used to store the regular files.
+	std::vector<std::string> executableFiles;																								// Used to store the executables.
+	std::vector<std::string> random;																										// Used to store just the random files.
+	std::vector<std::string> symbolicFiles;																									// Used to stroe the symbolic links.
 											
-	if (pathName.size() == 0)																												//
-		dir = opendir(".");																													//
+	if (pathName.size() == 0)																												// If the incoming path name is empty.
+		dir = opendir(".");																													// We will just open up the current directory.
 	else 
-		dir = opendir(pathName.c_str());																									//
+		dir = opendir(pathName.c_str());																									// Else we will open up the path name.
 	
-	if (lsArgument == "all") {																												//
-		DepthFirstSearch("/", "&&&&&", 0, 0);																								//
-	} else if (lsArgument == "" || lsArgument == "-l") {																					//
-		while (entry = readdir(dir)) {																										//
-			stat(entry->d_name, &fileStruct);																								//
-			if ((fileStruct.st_mode & S_IFMT) == S_IFDIR) {																					//
-				directories.push_back(entry->d_name);																						//
-			} else if ((fileStruct.st_mode & S_IFMT) == S_IFLNK) {																			//
-				symbolicFiles.push_back(entry->d_name);																						//
-			} else if (! access(entry->d_name, X_OK) && ((fileStruct.st_mode & S_IFMT) == S_IFREG)) {										//
-				executableFiles.push_back(entry->d_name);																					//
-			} else if ((fileStruct.st_mode & S_IFMT) == S_IFREG) {																			//
-				regularFiles.push_back(entry->d_name);																						//
+	if (lsArgument == "all") {																												// If the ls argument is all.
+		DepthFirstSearch("/", "&&&&&", 0, 0);																								// We want to print all the directories in the system.
+	} else if (lsArgument == "" || lsArgument == "-l") {																					// Else if the ls argument is -l or empty.
+		while (entry = readdir(dir)) {																										// Loop through the directory.
+			stat(entry->d_name, &fileStruct);																								// Get information on the file that we are looking at.
+			if ((fileStruct.st_mode & S_IFMT) == S_IFDIR) {																					// Check to see if the file is a directory.
+				directories.push_back(entry->d_name);																						// Add it to the directory vector.
+			} else if ((fileStruct.st_mode & S_IFMT) == S_IFLNK) {																			// Check to see if the file is a symbolic link.
+				symbolicFiles.push_back(entry->d_name);																						// Add it to the symbolic link vector.
+			} else if (! access(entry->d_name, X_OK) && ((fileStruct.st_mode & S_IFMT) == S_IFREG)) {										// Check to see if the file is an executable. 
+				executableFiles.push_back(entry->d_name);																					// Add it to the executable link vector.
+			} else if ((fileStruct.st_mode & S_IFMT) == S_IFREG) {																			// Check to see if the file is just a normal file.
+				regularFiles.push_back(entry->d_name);																						// Add it to the regular file vector.
 			} else {
-				random.push_back(entry->d_name);																							//
+				random.push_back(entry->d_name);																							// If the file is nothing above then just add it to the rancom vector.
 			}	
 		}
 			
-        if (closedir(dir) == -1)																											//
-            ColorChange("LS File Closing Failure: ", 2);																					//
+        if (closedir(dir) == -1)																											// Close the directory.
+            ColorChange("LS File Closing Failure: ", 2);																					// If there is an error, print one.
 		
-		std::sort(directories.begin(), directories.end());																					//
-		std::sort(symbolicFiles.begin(), symbolicFiles.end());																				//
-		std::sort(executableFiles.begin(), executableFiles.end());																			//
-		std::sort(regularFiles.begin(), regularFiles.end());																				//
-		std:;sort(random.begin(), random.end());																							//
+		std::sort(directories.begin(), directories.end());																					// Sort the vector alphabetically.
+		std::sort(symbolicFiles.begin(), symbolicFiles.end());																				// Sort the vector alphabetically.
+		std::sort(executableFiles.begin(), executableFiles.end());																			// Sort the vector alphabetically.
+		std::sort(regularFiles.begin(), regularFiles.end());																				// Sort the vector alphabetically.
+		std:;sort(random.begin(), random.end());																							// Sort the vector alphabetically.
 		
-		int i = 0;																															//
-		for (i = 0; i < directories.size(); i++) {																							//
-			if (lsArgument == "-l") {																										//
-				std::cout << "\t\t" << Utilities::fileInformation(directories[i]) << " " << std::left;										//
-				ColorChange(directories[i], 4);																								//
+		int i = 0;																															// Used to loop through all the vectors.
+		for (i = 0; i < directories.size(); i++) {																							// Loop through the directory vector.
+			if (lsArgument == "-l") {																										// If the ls argument was -l.
+				std::cout << "\t\t" << Utilities::fileInformation(directories[i]) << " " << std::left;										// Print file information aobut the file.
+				ColorChange(directories[i], 4);																								// Print the file in a certian color.
 			} else {
-				std::cout << "\t\t";																										//
-				ColorChange(directories[i], 4);																								//
+				std::cout << "\t\t";																										// If the ls argument was not -l, just print tabs.
+				ColorChange(directories[i], 4);																								// Print the file in a certian color.
 			}
 		}
-		directories.clear();																												//
-		for (i = 0; i < symbolicFiles.size(); i++) {																						//
-			if (lsArgument == "-l") {																										//
-				std::cout << "\t\t" << Utilities::fileInformation(symbolicFiles[i]) << " " << std::left;									//
-				ColorChange(symbolicFiles[i], 5);																							//
+		directories.clear();
+		for (i = 0; i < symbolicFiles.size(); i++) {
+			if (lsArgument == "-l") {
+				std::cout << "\t\t" << Utilities::fileInformation(symbolicFiles[i]) << " " << std::left;
+				ColorChange(symbolicFiles[i], 5);
 			} else {
-				std::cout << "\t\t";																										//
-				ColorChange(directories[i], 5);																								//		
+				std::cout << "\t\t";
+				ColorChange(directories[i], 5);		
 			}
 		}
-		symbolicFiles.clear();																												//
-		for (i = 0; i < executableFiles.size(); i++) {																						//
-			if (lsArgument == "-l") {																										//
-				std::cout << "\t\t" << Utilities::fileInformation(executableFiles[i]) << " " << std::left;									//
-				ColorChange(executableFiles[i], 6);																							//
+		symbolicFiles.clear();
+		for (i = 0; i < executableFiles.size(); i++) {
+			if (lsArgument == "-l") {
+				std::cout << "\t\t" << Utilities::fileInformation(executableFiles[i]) << " " << std::left;
+				ColorChange(executableFiles[i], 6);
 			} else {
-				std::cout << "\t\t";																										//
-				ColorChange(directories[i], 6);																								//			
+				std::cout << "\t\t";
+				ColorChange(directories[i], 6);		
 			}
 		}
-		executableFiles.clear();																											//
-		for (i = 0; i < regularFiles.size(); i++) {																							//
-			if (lsArgument == "-l") {																										//
-				std::cout << "\t\t" << Utilities::fileInformation(directories[i]) << " " << std::left << regularFiles[i] << std::endl;		//
+		executableFiles.clear();
+		for (i = 0; i < regularFiles.size(); i++) {
+			if (lsArgument == "-l") {
+				std::cout << "\t\t" << Utilities::fileInformation(directories[i]) << " " << std::left << regularFiles[i] << std::endl;
 			} else {
-				std::cout << "\t\t" << regularFiles[i] << std::endl;																		//
+				std::cout << "\t\t" << regularFiles[i] << std::endl;
 			}
 		}
-		regularFiles.clear();																												//
-		for (i = 0; i < random.size(); i++) {																								//
-			if (lsArgument == "-l") {																										//
-				std::cout << "\t\t" << Utilities::fileInformation(random[i]) << " " << std::left;											//
-				ColorChange(random[i], 7);																									//
+		regularFiles.clear();
+		for (i = 0; i < random.size(); i++) {
+			if (lsArgument == "-l") {
+				std::cout << "\t\t" << Utilities::fileInformation(random[i]) << " " << std::left;
+				ColorChange(random[i], 7);
 			} else {
-				std::cout << "\t\t";																										//
-				ColorChange(directories[i], 7);																								//				
+				std::cout << "\t\t";
+				ColorChange(directories[i], 7);			
 			}
 		}
 	}
-	random.clear();																															//
+	random.clear();
     /*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
 		ColorChange("Mission - You are leaving the DisplayDirectories method.", 3);
@@ -1022,27 +1022,27 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 		ColorChange("Mission - You are in the SearchCommands method.", 3);
  	/*--------------------------------------------------------------------*/
 								
-	std::string fileName = "";																//
-	std::string random = "";																//
-	std::size_t stringFind;																	//
-	std::locale loc;																		//
-	std::vector<std::string> temp;															//
-	std::vector<std::string> arguments;														//
+	std::string fileName = ""; 
+	std::string random = ""; 
+	std::size_t stringFind; 
+	std::locale loc; 
+	std::vector<std::string> temp; 
+	std::vector<std::string> arguments;
 	
     int characterValue = 0;																	//To grab the ascii value of the first character in the command.
-    int i = 0;																				//
-    int key = 0;																			//
-    int size = incomingInput.size();														//
+    int i = 0; 
+    int key = 0; 
+    int size = incomingInput.size(); 
 
 	characterValue = incomingInput[i][0];													//Grab the ascii value of the first chararcter of the current command.
-	if ( signal == 0 ) {																	//
+	if ( signal == 0 ) { 
 		if (characterValue >= 97 && characterValue <= 108) {								//If the command is within A - L (a - l).
 			if (characterValue >= 97 && characterValue <= 102) {							//If the command is within A - F (a - f).
-				if (incomingInput[i] == "bash") {											//
-					arguments.push_back(incomingInput[i]);									//
-					ExecuteFile(incomingInput[i], arguments);								//
-					arguments.clear();														//
-				} else if (incomingInput[i] == "cd") {										//
+				if (incomingInput[i] == "bash") { 
+					arguments.push_back(incomingInput[i]); 
+					ExecuteFile(incomingInput[i], arguments); 
+					arguments.clear(); 
+				} else if (incomingInput[i] == "cd") { 
 					if (size == 2) {														// Check to see if we have another argument in the vector.
 						i++;																//
 						stringFind = incomingInput[i].find('/');							// If there is a / in the path if so just try and change with that directory.																							
@@ -1057,177 +1057,177 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
-				} else if (incomingInput[i] == "color") {									//			
-					if (size == 2) {														//
-						i++;																//
-						if (Utilities::isNumber(incomingInput[i]) == 1) {					//
-							if (std::stoi(incomingInput[i]) > 0 )							//
-								colorOption = std::stoi(incomingInput[i]);					//
+				} else if (incomingInput[i] == "color") { 			
+					if (size == 2) { 
+						i++; 
+						if (Utilities::isNumber(incomingInput[i]) == 1) { 
+							if (std::stoi(incomingInput[i]) > 0 ) 
+								colorOption = std::stoi(incomingInput[i]); 
 						}
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
-				} else if (incomingInput[i] == "commands") {								//
-					fileName = informationDestination;										//
-					fileName += "/ThursdayCommandDefinitions.txt";							//
-					FileLoader(temp, fileName, 2);											//
-				} else if (incomingInput[i] == "compress") {								//
-					if (size == 2) {														//
-						i++;																//
-						CompressAndDecompress(0, incomingInput[i]);							//
+				} else if (incomingInput[i] == "commands") { 
+					fileName = informationDestination; 
+					fileName += "/ThursdayCommandDefinitions.txt"; 
+					FileLoader(temp, fileName, 2); 
+				} else if (incomingInput[i] == "compress") { 
+					if (size == 2) { 
+						i++; 
+						CompressAndDecompress(0, incomingInput[i]);
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
-				} else if (incomingInput[i] == "date") {									//
-					std::cout << "\t\t" << Utilities::date(1) << std::endl;					//
-				} else if (incomingInput[i] == "debug") {									//
-					if (debugSwitch == 1)													//
-						 debugSwitch = 0;													//
+				} else if (incomingInput[i] == "date") { 
+					std::cout << "\t\t" << Utilities::date(1) << std::endl; 
+				} else if (incomingInput[i] == "debug") { 
+					if (debugSwitch == 1) 
+						 debugSwitch = 0; 
 					else
-						 debugSwitch = 1;													//
-				} else if (incomingInput[i] == "decompress") {								//
-					if (size == 2) {														//
-						i++;																//
-						CompressAndDecompress(1, incomingInput[i]);							//
+						 debugSwitch = 1; 
+				} else if (incomingInput[i] == "decompress") { 
+					if (size == 2) { 
+						i++; 
+						CompressAndDecompress(1, incomingInput[i]); 
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
-				} else if (incomingInput[i] == "decrypt") {									//
-					if (size == 3) {														//
-						i++;																//
-						if (Utilities::isNumber(incomingInput[i]) == 1) {					//
-							key = std::stoi(incomingInput[i]);								//
+				} else if (incomingInput[i] == "decrypt") {
+					if (size == 3) {
+						i++;
+						if (Utilities::isNumber(incomingInput[i]) == 1) {
+							key = std::stoi(incomingInput[i]);
 						} else {
 							ColorChange("Sorry the first argument was not a number (key).", 2);
 						}
-						i++;																//
+						i++;
 						std::cout << "\t\t" << Cryptography(2, key, incomingInput[i]) << std::endl;
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
-				} else if (incomingInput[i] == "encrypt") {									//
-					if (size == 3) {														//
-						i++;																//
-						if (Utilities::isNumber(incomingInput[i]) == 1) {					//
-							key = std::stoi(incomingInput[i]);								//	
+				} else if (incomingInput[i] == "encrypt") {
+					if (size == 3) {
+						i++;
+						if (Utilities::isNumber(incomingInput[i]) == 1) {
+							key = std::stoi(incomingInput[i]);
 						} else {
 							ColorChange("Sorry the first argument was not a number (key).", 2);
 						}
-						i++;																//
+						i++;
 						std::cout << "\t\t Here: " << Cryptography(1, key, incomingInput[i]) << std::endl;	
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
-				} else if (incomingInput[i] == "exit") {									//
-					SetupAndCloseSystem(2);													//
-					arguments.push_back("reset");											//
-					ExecuteFile("reset", arguments);										//
-					return 1;																//
-				} else if (incomingInput[i] == "find") {									//	
-					if (size == 3) { 														//
-						i++;																//
-						random = incomingInput[i];											//
-						if (random[0] != '/') {												//
+				} else if (incomingInput[i] == "exit") {
+					SetupAndCloseSystem(2);
+					arguments.push_back("reset");
+					ExecuteFile("reset", arguments);
+					return 1;
+				} else if (incomingInput[i] == "find") {
+					if (size == 3) {
+						i++;
+						random = incomingInput[i];
+						if (random[0] != '/') {
 							ColorChange("Your starting point argument is not a path.", 2);
 						} else {
-							i++;															//
-							DepthFirstSearch(random, incomingInput[i], 1, 1);				//
+							i++;
+							DepthFirstSearch(random, incomingInput[i], 1, 1);
 						}
-					} else if (size == 2) {													//
-						i++;																//
-						random = "/";														//
-						DepthFirstSearch(random, incomingInput[i], 1, 1);					//
+					} else if (size == 2) {
+						i++;
+						random = "/";
+						DepthFirstSearch(random, incomingInput[i], 1, 1);
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
 				}
 			} else {																		//If the command is within G - L (g - l).											
-				if (incomingInput[i] == "getenv") {											//
+				if (incomingInput[i] == "getenv") {
 					if (size > 1) {
 						i++;
 						EnvironmentUtilites(2, incomingInput[i], "");
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
-				} else if (incomingInput[i] == "hd") {										//
-					passwd * CurrUser = getpwuid(getuid());									//
+				} else if (incomingInput[i] == "hd") {
+					passwd * CurrUser = getpwuid(getuid());
 					std::cout << "\t\t" << CurrUser->pw_dir << std::endl;
-				} else if (incomingInput[i] == "help") {									//
-					if (size > 1) {															//
-						i++;																//
-						Help(incomingInput[i]);												//
+				} else if (incomingInput[i] == "help") {
+					if (size > 1) {
+						i++;
+						Help(incomingInput[i]);
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
-				} else if (incomingInput[i] == "info") {									//
+				} else if (incomingInput[i] == "info") {
 					std::cout << "\t\t" << "The user ID is: " << uid << std::endl;
 					std::cout << "\t\t" << "The process ID is: " << pid << std::endl;
 					std::cout << "\t\t" << "The parent process ID is: " << ppid << std::endl;								
-				} else if (incomingInput[i] == "ls") {										//
-					if (size > 1 && size <= 2) {											//
-						bool lsArgumentSwitch = false;										//
-						bool lsPathSwitch = false;											//
-						std::string lsPath = "";											//
-						std::string lsArgument = "";										//
-						i++;																//
-						std::cout << "" << std::endl;										//
-						while (i < incomingInput.size()) {									//
-							if (incomingInput[i] == "-l" || incomingInput[i] == "all") {	//
-								if (lsArgumentSwitch == false) {							//
-									lsArgumentSwitch = true;								//
-									lsArgument = incomingInput[i];							//
+				} else if (incomingInput[i] == "ls") {
+					if (size > 1 && size <= 2) {
+						bool lsArgumentSwitch = false;
+						bool lsPathSwitch = false;
+						std::string lsPath = "";
+						std::string lsArgument = "";
+						i++;
+						std::cout << "" << std::endl;
+						while (i < incomingInput.size()) {
+							if (incomingInput[i] == "-l" || incomingInput[i] == "all") {
+								if (lsArgumentSwitch == false) {
+									lsArgumentSwitch = true;
+									lsArgument = incomingInput[i];
 								}
 							} else {
-								if ((FileChecker(incomingInput[i], 1)).size() > 0) {		//
-									if (lsPathSwitch == false) {							//
-										lsPathSwitch = true;								//
-										lsPath = incomingInput[i];							//
+								if ((FileChecker(incomingInput[i], 1)).size() > 0) {
+									if (lsPathSwitch == false) {
+										lsPathSwitch = true;
+										lsPath = incomingInput[i];
 									}
 								}
 							}
-							i++;															//
+							i++;
 						}
-						if (lsArgumentSwitch == true && lsPathSwitch == true) {				//
-							DisplayDirectories(lsArgument, lsPath);							//
-						} else if (lsArgumentSwitch == true) {								//
-							DisplayDirectories(lsArgument, "");								//
-						} else if (lsPathSwitch == true) {									//
-							DisplayDirectories("", lsPath);									//
+						if (lsArgumentSwitch == true && lsPathSwitch == true) {	
+							DisplayDirectories(lsArgument, lsPath);
+						} else if (lsArgumentSwitch == true) {
+							DisplayDirectories(lsArgument, "");
+						} else if (lsPathSwitch == true) {
+							DisplayDirectories("", lsPath);	
 						} else {
-							DisplayDirectories("", "");										//
+							DisplayDirectories("", "");	
 						}
 						std::cout << "" << std::endl;
 					} else {
 						std::cout << std::endl;
-						DisplayDirectories("",""); 											//
+						DisplayDirectories("","");
 						std::cout << std::endl;
 					}
 				}
 			}
 		} else if (characterValue >= 109 && characterValue <= 122) {						//If the command is within M - Z (m - z).
 			if (characterValue >= 109 && characterValue <= 115) {							//If the command is within M - S (m - s).
-			    if (incomingInput[i] == "pid") {											//
+			    if (incomingInput[i] == "pid") { 
 					std::cout << "\t\t" << "The process ID is: " << getpid() << std::endl;
-				} else if (incomingInput[i] == "ppid") {									//
+				} else if (incomingInput[i] == "ppid") {
 					std:;cout << "\t\t" << "The parent process ID is: " << getppid() << std::endl;
-				} else if (incomingInput[i] == "printenv") {								//
-					EnvironmentUtilites(3, "", ""); 										//
-				} else if (incomingInput[i] == "prompt") {									//
-					if (size > 1) { 														//
-						i++; 																//
-						if (Utilities::isNumber(incomingInput[i]) == 1) {					//
-							if (std::stoi(incomingInput[i]) >= 0 && std::stoi(incomingInput[i]) <= 3) {	//	
-								promptNumber = std::stoi(incomingInput[i]);					//
-							} else if (std::stoi(incomingInput[i]) == 4) {					//
-								if (currentPrompt.size() > 0) {								//
-									promptNumber = std::stoi(incomingInput[i]);				//
+				} else if (incomingInput[i] == "printenv") {
+					EnvironmentUtilites(3, "", "");
+				} else if (incomingInput[i] == "prompt") {
+					if (size > 1) {
+						i++; 
+						if (Utilities::isNumber(incomingInput[i]) == 1) {
+							if (std::stoi(incomingInput[i]) >= 0 && std::stoi(incomingInput[i]) <= 3) {
+								promptNumber = std::stoi(incomingInput[i]);
+							} else if (std::stoi(incomingInput[i]) == 4) {
+								if (currentPrompt.size() > 0) {
+									promptNumber = std::stoi(incomingInput[i]);
 								} else {
 									ColorChange("Sorry but the current prompt is empty.", 2);
 								}
-							} else if (std::stoi(incomingInput[i]) == 5) {					//
-								if (size > 2) {												//
-									i++;													//
-									currentPrompt = incomingInput[i];						//
+							} else if (std::stoi(incomingInput[i]) == 5) {
+								if (size > 2) {
+									i++;
+									currentPrompt = incomingInput[i];
 								} else {
 									ColorChange("The number of arguments was incorrect.", 2);
 								}
@@ -1238,28 +1238,28 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
-				} else if (incomingInput[i] == "rm") {										//
-					if (size > 1) {															//
-						i++;																//
-						if (remove(incomingInput[i].c_str()) != 0)							//
-							DirectoryDelete(incomingInput[i]);								//
+				} else if (incomingInput[i] == "rm") {
+					if (size > 1) {
+						i++;
+						if (remove(incomingInput[i].c_str()) != 0)							// If the file is a normal file then delete, but if its a directory we move forward.
+							DirectoryDelete(incomingInput[i]);
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
-				} else if (incomingInput[i] == "search") {									//
-					if (size > 1) {															//
-						i++;																//
-						Search(incomingInput[i]);											//
+				} else if (incomingInput[i] == "search") {
+					if (size > 1) {
+						i++;
+						Search(incomingInput[i]);
 						std::cout << "" << std::endl;
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
-				} else if (incomingInput[i] == "setenv") {									//
-					if (size > 2) {															//
-						i++;																//
-						random = incomingInput[i];											//
-						i++;																//
-						EnvironmentUtilites(1, random, incomingInput[i]);					//
+				} else if (incomingInput[i] == "setenv") {
+					if (size > 2) {
+						i++;
+						random = incomingInput[i];
+						i++;
+						EnvironmentUtilites(1, random, incomingInput[i]);
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
@@ -1270,25 +1270,23 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 				} else if (incomingInput[i] == "uid") {
 					std::cout << "\t\t" << "The user ID is: " << getuid() << std::endl;
 				} else if (incomingInput[i] == "unsetenv") {
-					if (size > 1) {															//
-						i++;																//
-						EnvironmentUtilites(0, incomingInput[i], "");						//
+					if (size > 1) {
+						i++;
+						EnvironmentUtilites(0, incomingInput[i], "");
 					} else {
 						ColorChange("The number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "usage") {
-					fileName = informationDestination;										//
-					fileName += "/Usage.txt";												//
-					temp = FileLoader(temp, fileName, 1);									//
+					fileName = informationDestination;
+					fileName += "/Usage.txt";
+					temp = FileLoader(temp, fileName, 1);
 				} else if (incomingInput[i] == "wd") {
 					std::cout << "\t\t" << "The current directory is: " << currentPath << std::endl;
 				}
 			}
 		}
-	} else if (signal == 1) {																//
-		for (int a = 0; a < size; a++)														//
-			arguments.push_back(incomingInput[a]);											//				
-		ExecuteFile(incomingInput[i], arguments); 											//
+	} else if (signal == 1) {																// If the incoming vector of commands is not associated with this application.
+		ExecuteFile(incomingInput[i], incomingInput); 										// Send the first argument and then send the rest of the vector.
 		return 0;
 	}
 	/*--------------------------------------------------------------------*/
