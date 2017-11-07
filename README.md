@@ -1,87 +1,52 @@
-# Project Title
+# Thursday
 
-One Paragraph of project description goes here
+This project started in Linux Programming class my Junior year of undergraduate. I was fascinated with Bash and wanted to create my own Linux shell. I used this project to help drive my eagerness to learn more about Linux and what is happening on the backend. I have spent time on and off over the last two years to get it to where it is now. I’m also using this opportunity to learn more about versioning and GitHub. My plans for the future of this project is make it a full-fledged shell like Bash, and make working with the Operating System a little easier.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system. If you want the production version then (git checkout master), if you want the development version then (git checkout development).
+
+## Warnings
+
+I have only tested the system on the latest release of Mac which is “High Sierra”, Centos 7, and Ubuntu 16.10. There are bugs on the Mac side because of my lack of testing, and still some on Linux. I have not gotten all the key binds perfected and created. Lastly the commands that I have created within the system override the Linux versions. For example, find in Thursday will not take the same arguments as find in a normal Linux Terminal. There is also no way around that in this system. 
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
+The only thing that you should need to get this project off the ground and into your computer is c++ 11 and higher. Below are what commands you need to run.
 
-```
-Give examples
-```
+-	Ubuntu: 
+o	Type: sudo apt-get install build-essential 
+o	Type: sudo apt-get install g++
+
+-	Red Hat: 
+o	Type: yum install gcc-c++ kernel-devel make
+o	Type: yum groupinstall “Development Tools”
+
+-	Mac:
+o	Make sure that your XCode installation is up-to-date. 
 
 ### Installing
 
-A step by step series of examples that tell you have to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
+To install the system, just run the setup.sh script in the base directory of Thursday. This should get you going and running. From there go into the build directory that is created from the script and execute the Thurs file.
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+There are no tests as or right now.
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+Aaron A. Valoroso
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+## Inspiring Quotes
 
-## License
+ The programmers of tomorrow are the wizards of the future. You're going to look like you have magic  powers compared to everybody else.
+ 
+   - Gabe Newell
+   
+  When 99% of people doubt your idea, you're either gravely wrong or about to make history.
+  
+    - Scott Belsky
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+  Most good programmers do programming not because they expect to get paid or get adulation by the publicc, but because it is fun to       program.
 
-## Acknowledgments
-
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc
+    - Linux Torvalds
