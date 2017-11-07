@@ -29,9 +29,7 @@ o	Make sure that your XCode installation is up-to-date.
 
 To install the system, just run the setup.sh script in the base directory of Thursday. This should get you going and running. From there go into the build directory that is created from the script and execute the Thurs file.
 
-### Running the tests
 
-There are no tests as or right now.
 
 # Author: Aaron A. Valoroso
 
