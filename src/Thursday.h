@@ -42,7 +42,7 @@ public:
 	std::vector<std::string> FileLoader(std::vector<std::string> incomingVector, std::string fileName, int signal);
 	void EnvironmentUtilites(int Number, std::string variable, std::string variableValue);
 	int ExecuteFile(std::string incomingCommand, std::vector<std::string> arguments);
-	int GetArguments(std::string theCommands, std::vector<std::string> quotes, char * envp[]);
+	int GetArguments(std::string theCommands, char * envp[]);
 	void Help(std::string argument);
 	void PromptDisplay();
 	void Search(std::string argument);
@@ -70,6 +70,7 @@ private:
 	std::string homeDestination;
 	std::string hostName;
 	std::string informationDestination;
+	std::string previousPath;
 	
 	std::stack<std::string> stringStack;
     std::vector<std::string> Environment;

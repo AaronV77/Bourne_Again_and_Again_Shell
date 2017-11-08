@@ -1,3 +1,4 @@
+back#- This command will return you to the previous path that you were at. Takes no other arguments.#
 bash#- This command will launch an instance of bash. Takes no other commands with it. Takes no other arguments.#
 cd#- This command will move the user throughout the file hiearchy. Takes one argument, that should be a path.#
 color#- This command will either turn the color on and off or change the color. Takes one and no arguments. The first option will change the color when a number is given 0 - 15, and the second option will turn the color on and off.#

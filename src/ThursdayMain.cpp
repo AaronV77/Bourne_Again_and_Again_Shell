@@ -12,10 +12,7 @@ int main (int argc, char * argv[], char *envp[]) {
 	int returnNumber = 0;																						//Used to store the outcoming number from GetArguments.
 	bool quoteFound = false;																					//Used to stop store characters in the "theCommands" variable.
 	std::string theCommands = "";																				//Used to store the whole incoming input from the user besides if there is a quote.
-	std::string theQuote = "";																					//Used to store the current incoming quote.
-	std::string everything = "";																				//Used to store everything, including the quote.
 	std::vector<std::string> incomingCommands;																	//Used to store the incoming commands from the user and will be checked.
-	std::vector<std::string> quotes;																			//Used to store as many quotes that are coming in the input stream.
 	struct termios oldattr, newattr;																			//Setup terminal variables.
 	
 	Thursday home;																								//Create an instance of the class.																																			
@@ -47,44 +44,26 @@ int main (int argc, char * argv[], char *envp[]) {
 		characterNumber = getche();																				//Retrieve the character that was typed and send back the ascii value.
 		tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);																//Set the terminal to the old settings.
 		switch(characterNumber) {																				//Use a switch statment to do specific actions for certain characters.
+			case 9:																								//When a tab was pressed.
+			break;
 			case 10: 																							//When an enter key was pressed.
 				if (theCommands != "") {																		//Make sure that the char pointer is not empty / NULL.
-					returnNumber = home.GetArguments(theCommands, quotes, envp);								//Send the commands in the incomingInput vector to the search commands method.
+					returnNumber = home.GetArguments(theCommands, envp);										//Send the commands in the incomingInput vector to the search commands method.
 					if (returnNumber == 1)																		//See if the user is trying to exit the program, which returns a 1.
 						return 0;																				//Exit the program.
-					incomingCommands.push_back(everything);														//Store the old commands in this vector.				
+					incomingCommands.push_back(theCommands);													//Store the old commands in this vector.				
 					home.PromptDisplay();																		//Display the prompt.
 				}
 				UpAndDownIterator = incomingCommands.size();													//Set the up and down iterator to zero.
-				UpAndDownIterator--;																			//Reset the iterator at the current spot in the vecttor.
 				LeftAndRightIterator = 0;																		//Reset the iterator for back and forth to zero.
 				theCommands = "";																				//Reset the variable.
-				everything = "";																				//Reset the variable.
 				break;																							//Break out of the switch statement.
-			case 34:																							//If we found the " sysmbol.
-				if (quoteFound == false) {																		//If we have have already found a quote.
-					quoteFound = true;																			//If not then set our search to true.
-					theQuote += characterNumber;																//Add the first character of the quote to the string.
-					everything += characterNumber;																//Add the first character to the everything string.
-				} else {
-					quoteFound = false;																			//If we have found the trailing " sysmbol to the quote.
-					theQuote += characterNumber;																//Add the last character of the quote to the string.
-					quotes.push_back(theQuote);																	//Store the quote in the vector.
-					theCommands += " ";																			//Add a space to the character.
-					theCommands += std::to_string(quoteCounter);												//Add the quote number to the string so that the argument checker can find it.
-					theCommands += " ";																			//Add another space to the character.
-					everything += characterNumber;																//Add the last character to the everything string.
-					theQuote = "";																				//Reset the quote string.
-					quoteCounter++;																				//Increment how many quotes that we found.
-				}
-				break;
 			case 127: 																							//Backspace character.
 				if (LeftAndRightIterator > 0) {																	//Delete the characters in the pointer, but no further than what was typed.
 					printf("\b \b");																			//Deletes a character on the current line and moves the pointer back one.
-					if (theCommands.size() == 1)																//If the size of the char pointer is equal to the size of 1.
+					if (theCommands.size() == 0)																//If the size of the char pointer is equal to the size of 1.
 						theCommands = "";																		//Reset the string.
-					if (theCommands.size() != 0)																//If the char pointer size is not equal to zero.
-						theCommands.erase(theCommands.begin()+(theCommands.size() - 1), theCommands.end());		//Use the str erase function and delete one character from the end.
+					theCommands.erase(theCommands.begin()+(theCommands.size() - 1), theCommands.end());
 					LeftAndRightIterator--;																		//Move the left and right iterator to the right one spot.															
 				}
 				break;
@@ -98,6 +77,7 @@ int main (int argc, char * argv[], char *envp[]) {
 				theCommands = "";																				//Reset the input stream.
 				break;
 			case 195: 																							//Up arrow key																			
+				UpAndDownIterator--;																			//Decrement the iterator.
 				if (UpAndDownIterator >= 0 && incomingCommands.size() != 0) {									//Check to make sure the iterator is above  0.
 					printf("%c[2K", 27);																		//Clear the current terminal line.
 					cout << "\r";																				//I forget what this does. Online says its a carriage return.
@@ -105,15 +85,13 @@ int main (int argc, char * argv[], char *envp[]) {
 					cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
 					theCommands = incomingCommands[UpAndDownIterator];											//Reset the input string with the previous command.
 					LeftAndRightIterator = theCommands.size();													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
-					if (UpAndDownIterator > 0)																	//If the 
-						UpAndDownIterator--; 																	//Since we push commands from the end of the vector we want to move down the vector to get to the old commands.
 				} else {
 					UpAndDownIterator = 0;																		//Reset the iterator to zero.
 				}
 				break;
 			case 198: 																							//Down arrow key.
-				if (UpAndDownIterator < (incomingCommands.size() - 1) && incomingCommands.size() != 0) {		//If the up and down iterator is less than the size of the vector minus 1, and if the vector size is not equal to zero.
-					UpAndDownIterator++; 																		//Increment the iterator to grab the previous called command.			
+				UpAndDownIterator++;																			//Increment the iterator.
+				if (UpAndDownIterator < incomingCommands.size() && incomingCommands.size() != 0) {				//If the up and down iterator is less than the size of the vector minus 1, and if the vector size is not equal to zero.
 					printf("%c[2K", 27);																		//Clear the printed terminal line.
 					cout << "\r";																				//I forget what this does. Online says its a carriage return.
 					home.PromptDisplay();																		//print the normal prompt.
@@ -121,17 +99,18 @@ int main (int argc, char * argv[], char *envp[]) {
 					theCommands = incomingCommands[UpAndDownIterator];											//Reset the input string with the previous command.
 					LeftAndRightIterator = theCommands.size();													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
 				} else {																						//If we hit the very top of the vector then we want to clear the termina input just like bash.
-					for (int d = 0; d < theCommands.size(); d++) {												//Loop through the number of characters currently being typed.
-						printf("\b \b");																		//Deletes a character on the current line and moves the pointer back one.
-						LeftAndRightIterator--;																	//Decrement the left and right iterator.
-					}
-					theCommands = "";																			//Reset the input string.
+					if (theCommands.size() > 0) {
+						for (int d = 0; d < theCommands.size(); d++) {											//Loop through the number of characters currently being typed.
+							printf("\b \b");																	//Deletes a character on the current line and moves the string back one.
+							LeftAndRightIterator--;																//Decrement the left and right iterator.
+						}
+						theCommands = "";	
+					}																							//Reset the input string.
 					UpAndDownIterator = incomingCommands.size();												//Reset the iterator to the size of the vector.
-					UpAndDownIterator--;																		//Move the iterator down by one.
 				} 
 				break;
 			case 201:																							//Right arrow key.
-				if (LeftAndRightIterator < theCommands.size()) {												//If the iterator is not going past the current string.	
+				if (LeftAndRightIterator < theCommands.size()) {													//If the iterator is not going past the current string.	
 					printf ("\033[C"); 																			//Move the cursor to the right by one.	
 					LeftAndRightIterator++;																		//Increment the iterator.
 				}	
@@ -144,13 +123,7 @@ int main (int argc, char * argv[], char *envp[]) {
 				break;
 			default: 																							//Catch every other character.
 				if (characterNumber < 195 || characterNumber > 204) {											//Look for any letter between a - z.
-					if (quoteFound == false) {																	//If we have not not found the start t oa quote.
-						theCommands += characterNumber;															//Add the character to the input string.
-						everything += characterNumber;															//Add the character to thte 
-					} else {
-						theQuote += characterNumber;															//If we have found the start to a quote, add the characters to the quote string.
-						everything += characterNumber;															//Add the characters to the everything string.
-					}
+					theCommands += characterNumber;																//Add the character to the input string.
 					LeftAndRightIterator++;																		//Move the iterator with the incoming character.
 				}
 				break;
@@ -184,10 +157,12 @@ int getche(void) {
 	while ((c = getchar())) {																					//Loop through getting characters.
 		if (c != 27 && c != 126) {																				//
 			if (c != 91) {																						//
-				if (check1 == 0 && check2 == 0) {																//
+				if (check1 == 0 && check2 == 0 && c != 9) {														//
 					printf("%c",c);																				//
 					return c;																					//
 				} else {
+					if (c == 9) 
+						return c;
 					check1 = 0; check2 = 0;																		//Reset the checks.
 					return c * 3;																				//Multiply the special character key by 3 so that it is not close to any other key value.
 				}

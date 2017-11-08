@@ -7,26 +7,35 @@ Thursday::Thursday() {
 	Note: The constructor is just used to setup all the variables and load the
 	* users into the system.
 	--------------------------------------------------------------------*/
+	previousPath = ""; 								// Used in the constructor for find where our base directory is.					
     gethostname(path, sizeof(path));				// Uses a C function to get the computers hostname.
 	hostName = path;								// Copies the name from the char array "path" to the hostname.
-					
 	homeDestination = getcwd(path, MAX_SIZE);		// Uses a C function to get the current path and set it to the current path pointer.
-	homeDestination += "/..";						// Move back a directory.
-	DirectoryChange(homeDestination, 0);			// Call a Library mehtod to move the system back a directory.
-	homeDestination = currentPath;					// Set the base path for the following paths.
-	dictionaryDestination = currentPath;
-	informationDestination = currentPath;
-	//--------------------------------------------------------------------
-	dictionaryDestination += "/Dictionary-1.2";		// This is used to get to the Dictionary directory.
-	informationDestination += "/information";		// This is used to get to all the information need for the system.
-	//--------------------------------------------------------------------
+	
+	if (homeDestination == "/bin") {
+		homeDestination = "/lib";
+		currentPath = "/lib";
+		dictionaryDestination = currentPath;
+		informationDestination = currentPath;
+		dictionaryDestination += "/Dictionary-1.2";	// This is used to get to the Dictionary directory.
+		informationDestination += "/information";	// This is used to get to all the information need for the system.
+	} else {
+		homeDestination += "/..";					// Move back a directory.
+		DirectoryChange(homeDestination, 0);		// Call a Library mehtod to move the system back a directory.
+		homeDestination = currentPath;				// Set the base path for the following paths.
+		dictionaryDestination = currentPath;
+		informationDestination = currentPath;
+		dictionaryDestination += "/Dictionary-1.2";	// This is used to get to the Dictionary directory.
+		informationDestination += "/information";	// This is used to get to all the information need for the system.
+	}
+		
 	BoolVar = 1;									// Used for the color of the system.
 	colorOption = 11;								// Color switch for turning on and off the colors for the program.
 	colorSwitch = 0; 								// Color switch so that the color is turned either on or off.
 	commandSwitch = 0;								// Switch for when & is found in the incoming input.
 	debugSwitch = 0;								// Switch for turning on and off the debug statments.
-    found = 0;										// To tell the DFS algorithm that a path was able to be found.
 	errorSwitch = 0;								// A switch to tell the DFS algorithm that there was an error in the change directtory method.
+    found = 0;										// To tell the DFS algorithm that a path was able to be found.
 	gid = getgid();									// Gets the group id for the process and saves it to an int variable.
 	pid = getpid();									// Gets the process id for the process and saves it to an int variable.
 	ppid = getppid();								// Gets the parent process id for the process and saves it to an int variable.
@@ -59,7 +68,7 @@ int Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std::
 	* change that for just the quote. This method was last updated on 11/6/2017.
 	--------------------------------------------------------------------*/
     if (debugSwitch == true) 
-		ColorChange("Mission - You are in the ArgumentChecker method.", 3);
+		ColorChange("\t\tMission - You are in the ArgumentChecker method.", 3);
 	/*--------------------------------------------------------------------*/ 
 	int argumentPosition = 0;																// Used to keep track on the position on the input stream.
 	int currentQuote = 0;																	// Used to align up to the incoming quotes in the stream.
@@ -121,7 +130,7 @@ int Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std::
 
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == true) 
-		ColorChange("Mission - You are leaving the ArgumentChecker method.", 3);
+		ColorChange("\t\tMission - You are leaving the ArgumentChecker method.", 3);
 		
 	if (notMineSwitch == true && commandSwitch == false) {									// Had to put this hear for commands that don't have a semicolon.
 		return SearchCommands(commandAndArguments, 1, envp);								// Send it to our SearchCommands method for exec.
@@ -138,7 +147,8 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 	* a color namespace to apply a number to a string to change the color of
 	* the output. There is a bool statment called BoolVar that will turn
 	* off the color. This method was last updated on 11/6/2017.
-	--------------------------------------------------------------------*/	
+	--------------------------------------------------------------------*/
+
 	string color = "";
 	Color::Modifier def(Color::FG_DEFAULT, BoolVar);										// We get the default color "def" because we want to allow the incoming input to be white again.
 
@@ -211,11 +221,11 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 			}
 		} else if ( signal == 2 ) {															// For printing the error statments from the system.
 			Color::Modifier color(Color::FG_RED, BoolVar);
-			std::cout << "\t\t" << color << sentence << def << std::endl;
+			std::cout << color << sentence << def << std::endl;
 			return;
 		} else if ( signal == 3 ) {															// For printing the warning statments from the system.
 			Color::Modifier color(Color::FG_YELLOW, BoolVar);
-			std::cout << "\t\t" << color << sentence << def << std::endl;
+			std::cout << color << sentence << def << std::endl;
 			return;
 		} else if ( signal == 4 ) {															// The next four if statments is for the ls command.
 			Color::Modifier color(Color::FG_CYAN, BoolVar);
@@ -241,6 +251,7 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 			std::cout << sentence << endl;													// Else print everything normal.
 		}
 	}
+		
 	return;
 }
 
@@ -264,7 +275,7 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
 	* on 11/6/2017.
 	--------------------------------------------------------------------*/
     if (debugSwitch == true) 
-		ColorChange("Mission - You are in the CompressAndDecompress method.", 3);
+		ColorChange("\t\tMission - You are in the CompressAndDecompress method.", 3);
 	/*--------------------------------------------------------------------*/ 
 	std::vector<std::string> arguments;														// To store all the arguments that will be sent to the Execution method.
 	string fileName = argument;																// Used to store the filename so that we can add .tgz to it.
@@ -296,7 +307,7 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
 	
 	/*--------------------------------------------------------------------*/ 
     if (debugSwitch == true) 
-		ColorChange("Mission - You are leaving the CompressAndDecompress method.", 3);
+		ColorChange("\t\tMission - You are leaving the CompressAndDecompress method.", 3);
 
 	return;
 }
@@ -307,7 +318,7 @@ std::string Thursday::Cryptography(int number, int key, std::string message) {
 	* incoming message. This method was last updated on 11/6/2017.
 	--------------------------------------------------------------------*/	
     if (debugSwitch == true) 
-		ColorChange("Mission - You are in the Cryptography method.", 3);
+		ColorChange("\t\tMission - You are in the Cryptography method.", 3);
 	/*--------------------------------------------------------------------*/ 
 	int input = 0;
 	std::string output = "";
@@ -335,7 +346,7 @@ std::string Thursday::Cryptography(int number, int key, std::string message) {
 	}
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == true) 
-		ColorChange("Mission - You are leaving the Cryptography method.", 3);
+		ColorChange("\t\tMission - You are leaving the Cryptography method.", 3);
 
 	return output;
 }
@@ -360,7 +371,7 @@ void Thursday::DepthFirstSearch(std::string path, std::string command, int numbe
 	* display directories methods. This method was last updated on 9/24/2017.
 	--------------------------------------------------------------------*/ 
     if (debugSwitch == true) 
-		ColorChange("Mission - You are in the DepthFirstSearch method.", 3);
+		ColorChange("\t\tMission - You are in the DepthFirstSearch method.", 3);
 	/*--------------------------------------------------------------------*/ 
 	std::string input = "";
 	std::string thePath = currentPath;																	// Save the current path that we are currently at.
@@ -368,7 +379,7 @@ void Thursday::DepthFirstSearch(std::string path, std::string command, int numbe
 	
 	if (chdir(path.c_str()) == -1) {																	// Make sure that the given path is absolute.	
 		path = "/";																						// If not replace the path with the backslash and start from the beginning.
-		ColorChange("The path given is not absolute replacing with / (backslash) instead.", 3);
+		ColorChange("\t\tThe path given is not absolute replacing with / (backslash) instead.", 3);
 	} else {			
 		chdir(currentPath.c_str());																		// If the command is absolute then change the to that directory.
 	}
@@ -391,7 +402,7 @@ void Thursday::DepthFirstSearch(std::string path, std::string command, int numbe
     }
     if (found == 0) {																					// If the system not able to find the users requested directory.
 		if (number != 0)		 																		// For the wheris and find command, and not for the dirs command.
-			ColorChange("The file could not be found in the starting directory.", 3);
+			ColorChange("\t\tThe file could not be found in the starting directory.", 3);
 	}
 	/*--------------------------------------------------------------------*/ 
 	DirectoryChange(thePath, 0);																		// Go back to the directory that we came from.
@@ -410,7 +421,7 @@ void Thursday::DepthFirstSearchHeart(std::string searchWord, int theSwitch) {
 	* on 11/6/2017.
 	--------------------------------------------------------------------*/
 	if (debugSwitch == 1)
-		ColorChange((char*)"Mission - You are in the DisplayDirectories method.", 3);
+		ColorChange("\t\tMission - You are in the DisplayDirectories method.", 3);
 	/*--------------------------------------------------------------------*/ 
 	struct stat s;																// Create a variable to open the directory.
 	std::string addedPath = "";													// Used to create a temporary current path.
@@ -424,8 +435,9 @@ void Thursday::DepthFirstSearchHeart(std::string searchWord, int theSwitch) {
 				addedPath += "/";												// Add our back slash to add another directory to it.
 			addedPath += entry->d_name;											// Add the file / directory / or anything else that we are looking at in the directory to the path.
 			if (entry->d_name == searchWord) { 									// Check to see if what we are looking at matches what the user is searching for.
-				if (theSwitch == 1) 											// The commands find and whereis will be a 1, and dirs will be a 0.
+				if (theSwitch == 1) { 											// The commands find and whereis will be a 1, and dirs will be a 0.
 					cout << "\t\t" << addedPath << endl;						// Print the absolute path of where the file the user is looking for.
+				}
 				found = 1;														// Set the found variable that the system has been able to find at least one location of the file that is being searched for.
 			} 
 			if (strcmp(entry->d_name,  ".") && strcmp(entry->d_name,  "..")) {	// Check to see if the system is looking at . and .. so that we don't store them.	
@@ -440,12 +452,12 @@ void Thursday::DepthFirstSearchHeart(std::string searchWord, int theSwitch) {
 			}
 		}  
 		if (closedir(dir) == -1)												// make sure that we can close the directory that we are looking at.
-			ColorChange("LS File Closing Failure: ", 2);						// Print an error if we cannot close the directory.
+			ColorChange("\t\tLS File Closing Failure: ", 2);					// Print an error if we cannot close the directory.
 
     }
     /*--------------------------------------------------------------------*/ 
     if (debugSwitch == 1) 
-		ColorChange((char*)"Mission - You are leaving the DisplayDirectories method.", 3);
+		ColorChange("\t\tMission - You are leaving the DisplayDirectories method.", 3);
 
     return;
 } 
@@ -456,7 +468,7 @@ void Thursday::DirectoryChange(std::string desiredPath, int number) {
 	* is if the pathi is correct. This method was last updated on 9/24/2017. 
 	--------------------------------------------------------------------*/ 
     if (debugSwitch == 1) 
-		ColorChange("Mission - You are in the DirectoryChange method.", 3);
+		ColorChange("\t\tMission - You are in the DirectoryChange method.", 3);
 	/*--------------------------------------------------------------------*/ 
     if (currentPath != desiredPath && desiredPath.size() > 0) {								// Check to see if the current path is not the same with desired path that the system wants to move into.
 		if (number == 0) {																	// If I want there to be error statments or not.
@@ -464,7 +476,8 @@ void Thursday::DirectoryChange(std::string desiredPath, int number) {
 				ColorChange("There was an issue moving to that directory", 2);				// Output an error if there was a problem making the directory jump.
 				currentPath = getcwd(path, MAX_SIZE);										// If there was a problem then we want our actual path that the system is in.
 			} else {
-				currentPath = getcwd(path, MAX_SIZE);										// If there wasnt a problem then we want our actual path that the system is in.	
+				currentPath = getcwd(path, MAX_SIZE);										// If there wasnt a problem then we want our actual path that the system is in.	Not just the directory that they may have wanted.
+				previousPath = currentPath;
 			}		
 		} else {
 			if (chdir(desiredPath.c_str()) == -1) {											// Make the directory change.
@@ -472,18 +485,19 @@ void Thursday::DirectoryChange(std::string desiredPath, int number) {
 				errorSwitch = 1;															// Set our error switch if we have a permission issue so that the dfs algorithm doesn't re-look at the directory again and get stuck in a loop.
 			} else {
 				currentPath = getcwd(path, MAX_SIZE);										// If there wasnt a problem then we want our actual path that the system is in.	
+				previousPath = currentPath;
 			}
 		}
 	} else {
 		if (number == 0) {																	// If I want the system to output an error message or not.
-			ColorChange("There was an issue moving to the desired directory.", 2);
-			std::cout << '\t' << '\t' << "CurrentPath: " << currentPath << std::endl;	
-			std::cout << '\t' << '\t' << "DesiredPath: " << desiredPath << std::endl;	
+			ColorChange("\t\tThere was an issue moving to the desired directory.", 2);
+			std::cout << "\t\t" << "CurrentPath: " << currentPath << std::endl;	
+			std::cout << "\t\t" << "DesiredPath: " << desiredPath << std::endl;	
 		}
 	}
 	/*--------------------------------------------------------------------*/ 
     if (debugSwitch == 1) 
-		ColorChange("Mission - You are leaving the DirectoryChange method.", 3);
+		ColorChange("\t\tMission - You are leaving the DirectoryChange method.", 3);
 
 	return;
 }
@@ -495,7 +509,7 @@ void Thursday::DirectoryDelete(std::string dirname) {
 	* a single file if need be. This method was last updated on 9/24/2017.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-		ColorChange("Mission - You are in the DirectoryChange method.", 3);
+		ColorChange("\t\tMission - You are in the DirectoryChange method.", 3);
  	/*--------------------------------------------------------------------*/
 	DIR * dp;																				// Create a variable for opening a directory.
 	struct dirent *ep;																		// Create a variable for accessing specific information on a file.
@@ -518,13 +532,13 @@ void Thursday::DirectoryDelete(std::string dirname) {
 		}
 		closedir(dp);																		// Once done looping, close the stream of directories.
 	} else {
-		ColorChange("Couldn't open the directory", 3);										// Print out a statement if the directory was NULL.
+		ColorChange("\t\tCouldn't open the directory", 3);										// Print out a statement if the directory was NULL.
 	}
  	/*--------------------------------------------------------------------*/
  	remove(dirname.c_str());																// Remove the directory from the hiearchy. 
 
 	if (debugSwitch == 1)
-		ColorChange("Mission - You are leaving the DirectoryChange method.", 3);
+		ColorChange("\t\tMission - You are leaving the DirectoryChange method.", 3);
 
 	return;
 }
@@ -536,7 +550,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 	* was last updated on 11/6/2017.
 	--------------------------------------------------------------------*/
 	if (debugSwitch == 1)
-		ColorChange("Mission - You are in the DisplayDirectories method.", 3);
+		ColorChange("\t\tMission - You are in the DisplayDirectories method.", 3);
 	/*--------------------------------------------------------------------*/ 
 	std::size_t stringFind;																													// Used to find strings within strings.
 	struct stat fileStruct;																													// Used to access information about a file.
@@ -572,7 +586,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		}
 			
         if (closedir(dir) == -1)																											// Close the directory.
-            ColorChange("LS File Closing Failure: ", 2);																					// If there is an error, print one.
+            ColorChange("\t\tLS File Closing Failure: ", 2);																					// If there is an error, print one.
 		
 		std::sort(directories.begin(), directories.end());																					// Sort the vector alphabetically.
 		std::sort(symbolicFiles.begin(), symbolicFiles.end());																				// Sort the vector alphabetically.
@@ -632,7 +646,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 	random.clear();
     /*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-		ColorChange("Mission - You are leaving the DisplayDirectories method.", 3);
+		ColorChange("\t\tMission - You are leaving the DisplayDirectories method.", 3);
 		
     return;
 } 
@@ -646,7 +660,7 @@ void Thursday::EnvironmentUtilites(int Number, std::string variable, std::string
 	* alone. This method was last updated on 11/6/2017. 
 	--------------------------------------------------------------------*/		
     if (debugSwitch == 1) 
-		ColorChange("Mission - You are in the EnvironmentUtilites method.", 3);
+		ColorChange("\t\tMission - You are in the EnvironmentUtilites method.", 3);
 	/*--------------------------------------------------------------------*/ 	
 	bool foundSwitch = false;															// Used to switch on and off if the global variable is found.
  
@@ -663,7 +677,7 @@ void Thursday::EnvironmentUtilites(int Number, std::string variable, std::string
 				foundSwitch = true;														// Set our switch to ture if the variable was found.
 		}
 		if (foundSwitch == true) {														// If the variable was found then don't add the variable.
-			ColorChange("Sorry, but that global variable is already being used.", 3);
+			ColorChange("\t\tSorry, but that global variable is already being used.", 3);
 		} else {	
 			Environment.push_back(variable);											// Push the name of the global name into the vector.
 			Environment.push_back(variableValue);										// Push the value of the global name into the vector.
@@ -672,12 +686,12 @@ void Thursday::EnvironmentUtilites(int Number, std::string variable, std::string
 		for (int i = 0; i < Environment.size(); i++) {									// Loop through the Environment vector.
 			if (variable == Environment[i]) {											// If the variable was found in the vector.
 				i++;																	// Increment the iterator.
-				std::cout << '\t' << '\t' << "The environment variable for " << variable << " is: " << Environment[i] << endl;
+				std::cout << "\t\t" << "The environment variable for " << variable << " is: " << Environment[i] << endl;
 				foundSwitch = true;														// Set our switch to true if the variable was found.
 			}
 		}
 		if (foundSwitch == false)														// If the global variable was not found in the vector.
-			std::cout << '\t' << '\t' << variable << " was not found." << std::endl;
+			std::cout << "\t\t" << variable << " was not found." << std::endl;
 
 	} else if (Number == 3) {															// If the user wants to print out all the elements in the Environment vector.
 		for (int a = 0; a < Environment.size(); a++) {									// Loop through the environment vector.
@@ -686,13 +700,13 @@ void Thursday::EnvironmentUtilites(int Number, std::string variable, std::string
 			std::cout << " - " << Environment[a] << std::endl;
 		}	
 	} else {
-		ColorChange("There is an issue with either arguemnt that was given.", 2);
+		ColorChange("\t\tThere is an issue with either arguemnt that was given.", 2);
     }
 	/*--------------------------------------------------------------------*/
 	SetupAndCloseSystem(2);																// Update the file that stores all of the environment variables.
     
     if (debugSwitch == 1) 
-        ColorChange("Mission - You are in the EnvironmentUtilites method.", 3);
+        ColorChange("\t\tMission - You are in the EnvironmentUtilites method.", 3);
 	
 	return;		
 }
@@ -704,14 +718,13 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 	* last updated on 11/6/2017.
 	--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-        ColorChange("Mission - You are in the ExecuteFile method.", 3);
+        ColorChange("\t\tMission - You are in the ExecuteFile method.", 3);
 	/*--------------------------------------------------------------------*/
 	int i = 0;  																				// Used to iterate through the incoming arguments.
 	size_t arrSize = 100; 																		// Used to allocate bytes to a char pointer.
 	char ** dicks = new char * [arrSize];														// Used to allocat a char array pointer.
 	for (i = 0; i < arguments.size(); i++) {													// Loop through the incoming arguments.
 		dicks[i] = new char [arrSize];															// Allcocate memory for each element in the array.
-		std::cout << "Looking at: " << arguments[i] << std::endl;
 		strcpy(dicks[i], strdup(arguments[i].c_str()));											// Copy the incoming argument to the element in the array.
 	}
 	dicks[i++] = NULL;																			// Null terminate the array for the exec command.
@@ -722,7 +735,7 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 	pid = fork();																				// Create another process.
 	if (pid == 0) {																				// If the process is the child.
 		if (execv(incomingCommand.c_str(), dicks) == -1) {										// Execute with the given command / location path, and char array of arguments.
-			ColorChange("Something went wrong with the execution of the command.", 2);			// If there is an error a messeage will be printed.
+			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);			// If there is an error a messeage will be printed.
 			return 0;
 		}
 	} else {
@@ -737,7 +750,7 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 	dicks = NULL;																				// Set the array pointer to NULL;
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-        ColorChange("Mission - You are leaving the ExecuteFile method.", 3);
+        ColorChange("\t\tMission - You are leaving the ExecuteFile method.", 3);
 
     return 1;
 }
@@ -750,7 +763,7 @@ std::string Thursday::FileChecker(std::string argument, int signal) {
 	* updated on 11/6/2017.
 	--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-        ColorChange("Mission - You are in the FileChecker method.", 3);
+        ColorChange("\t\tMission - You are in the FileChecker method.", 3);
 	/*--------------------------------------------------------------------*/ 
 	std::string incomingArgument = "";	
 	
@@ -776,7 +789,7 @@ std::string Thursday::FileChecker(std::string argument, int signal) {
 	/*--------------------------------------------------------------------*/ 
 	argument = "";																	// Reset the argument because the method didn't find the file.
     if (debugSwitch == 1) 
-        ColorChange("Mission - You are leaving the FileChecker method.", 3);
+        ColorChange("\t\tMission - You are leaving the FileChecker method.", 3);
 
 	return argument;																// If there was no path found then just return the incoming command.
 }
@@ -788,7 +801,7 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 	* contents coming from a file. This method was last updated on 11/6/2017.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-		ColorChange((char*)"Mission - You are in the FileLoader method.", 3);
+		ColorChange("\t\tMission - You are in the FileLoader method.", 3);
  	/*--------------------------------------------------------------------*/
  	int i = 0;																				// Used to show what number they are on as an iterator.
  	std::string type = "";																	// Used to store the typr of word.
@@ -800,7 +813,7 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 	InputData.open(fileName);																// Open the incoming file.
 	
 	if (!InputData) {																		// Check to see if the file can be opened.
-		ColorChange("There was an error opening the file in the FileLoader Method.", 2);
+		ColorChange("\t\tThere was an error opening the file in the FileLoader Method.", 2);
 		return incomingVector;																// Return an empty vector.
 	}
 	if ( signal == 0) {																		// This option will take anything from a file that is # ending and push the contents into an array.
@@ -835,29 +848,57 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 	InputData.close();																		// Close the file down.
    	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-		ColorChange("Mission - You are leaving the FileLoader method.", 3);
+		ColorChange("\t\tMission - You are leaving the FileLoader method.", 3);
 
 	return incomingVector;																	// Return the vector that is filed with our file contents.
 }
 
-int Thursday::GetArguments(std::string theCommands, std::vector<std::string> quotes, char* envp[]) {
+int Thursday::GetArguments(std::string theCommands, char* envp[]) {
 	/*-------------------------------------------------------------------
 	Note: This method just takes the incoming string and breaks it up. This 
 	* method was last modified on 11/6/2017.
 	--------------------------------------------------------------------*/
     if (debugSwitch == true) 
-		ColorChange("Mission - You are in the GetArguments method.", 3);
+		ColorChange("\t\tMission - You are in the GetArguments method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	std::string incomingInput = "";						// The temporary holder for the token.
-	std::istringstream iss (theCommands);				// Breaks the string input up by space.
+	int quoteCounter = 0;
+	bool foundQuote = false;
+	std::string theQuote = "";
+	std::string input = "";								// The temporary holder for the token.
 	std::vector<std::string> tokens;					// Create a vector to store the tokens.
+	std::vector<std::string> quotes;
+	for (int i = 0; i < theCommands.size(); i++) {
+		if (theCommands[i] == '"') {
+			if (foundQuote == false) {
+				foundQuote = true;
+				theQuote += theCommands[i];
+			} else {
+				theQuote += theCommands[i];
+				quotes.push_back(theQuote);
+				theQuote = "";
+				tokens.push_back(std::to_string(quoteCounter));
+				quoteCounter++;
+				foundQuote = false;
+			}
+		} else if (theCommands[i] == 32 || i == theCommands.size() - 1) {
+			if (i == (theCommands.size() - 1))
+				input += theCommands[i];
+			tokens.push_back(input);
+			input = "";
+		} else {
+			if (foundQuote == false) {
+				input += theCommands[i];
+			} else {
+				theQuote += theCommands[i];
+			}
+		}
+	}
 	
-	while (iss >> incomingInput)						// Loop through getting the tokens by the space character.
-		tokens.push_back(incomingInput);				// Put the contents into our vector to give to our ArgumentChecker method.
-
+	//~ if (tokens.size() == 0)
+		//~ tokens.push_back(input);
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == true) 
-		ColorChange("Mission - You are leaving the GetArguments method.", 3);
+		ColorChange("\t\tMission - You are leaving the GetArguments method.", 3);
 		
 	return ArgumentChecker(tokens, quotes, envp);		// Send the incoming vectors and environment to Argument Checker.					
 }
@@ -870,7 +911,7 @@ void Thursday::Help(std::string argument) {
 	* This method was updated on 9/25/2017.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-		ColorChange("Mission - You are in the ArgumentChecker method.", 3);
+		ColorChange("\t\tMission - You are in the ArgumentChecker method.", 3);
  	/*--------------------------------------------------------------------*/
  	bool mySwitch = false;																		// Used to see if we found the command that the user is searching for.
  	std::string type = "";																		// Used to save the type of the command.
@@ -883,7 +924,7 @@ void Thursday::Help(std::string argument) {
 	ifstream InputData;																			// Create a variable for opening a file.
 	InputData.open(fileName);																	// Open the file.
 	if (!InputData) {																			// If the file was not found then print an error statment.
-		ColorChange("There was an error opening the file in the Library Usage Method.", 2);
+		ColorChange("\t\tThere was an error opening the file in the Library Usage Method.", 2);
 		return;
 	}
 	while (!InputData.eof()) {																	// Loop through the file.
@@ -902,11 +943,11 @@ void Thursday::Help(std::string argument) {
 	}
 	
 	if (mySwitch != true)																		// If the command was not found.
-		ColorChange("Nothing found in our database!", 3);
+		ColorChange("\t\tNothing found in our database!", 3);
 
    	/*--------------------------------------------------------------------*/	
     if (debugSwitch == 1) 
-        ColorChange("Mission - You are in the ArgumentChecker method.", 3);
+        ColorChange("\t\tMission - You are in the ArgumentChecker method.", 3);
 
 	return;
 }
@@ -918,7 +959,7 @@ void Thursday::PromptDisplay() {
 	* color change. This method was last updated on 9/24/2017.
 	--------------------------------------------------------------------*/	
     if (debugSwitch == 1)
-        ColorChange("Mission - You are in the PromptDisplay method.", 3); 
+        ColorChange("\t\tMission - You are in the PromptDisplay method.", 3); 
  	/*--------------------------------------------------------------------*/
 	std::string thePrompt = "";						// A place to store the prompt that will be constructed.
 	if (promptNumber == 0) {						// The default option for a prompt.
@@ -949,7 +990,7 @@ void Thursday::Search(std::string argument) {
 	* method was last updated on 9/25/2017.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-		ColorChange("Mission - You are in the Search method.", 3);
+		ColorChange("\t\tMission - You are in the Search method.", 3);
  	/*--------------------------------------------------------------------*/	
 	std::string definition = "";													// Used to store the definiton of the word being searched.
 	std::string fileName = "";														// Used to open a file.
@@ -971,7 +1012,7 @@ void Thursday::Search(std::string argument) {
 		for (int i = 1; i < argument.size(); i++)									// Loop through the remaining characters in the argument.
 			searchWord += argument[i];												// Add the character to the search word.
     } else {
-        ColorChange("The word you are searching is not in the correct format.", 2);
+        ColorChange("\t\tThe word you are searching is not in the correct format.", 2);
         return;
     }
     
@@ -983,7 +1024,7 @@ void Thursday::Search(std::string argument) {
 	ifstream InputData;																// Create a variable for  opening a file.
 	InputData.open(fileName);														// Open the file.
 	if (!InputData) {																// If the file could not be found then we pritn and error.
-		ColorChange("There was an error opening the file in the Search method.", 2);
+		ColorChange("\t\tThere was an error opening the file in the Search method.", 2);
 		return;
 	}
 	while (!InputData.eof()) {														// Loop through the file.
@@ -1010,11 +1051,11 @@ void Thursday::Search(std::string argument) {
 	}
 	
 	if (mySwitch == false)															// If the word being searched was not found.
-		ColorChange("Nothing found in our database!", 3);
+		ColorChange("\t\tNothing found in our database!", 3);
 		
    	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-        ColorChange("Mission - You are leaving the Search method.", 3);
+        ColorChange("\t\tMission - You are leaving the Search method.", 3);
 
 	return;
 }
@@ -1026,7 +1067,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 	* This method was last update on 11/6/2017.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-		ColorChange("Mission - You are in the SearchCommands method.", 3);
+		ColorChange("\t\tMission - You are in the SearchCommands method.", 3);
  	/*--------------------------------------------------------------------*/
 	std::string fileName = ""; 
 	std::string random = ""; 
@@ -1044,7 +1085,9 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 	if ( signal == 0 ) { 
 		if (characterValue >= 97 && characterValue <= 108) {								//If the command is within A - L (a - l).
 			if (characterValue >= 97 && characterValue <= 102) {							//If the command is within A - F (a - f).
-				if (incomingInput[i] == "bash") { 
+				if (incomingInput[i] == "back") {
+					DirectoryChange(previousPath, 0);
+				} else if (incomingInput[i] == "bash") { 
 					arguments.push_back(incomingInput[i]); 
 					ExecuteFile(incomingInput[i], arguments); 
 					arguments.clear(); 
@@ -1061,7 +1104,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 							DirectoryChange(random, 0);										// Make the directory change.
 						}
 					} else {
-						ColorChange("The number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "color") { 			
 					if (size == 2) { 
@@ -1076,7 +1119,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						else
 							colorSwitch = 0;
 					} else {
-						ColorChange("The number of arguments was incorrect.", 2);
+						ColorChange("\t\the number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "commands") { 
 					fileName = informationDestination; 
@@ -1087,7 +1130,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						i++; 
 						CompressAndDecompress(0, incomingInput[i]);
 					} else {
-						ColorChange("The number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "date") { 
 					std::cout << "\t\t" << Utilities::date(1) << std::endl; 
@@ -1101,7 +1144,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						i++; 
 						CompressAndDecompress(1, incomingInput[i]); 
 					} else {
-						ColorChange("The number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "decrypt") {
 					if (size == 3) {
@@ -1109,12 +1152,12 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						if (Utilities::isNumber(incomingInput[i]) == 1) {
 							key = std::stoi(incomingInput[i]);
 						} else {
-							ColorChange("Sorry the first argument was not a number (key).", 2);
+							ColorChange("\t\tSorry the first argument was not a number (key).", 2);
 						}
 						i++;
 						std::cout << "\t\t" << Cryptography(2, key, incomingInput[i]) << std::endl;
 					} else {
-						ColorChange("The number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "encrypt") {
 					if (size == 3) {
@@ -1127,7 +1170,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						i++;
 						std::cout << "\t\t Here: " << Cryptography(1, key, incomingInput[i]) << std::endl;	
 					} else {
-						ColorChange("The number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "exit") {
 					SetupAndCloseSystem(2);
@@ -1139,7 +1182,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						i++;
 						random = incomingInput[i];
 						if (random[0] != '/') {
-							ColorChange("Your starting point argument is not a path.", 2);
+							ColorChange("\t\tYour starting point argument is not a path.", 2);
 						} else {
 							i++;
 							DepthFirstSearch(random, incomingInput[i], 1, 1);
@@ -1149,7 +1192,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						random = "/";
 						DepthFirstSearch(random, incomingInput[i], 1, 1);
 					} else {
-						ColorChange("The number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				}
 			} else {																		//If the command is within G - L (g - l).											
@@ -1158,7 +1201,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						i++;
 						EnvironmentUtilites(2, incomingInput[i], "");
 					} else {
-						ColorChange("The number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "hd") {
 					passwd * CurrUser = getpwuid(getuid());
@@ -1168,7 +1211,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						i++;
 						Help(incomingInput[i]);
 					} else {
-						ColorChange("The number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "info") {
 					std::cout << "\t\t" << "The user ID is: " << uid << std::endl;
@@ -1233,21 +1276,21 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 								if (currentPrompt.size() > 0) {
 									promptNumber = std::stoi(incomingInput[i]);
 								} else {
-									ColorChange("Sorry but the current prompt is empty.", 2);
+									ColorChange("\t\tSorry but the current prompt is empty.", 2);
 								}
 							} else if (std::stoi(incomingInput[i]) == 5) {
 								if (size > 2) {
 									i++;
 									currentPrompt = incomingInput[i];
 								} else {
-									ColorChange("The number of arguments was incorrect.", 2);
+									ColorChange("\t\tThe number of arguments was incorrect.", 2);
 								}
 							} else {
-								ColorChange("That is not an option for the prompt.", 2);
+								ColorChange("\t\tThat is not an option for the prompt.", 2);
 							}
 						}
 					} else {
-						ColorChange("The number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "rm") {
 					if (size > 1) {
@@ -1255,7 +1298,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						if (remove(incomingInput[i].c_str()) != 0)							// If the file is a normal file then delete, but if its a directory we move forward.
 							DirectoryDelete(incomingInput[i]);
 					} else {
-						ColorChange("The number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "search") {
 					if (size > 1) {
@@ -1263,7 +1306,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						Search(incomingInput[i]);
 						std::cout << "" << std::endl;
 					} else {
-						ColorChange("The number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "setenv") {
 					if (size > 2) {
@@ -1272,7 +1315,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						i++;
 						EnvironmentUtilites(1, random, incomingInput[i]);
 					} else {
-						ColorChange("The number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				}
 			} else {																		//If the command is within T - Z (t - z).
@@ -1285,7 +1328,7 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 						i++;
 						EnvironmentUtilites(0, incomingInput[i], "");
 					} else {
-						ColorChange("The number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "usage") {
 					fileName = informationDestination;
@@ -1297,13 +1340,12 @@ int Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char 
 			}
 		}
 	} else if (signal == 1) {																// If the incoming vector of commands is not associated with this application.
-		std::cout << "RIGHT HERE" << std::endl;
 		ExecuteFile(incomingInput[i], incomingInput); 										// Send the first argument and then send the rest of the vector.
 		return 0;
 	}
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
-		ColorChange("Mission - You are leaving the SearchCommands method.", 3);
+		ColorChange("\t\tMission - You are leaving the SearchCommands method.", 3);
 
     return 0;
 }
@@ -1314,7 +1356,7 @@ void Thursday::SetupAndCloseSystem(int number) {
 	* the operating system comands. This method was last updated on 9/25/2017.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-		ColorChange("Mission - You are in the SetupAndCloseSystem method.", 3);
+		ColorChange("\t\tMission - You are in the SetupAndCloseSystem method.", 3);
  	/*--------------------------------------------------------------------*/
 	std::string globalFileName = "";														// Used to open up the global environment for the system.
 	std::string thursdayCommandsFileName = "";												// Used to get the system commands of the system.
@@ -1348,7 +1390,7 @@ void Thursday::SetupAndCloseSystem(int number) {
 		GlobalInput.open(globalFileName.c_str());											// Opens the stream for the global file.
 
 		if (!GlobalInput) {																	//
-			ColorChange("There was an error opening the file in the SetupAndCloseSystem method 2.", 2);
+			ColorChange("\t\tThere was an error opening the file in the SetupAndCloseSystem method 2.", 2);
 			return;	
 		}
 		
@@ -1361,7 +1403,7 @@ void Thursday::SetupAndCloseSystem(int number) {
 	}	
 	/*--------------------------------------------------------------------*/
 	if (debugSwitch == 1)
-		ColorChange("Mission - You are leaving the SetupAndCloseSystem method.", 3);
+		ColorChange("\t\tMission - You are leaving the SetupAndCloseSystem method.", 3);
 
 	return;
 }
