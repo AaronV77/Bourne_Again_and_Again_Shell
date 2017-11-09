@@ -27,7 +27,7 @@ class Thursday {
 public:
 	Thursday();
 	~Thursday();
-	int ArgumentChecker(std::vector<std::string> tokens, std::vector<std::string> quotes, char * envp[]);
+	void ArgumentChecker(std::vector<std::string> tokens, std::vector<std::string> quotes, char * envp[]);
 	void ColorChange(std::string sentence, int signal);
 	void ColorSwitch(int signal);
 	void CompressAndDecompress(int Number, std::string argument);
@@ -42,11 +42,11 @@ public:
 	std::vector<std::string> FileLoader(std::vector<std::string> incomingVector, std::string fileName, int signal);
 	void EnvironmentUtilites(int Number, std::string variable, std::string variableValue);
 	int ExecuteFile(std::string incomingCommand, std::vector<std::string> arguments);
-	int GetArguments(std::string theCommands, char * envp[]);
+	void GetArguments(std::string theCommands, char * envp[]);
 	void Help(std::string argument);
 	void PromptDisplay();
 	void Search(std::string argument);
-	int SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]);
+	void SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]);
 	void SetupAndCloseSystem(int number);
 	
 private:

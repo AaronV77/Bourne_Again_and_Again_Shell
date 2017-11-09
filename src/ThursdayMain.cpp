@@ -9,7 +9,6 @@ int main (int argc, char * argv[], char *envp[]) {
 	int LeftAndRightIterator = 0;																				//Used to keep track of where the cursor is on the screen.
 	int quoteCounter = 0;																						//Used to keep track of how many quotes are in the stream.
 	int UpAndDownIterator = 0;																					//Used to keep track of where the system is in the commands vector.
-	int returnNumber = 0;																						//Used to store the outcoming number from GetArguments.
 	bool quoteFound = false;																					//Used to stop store characters in the "theCommands" variable.
 	std::string theCommands = "";																				//Used to store the whole incoming input from the user besides if there is a quote.
 	std::vector<std::string> incomingCommands;																	//Used to store the incoming commands from the user and will be checked.
@@ -48,9 +47,7 @@ int main (int argc, char * argv[], char *envp[]) {
 			break;
 			case 10: 																							//When an enter key was pressed.
 				if (theCommands != "") {																		//Make sure that the char pointer is not empty / NULL.
-					returnNumber = home.GetArguments(theCommands, envp);										//Send the commands in the incomingInput vector to the search commands method.
-					if (returnNumber == 1)																		//See if the user is trying to exit the program, which returns a 1.
-						return 0;																				//Exit the program.
+					home.GetArguments(theCommands, envp);														//Send the commands in the incomingInput vector to the search commands method.
 					incomingCommands.push_back(theCommands);													//Store the old commands in this vector.				
 					home.PromptDisplay();																		//Display the prompt.
 				}

@@ -74,15 +74,19 @@ int Utilities::isNumber(std::string incomingString) {
 	int counter = 0;
 	int size = incomingString.size();
 	
-	for (int i = 0;  i < size; i++) {
-		if (isdigit(incomingString[i]))
-			counter++;
-	}
-	
-	if (counter == size)
-		return 1;
-	else
+	if (size > 0) {
+		for (int i = 0;  i < size; i++) {
+			if (isdigit(incomingString[i]))
+				counter++;
+		}
+		
+		if (counter == size)
+			return 1;
+		else
+			return 0;
+	} else {
 		return 0;
+	}
 		
 }
 
