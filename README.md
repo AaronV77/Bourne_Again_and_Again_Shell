@@ -1,6 +1,6 @@
 # Thursday
 
-This project started in Linux Programming class my Junior year of undergraduate. I was fascinated with Bash and wanted to create my own Linux shell. I used this project to help drive my eagerness to learn more about Linux and what is happening on the backend. I have spent time on and off over the last two years to get it to where it is now. I’m also using this opportunity to learn more about versioning and GitHub. My plans for the future of this project is make it a full-fledged shell like Bash, and make working with the Operating System a little easier.
+This project started in Linux Programming class my Junior year of undergraduate. I was fascinated with Bash and wanted to create my own Linux shell. I used this project to help drive my eagerness to learn more about Linux operating system and what is happening on the backend. I have spent time on and off over the last two years to get it to where it is now. I’m also using this opportunity to learn more about versioning and GitHub. My plans for the future of this project is make it a full-fledged shell like Bash, and make working with the Operating System a little easier.
 
 ## Getting Started
 
@@ -28,6 +28,11 @@ o	Make sure that your XCode installation is up-to-date.
 ## Installing
 
 To install the system, just run the setup.sh script in the base directory of Thursday. This should get you going and running. From there go into the build directory that is created from the script and execute the Thurs file.
+
+
+## Updating
+
+To update the system just run the update script and it should update your system to the new repository.
 
 
 
