@@ -99,6 +99,7 @@ int Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std::
 			notMineSwitch = true;															// Set our switch to true.
 
 		if (Utilities::isNumber(tokens[i]) == 1) {											// Looking for a number to insert a quote if there is one. Check to see if it is a number.
+			std::cout << "here" << std::endl;
 			int number = std::stoi(tokens[i]);												// Save the number of the token.
 			if (number == currentQuote) {													// See if the number aligns up to our currentQuote iterator. If not then the number is for something else.
 				commandAndArguments.push_back(quotes[currentQuote]);						// If the number is aligned with our iterator then lets store the quote into our vector.
