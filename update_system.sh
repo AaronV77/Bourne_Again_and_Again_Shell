@@ -23,6 +23,7 @@ then
 		rm -rf ~/.local/share/Trash/*
 		rm /bin/Thurs
 		rm /lib/Thursday
+		git checkout master
 		git pull
 		cd src
 		make
@@ -44,9 +45,10 @@ else
 	if [ -d "build" ]; then
 		rm -rf build
 	fi
-
-	mkdir build
+	
 	git pull
+	git checkout master
+	mkdir build
 	cd src
 	make
 	mv Thurs $build_dir
