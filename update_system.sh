@@ -21,6 +21,9 @@ then
 		fi
 		
 		rm -rf ~/.local/share/Trash/*
+		rm /bin/Thurs
+		rm /lib/Thursday
+		git pull
 		cd src
 		make
 		mv Thurs /bin
@@ -43,6 +46,7 @@ else
 	fi
 
 	mkdir build
+	git pull
 	cd src
 	make
 	mv Thurs $build_dir
