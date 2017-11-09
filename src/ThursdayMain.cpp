@@ -61,6 +61,7 @@ int main (int argc, char * argv[], char *envp[]) {
 					if (theCommands.size() == 0)																//If the size of the char pointer is equal to the size of 1.
 						theCommands = "";																		//Reset the string.
 					theCommands.erase(theCommands.begin()+(theCommands.size() - 1), theCommands.end());
+					//~ theCommands.erase(theCommands.begin()+(LeftAndRightIterator));
 					LeftAndRightIterator--;																		//Move the left and right iterator to the right one spot.															
 				}
 				break;
