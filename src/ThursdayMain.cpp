@@ -6,9 +6,10 @@ int main (int argc, char * argv[], char *envp[]) {
 
 	char path[256];
 	int characterNumber = 0;																					//Used to store the ascii value of the character from the keyboard.
-	int LeftAndRightIterator = 0;																				//Used to keep track of where the cursor is on the screen.
+	int LeftAndRightIterator = 1;																				//Used to keep track of where the cursor is on the screen.
 	int quoteCounter = 0;																						//Used to keep track of how many quotes are in the stream.
 	int UpAndDownIterator = 0;																					//Used to keep track of where the system is in the commands vector.
+	int stringSize = 0;
 	bool quoteFound = false;																					//Used to stop store characters in the "theCommands" variable.
 	std::string theCommands = "";																				//Used to store the whole incoming input from the user besides if there is a quote.
 	std::vector<std::string> incomingCommands;																	//Used to store the incoming commands from the user and will be checked.
@@ -42,6 +43,7 @@ int main (int argc, char * argv[], char *envp[]) {
 		tcsetattr(STDIN_FILENO, TCSANOW, &newattr);																//Set the new settings to the terminal.
 		characterNumber = getche();																				//Retrieve the character that was typed and send back the ascii value.
 		tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);																//Set the terminal to the old settings.
+		//~ stringSize = theCommands.size();
 		switch(characterNumber) {																				//Use a switch statment to do specific actions for certain characters.
 			case 9:																								//When a tab was pressed.
 			break;
@@ -55,18 +57,38 @@ int main (int argc, char * argv[], char *envp[]) {
 				LeftAndRightIterator = 0;																		//Reset the iterator for back and forth to zero.
 				theCommands = "";																				//Reset the variable.
 				break;																							//Break out of the switch statement.
-			case 127: 																							//Backspace character.
-				if (LeftAndRightIterator > 0) {																	//Delete the characters in the pointer, but no further than what was typed.
+			case 127: 																						//Backspace character.
+				if (LeftAndRightIterator > 1) {																	//Delete the characters in the pointer, but no further than what was typed.
 					printf("\b \b");																			//Deletes a character on the current line and moves the pointer back one.
-					if (theCommands.size() == 0)																//If the size of the char pointer is equal to the size of 1.
-						theCommands = "";																		//Reset the string.
-					theCommands.erase(theCommands.begin()+(theCommands.size() - 1), theCommands.end());
-					//~ theCommands.erase(theCommands.begin()+(LeftAndRightIterator));
-					LeftAndRightIterator--;																		//Move the left and right iterator to the right one spot.															
+
+					//~ theCommands.erase(theCommands.begin()+(theCommands.size() - 1), theCommands.end());
+					if (LeftAndRightIterator <= theCommands.size()) {
+						theCommands.erase(theCommands.begin()+(LeftAndRightIterator - 2));
+						int myNumber = (theCommands.size() - (LeftAndRightIterator - 1));
+						myNumber++;
+						LeftAndRightIterator = (theCommands.size() + 1);
+						for (int i = 0; i < (myNumber + 1); ++i)
+							printf ("\033[C");
+						for (int d = 0; d < myNumber; ++d)
+							printf("\b \b");
+						for (int i = 0; i < myNumber; ++i)
+							printf ("\033[D");
+						for (int b = 0; b < myNumber; ++b)
+							std::cout << theCommands[(theCommands.size() - 1)];
+						printf ("\033[D");	
+						
+					}
+					LeftAndRightIterator--;	
+						//~ std::cout << "I: " << LeftAndRightIterator << std::endl;
+						//~ std::cout << "S: " << theCommands.size() << std::endl;
+						//~ std::cout << theCommands << std::endl;p
+						
+
+																			
 				}
 				break;
-			case 153: 																							//Delete key.
-				if (LeftAndRightIterator != 0) {																//Keep the user from deleteing to far over.
+			case 153: 																						//Delete key.
+				if (LeftAndRightIterator != 1) {																//Keep the user from deleteing to far over.
 					for (int d = 0; d < theCommands.size(); d++) {												//Loop through the number of characters currently being typed.
 						printf("\b \b");																		//Deletes a character on the current line and moves the pointer back one.
 						LeftAndRightIterator--;																	//Decrement the left and right iterator.
@@ -74,7 +96,7 @@ int main (int argc, char * argv[], char *envp[]) {
 				}
 				theCommands = "";																				//Reset the input stream.
 				break;
-			case 195: 																							//Up arrow key																			
+			case 195: 																						//Up arrow key																			
 				UpAndDownIterator--;																			//Decrement the iterator.
 				if (UpAndDownIterator >= 0 && incomingCommands.size() != 0) {									//Check to make sure the iterator is above  0.
 					printf("%c[2K", 27);																		//Clear the current terminal line.
@@ -87,7 +109,7 @@ int main (int argc, char * argv[], char *envp[]) {
 					UpAndDownIterator = 0;																		//Reset the iterator to zero.
 				}
 				break;
-			case 198: 																							//Down arrow key.
+			case 198: 																						//Down arrow key.
 				UpAndDownIterator++;																			//Increment the iterator.
 				if (UpAndDownIterator < incomingCommands.size() && incomingCommands.size() != 0) {				//If the up and down iterator is less than the size of the vector minus 1, and if the vector size is not equal to zero.
 					printf("%c[2K", 27);																		//Clear the printed terminal line.
@@ -107,16 +129,17 @@ int main (int argc, char * argv[], char *envp[]) {
 					UpAndDownIterator = incomingCommands.size();												//Reset the iterator to the size of the vector.
 				} 
 				break;
-			case 201:																							//Right arrow key.
-				if (LeftAndRightIterator < theCommands.size()) {													//If the iterator is not going past the current string.	
+			case 201:																						//Right arrow key.
+				if (LeftAndRightIterator < (theCommands.size()+1)) {													//If the iterator is not going past the current string.	
 					printf ("\033[C"); 																			//Move the cursor to the right by one.	
 					LeftAndRightIterator++;																		//Increment the iterator.
 				}	
 				break;
-			case 204: 																							//Left arrow key.																							
-				if (LeftAndRightIterator <= theCommands.size() && LeftAndRightIterator > 0) {					//If the iterator is less than or equal to the vector size and is greater than zero.												
+			case 204: 																						//Left arrow key.																							
+				if (LeftAndRightIterator <= (theCommands.size() + 1) && LeftAndRightIterator > 1) {					//If the iterator is less than or equal to the vector size and is greater than zero.												
 					printf ("\033[D");																			//Move the cursor to the left by one.
 					LeftAndRightIterator--;																		//Decrment the iterator.
+
 				}	 
 				break;
 			default: 																							//Catch every other character.
