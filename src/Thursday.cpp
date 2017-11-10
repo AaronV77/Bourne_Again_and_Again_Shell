@@ -94,7 +94,7 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std:
 				commandSwitch = true;														// If it does then we set our switch to true.													
 		}
 		
-		if (Utilities::isNumber(tokens[i]) == 1) {											// Looking for a number to insert a quote if there is one. Check to see if it is a number.
+		if (utili::isNumber(tokens[i]) == 1) {											// Looking for a number to insert a quote if there is one. Check to see if it is a number.
 			int number = std::stoi(tokens[i]);												// Save the number of the token.
 			if (number == currentQuote) {													// See if the number aligns up to our currentQuote iterator. If not then the number is for something else.
 				commandAndArguments.push_back(quotes[currentQuote]);						// If the number is aligned with our iterator then lets store the quote into our vector.
@@ -604,7 +604,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		int i = 0;																															// Used to loop through all the vectors.
 		for (i = 0; i < directories.size(); i++) {																							// Loop through the directory vector.
 			if (lsArgument == "-l") {																										// If the ls argument was -l.
-				std::cout << "\t\t" << Utilities::fileInformation(directories[i]) << " " << std::left;										// Print file information aobut the file.
+				std::cout << "\t\t" << utili::fileInformation(directories[i]) << " " << std::left;										// Print file information aobut the file.
 				ColorChange(directories[i], 4);																								// Print the file in a certian color.
 			} else {
 				std::cout << "\t\t";																										// If the ls argument was not -l, just print tabs.
@@ -614,7 +614,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		directories.clear();
 		for (i = 0; i < symbolicFiles.size(); i++) {
 			if (lsArgument == "-l") {
-				std::cout << "\t\t" << Utilities::fileInformation(symbolicFiles[i]) << " " << std::left;
+				std::cout << "\t\t" << utili::fileInformation(symbolicFiles[i]) << " " << std::left;
 				ColorChange(symbolicFiles[i], 5);
 			} else {
 				std::cout << "\t\t";
@@ -624,7 +624,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		symbolicFiles.clear();
 		for (i = 0; i < executableFiles.size(); i++) {
 			if (lsArgument == "-l") {
-				std::cout << "\t\t" << Utilities::fileInformation(executableFiles[i]) << " " << std::left;
+				std::cout << "\t\t" << utili::fileInformation(executableFiles[i]) << " " << std::left;
 				ColorChange(executableFiles[i], 6);
 			} else {
 				std::cout << "\t\t";
@@ -634,7 +634,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		executableFiles.clear();
 		for (i = 0; i < regularFiles.size(); i++) {
 			if (lsArgument == "-l") {
-				std::cout << "\t\t" << Utilities::fileInformation(directories[i]) << " " << std::left << regularFiles[i] << std::endl;
+				std::cout << "\t\t" << utili::fileInformation(directories[i]) << " " << std::left << regularFiles[i] << std::endl;
 			} else {
 				std::cout << "\t\t" << regularFiles[i] << std::endl;
 			}
@@ -642,7 +642,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		regularFiles.clear();
 		for (i = 0; i < random.size(); i++) {
 			if (lsArgument == "-l") {
-				std::cout << "\t\t" << Utilities::fileInformation(random[i]) << " " << std::left;
+				std::cout << "\t\t" << utili::fileInformation(random[i]) << " " << std::left;
 				ColorChange(random[i], 7);
 			} else {
 				std::cout << "\t\t";
@@ -826,7 +826,7 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 	if ( signal == 0) {																		// This option will take anything from a file that is # ending and push the contents into an array.
 		while (!InputData.eof()) {															// Loop through the file.
 			std::getline(InputData, input, '#');											// Get a line from within the file.
-			input = Utilities::string_checker(input, 0);									// Get rid of any special characters from the output.
+			input = utili::remove_special_characters(input);								// Get rid of any special characters from the output.
 			if (input.size() > 0)															// If the output is not empty.
 				incomingVector.push_back(input);											// Store the output from the file.
 		}
@@ -841,8 +841,8 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 			std::getline(InputData, word, '#');												// Get the word.
 			std::getline(InputData, definition, '#');										// Get the definition.
 			//--------------------------------------------------------------
-			word = Utilities::string_checker(word, 0);										// Check for special characters in the word, then replace the word.	
-			definition = Utilities::string_checker(definition, 0);							// Check the special characters in the definition, then replace the definition.
+			word = utili::remove_special_characters(word);									// Check for special characters in the word, then replace the word.	
+			definition = utili::remove_special_characters(definition);						// Check the special characters in the definition, then replace the definition.
 			//--------------------------------------------------------------
 			if (word.size() > 0) {															// If the word size is not empty.
 				word += " ";																// Add a space to the word.
@@ -941,9 +941,9 @@ void Thursday::Help(std::string argument) {
 		std::getline(InputData, word, '#');														// Get the word from the dictionary.
 		std::getline(InputData, definition, '#');												// Get the word definition from the dictionary.
 		//--------------------------------------------------------------
-		type = Utilities::string_checker(type, 0);												// Search for special characters from the word type.
-		word = Utilities::string_checker(word, 0);												// Search for special characters from the word.
-		definition = Utilities::string_checker(definition, 0);									// Search for special characters from the word definition.
+		type = utili::remove_special_characters(type);											// Search for special characters from the word type.
+		word = utili::remove_special_characters(word);											// Search for special characters from the word.
+		definition = utili::remove_special_characters(definition);								// Search for special characters from the word definition.
 		//--------------------------------------------------------------
 		if (word == argument) {																	// If the word matches the command that the user is searching for.
 			std::cout << "\n\t\t" << type << " " << word << " " << definition << std::endl;
@@ -1040,8 +1040,8 @@ void Thursday::Search(std::string argument) {
 		std::getline(InputData, word, '#');											// Get the word.
 		std::getline(InputData, definition, '#');									// Get the directory.
 		//~ //--------------------------------------------------------------
-		word = Utilities::string_checker(word,0);									// Check to make sure that there are no special characters in the word.
-		definition = Utilities::string_checker(definition,0);						// Check to make sure that there are no special characters in the definition.
+		word = utili::remove_special_characters(word);								// Check to make sure that there are no special characters in the word.
+		definition = utili::remove_special_characters(definition);					// Check to make sure that there are no special characters in the definition.
 		//~ //--------------------------------------------------------------
 		if (word == searchWord) {													// If we found the search word that the user was looking for.
 			output = word;															// Add the word to our output.
@@ -1118,7 +1118,7 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 				} else if (incomingInput[i] == "color") { 			
 					if (size == 2) { 
 						i++; 
-						if (Utilities::isNumber(incomingInput[i]) == 1) { 
+						if (utili::isNumber(incomingInput[i]) == 1) { 
 							if (std::stoi(incomingInput[i]) > 0 ) 
 								colorOption = std::stoi(incomingInput[i]); 
 						}
@@ -1142,7 +1142,7 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "date") { 
-					std::cout << "\t\t" << Utilities::date(1) << std::endl; 
+					std::cout << "\t\t" << utili::date(1) << std::endl; 
 				} else if (incomingInput[i] == "debug") { 
 					if (debugSwitch == 1) 
 						 debugSwitch = 0; 
@@ -1158,7 +1158,7 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 				} else if (incomingInput[i] == "decrypt") {
 					if (size == 3) {
 						i++;
-						if (Utilities::isNumber(incomingInput[i]) == 1) {
+						if (utili::isNumber(incomingInput[i]) == 1) {
 							key = std::stoi(incomingInput[i]);
 						} else {
 							ColorChange("\t\tSorry the first argument was not a number (key).", 2);
@@ -1171,7 +1171,7 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 				} else if (incomingInput[i] == "encrypt") {
 					if (size == 3) {
 						i++;
-						if (Utilities::isNumber(incomingInput[i]) == 1) {
+						if (utili::isNumber(incomingInput[i]) == 1) {
 							key = std::stoi(incomingInput[i]);
 						} else {
 							ColorChange("Sorry the first argument was not a number (key).", 2);
@@ -1278,7 +1278,7 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 				} else if (incomingInput[i] == "prompt") {
 					if (size > 1) {
 						i++; 
-						if (Utilities::isNumber(incomingInput[i]) == 1) {
+						if (utili::isNumber(incomingInput[i]) == 1) {
 							if (std::stoi(incomingInput[i]) >= 0 && std::stoi(incomingInput[i]) <= 3) {
 								promptNumber = std::stoi(incomingInput[i]);
 							} else if (std::stoi(incomingInput[i]) == 4) {
@@ -1329,7 +1329,7 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 				}
 			} else {																		//If the command is within T - Z (t - z).
 				if (incomingInput[i] == "time") {	
-					std::cout << "\t\t" << Utilities::date(2) << std::endl;
+					std::cout << "\t\t" << utili::date(2) << std::endl;
 				} else if (incomingInput[i] == "uid") {
 					std::cout << "\t\t" << "The user ID is: " << getuid() << std::endl;
 				} else if (incomingInput[i] == "unsetenv") {

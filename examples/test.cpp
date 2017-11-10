@@ -21,15 +21,18 @@
 #include <termios.h>
 #include <unistd.h>
 #include <vector>
+#include "Utilities.h"
 
+using namespace utili;
 using namespace std;
 
 int main() {
-	std::string str = "/home";
-	std::cout << str[0] << std::endl;
-	
-	if (str[0] == '/') 
-		std::cout << "We are here!" << std::endl;
+
+	string str = "A a r o n V a l o r o s  o";
+	int number = 97;
+
+	cout << utili::remove_spaces(str) << endl;
+	cout << utili::convert_number_to_letter(number) << endl;
 	
 	return 0;
 }

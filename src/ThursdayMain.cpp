@@ -43,7 +43,6 @@ int main (int argc, char * argv[], char *envp[]) {
 		tcsetattr(STDIN_FILENO, TCSANOW, &newattr);																//Set the new settings to the terminal.
 		characterNumber = getche();																				//Retrieve the character that was typed and send back the ascii value.
 		tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);																//Set the terminal to the old settings.
-		//~ stringSize = theCommands.size();
 		switch(characterNumber) {																				//Use a switch statment to do specific actions for certain characters.
 			case 9:																								//When a tab was pressed.
 			break;
@@ -51,40 +50,39 @@ int main (int argc, char * argv[], char *envp[]) {
 				if (theCommands != "") {																		//Make sure that the char pointer is not empty / NULL.
 					home.GetArguments(theCommands, envp);														//Send the commands in the incomingInput vector to the search commands method.
 					incomingCommands.push_back(theCommands);													//Store the old commands in this vector.				
-					home.PromptDisplay();																		//Display the prompt.
 				}
+				home.PromptDisplay();																		//Display the prompt.				
 				UpAndDownIterator = incomingCommands.size();													//Set the up and down iterator to zero.
-				LeftAndRightIterator = 0;																		//Reset the iterator for back and forth to zero.
+				LeftAndRightIterator = 1;																		//Reset the iterator for back and forth to zero.
 				theCommands = "";																				//Reset the variable.
 				break;																							//Break out of the switch statement.
 			case 127: 																						//Backspace character.
 				if (LeftAndRightIterator > 1) {																	//Delete the characters in the pointer, but no further than what was typed.
-					printf("\b \b");																			//Deletes a character on the current line and moves the pointer back one.
-
-					//~ theCommands.erase(theCommands.begin()+(theCommands.size() - 1), theCommands.end());
-					if (LeftAndRightIterator <= theCommands.size()) {
-						theCommands.erase(theCommands.begin()+(LeftAndRightIterator - 2));
-						int myNumber = (theCommands.size() - (LeftAndRightIterator - 1));
-						myNumber++;
-						LeftAndRightIterator = (theCommands.size() + 1);
-						for (int i = 0; i < (myNumber + 1); ++i)
-							printf ("\033[C");
-						for (int d = 0; d < myNumber; ++d)
+					printf("\b \b");
+					int endOfString = (theCommands.size()+1);
+					theCommands.erase(theCommands.begin()+(LeftAndRightIterator - 2));
+					if (endOfString != LeftAndRightIterator) {
+						LeftAndRightIterator--;
+						int i = 0;
+						int shift = (endOfString - LeftAndRightIterator);
+						for (i = 0; i < shift; ++i) {
+							printf ("\033[C");				
+							LeftAndRightIterator++;
+						}
+						for (i = 0; i < (theCommands.size() + 1); ++i) {
 							printf("\b \b");
-						for (int i = 0; i < myNumber; ++i)
-							printf ("\033[D");
-						for (int b = 0; b < myNumber; ++b)
-							std::cout << theCommands[(theCommands.size() - 1)];
-						printf ("\033[D");	
-						
-					}
-					LeftAndRightIterator--;	
-						//~ std::cout << "I: " << LeftAndRightIterator << std::endl;
-						//~ std::cout << "S: " << theCommands.size() << std::endl;
-						//~ std::cout << theCommands << std::endl;p
-						
+							LeftAndRightIterator--;
+						}
+						std::cout << theCommands;
+						LeftAndRightIterator = (theCommands.size() + 1);
 
-																			
+						for (i = 0; i < (shift - 1); ++i) {
+							printf("\033[D");
+							LeftAndRightIterator--;
+						}
+					} else {
+						LeftAndRightIterator--;
+					}											
 				}
 				break;
 			case 153: 																						//Delete key.
@@ -136,17 +134,41 @@ int main (int argc, char * argv[], char *envp[]) {
 				}	
 				break;
 			case 204: 																						//Left arrow key.																							
-				if (LeftAndRightIterator <= (theCommands.size() + 1) && LeftAndRightIterator > 1) {					//If the iterator is less than or equal to the vector size and is greater than zero.												
+				if (LeftAndRightIterator > 1) {																	//If the iterator is less than or equal to the vector size and is greater than zero.												
 					printf ("\033[D");																			//Move the cursor to the left by one.
 					LeftAndRightIterator--;																		//Decrment the iterator.
 
 				}	 
 				break;
 			default: 																							//Catch every other character.
-				if (characterNumber < 195 || characterNumber > 204) {											//Look for any letter between a - z.
+			if (characterNumber < 195 || characterNumber > 204) {											//Look for any letter between a - z.
+				if ((theCommands.size()+1) != LeftAndRightIterator) {
+					std::string str = "";
+					str += characterNumber;
+					theCommands.insert((LeftAndRightIterator - 1), str);
+					int shift = (theCommands.size() - LeftAndRightIterator);
+					int i = 0;
+					for (i = 0; i < shift; ++i) {
+						printf("\033[C");
+						LeftAndRightIterator--;
+					}
+					for (i = 0; i < theCommands.size(); ++i) {
+						printf("\b \b");
+						LeftAndRightIterator--;
+					}
+					cout << theCommands;
+					LeftAndRightIterator = (theCommands.size()+1);
+					
+					for (i = 0; i < shift; ++i) {
+						printf("\033[D");
+						LeftAndRightIterator--;
+					}
+
+				} else {
 					theCommands += characterNumber;																//Add the character to the input string.
 					LeftAndRightIterator++;																		//Move the iterator with the incoming character.
 				}
+			}
 				break;
 		}
 		if (incomingCommands.size() > 100)																		//If there are more than 100 elements in the vector.

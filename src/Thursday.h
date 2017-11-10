@@ -16,7 +16,7 @@
 #include "colorModification.h"
 #include "Utilities.h"
 
-using namespace Utilities;
+using namespace utili;
 using namespace Color;
 
 class Thursday {

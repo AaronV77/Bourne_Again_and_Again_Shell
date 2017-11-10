@@ -12,12 +12,13 @@
 namespace utili {   
     /*Methods*/
     /*-------------------------------------------------------------------------------------------*/
-    std::string convert_number_to_letter(int incomingNumber);
     std::string	date(int number);   
-    std::string fileInformation(std::string pathName);
+	std::string	string_checker(std::string incomingString, int option);
 	int isNumber (std::string incomingString);
+    std::string fileInformation(std::string pathName);
     std::string remove_spaces(std::string incomingString);
     std::string remove_special_characters(std::string incomingString);
+    std::string convert_number_to_letter(int incomingNumber);
 
 };
 #endif

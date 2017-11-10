@@ -5,11 +5,6 @@ const char* MONTHS[] = {
   "July", "August", "September", "October", "November", "December"
 };
 
-std::string utili::convert_number_to_letter(int incomingNumber) {
-	std::string output = "";
-	return (output += incomingNumber);
-}
-
 std::string utili::date(int number) {
 	/*-------------------------------------------------------------------
 	Note: This method will take in a number and display either just the day
@@ -52,6 +47,49 @@ std::string utili::date(int number) {
 	return output;
 }
 
+std::string utili::string_checker(std::string incomingString, int option) {
+	std::string output = "";
+	std::string theString = incomingString;
+	std::string input = "";
+	int character = 0;
+	int length = incomingString.size();
+	for(int i = 0; i < length; ++i) {
+		input = theString[i];
+		character = theString[i];
+		if (option == 0) {
+			if (character > 31)
+				output += input;
+		} else if (option == 1) {
+			if (character > 32)
+				output += input;
+		}
+		input = "";
+	}
+	return output;
+	
+}
+
+int utili::isNumber(std::string incomingString) {
+	
+	int counter = 0;
+	int size = incomingString.size();
+	
+	if (size > 0) {
+		for (int i = 0;  i < size; i++) {
+			if (isdigit(incomingString[i]))
+				counter++;
+		}
+		
+		if (counter == size)
+			return 1;
+		else
+			return 0;
+	} else {
+		return 0;
+	}
+		
+}
+
 std::string utili::fileInformation(std::string pathName) {
 	struct group *grp;
 	struct passwd *pwd;
@@ -82,27 +120,6 @@ std::string utili::fileInformation(std::string pathName) {
 	return fileInfo;
 }
 
-int utili::isNumber(std::string incomingString) {
-	
-	int counter = 0;
-	int size = incomingString.size();
-	
-	if (size > 0) {
-		for (int i = 0;  i < size; i++) {
-			if (isdigit(incomingString[i]))
-				counter++;
-		}
-		
-		if (counter == size)
-			return 1;
-		else
-			return 0;
-	} else {
-		return 0;
-	}
-		
-}
-
 std::string utili::remove_spaces(std::string incomingString) {
 	std::string output = "";
 	for (int i = 0; i < incomingString.size(); ++i) {
@@ -115,12 +132,16 @@ std::string utili::remove_spaces(std::string incomingString) {
 std::string utili::remove_special_characters(std::string incomingString) {
 	std::string output = "";
 	for (int i = 0; i < incomingString.size(); ++i) {
-		if (incomingString[i] >= 32) 
+		if (incomingString[i] > 32) 
 			output += incomingString[i];
 	}
 	return output;
 }
 
+std::string utili::convert_number_to_letter(int incomingNumber) {
+	std::string output = "";
+	return (output += incomingNumber);
+}
 
 
 
