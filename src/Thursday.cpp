@@ -477,14 +477,15 @@ void Thursday::DirectoryChange(std::string desiredPath, int number) {
     if (debugSwitch == 1) 
 		ColorChange("\t\tMission - You are in the DirectoryChange method.", 3);
 	/*--------------------------------------------------------------------*/ 
-    if (currentPath != desiredPath && desiredPath.size() > 0) {								// Check to see if the current path is not the same with desired path that the system wants to move into.
+	std::string savedPath = currentPath;
+	if (currentPath != desiredPath && desiredPath.size() > 0) {								// Check to see if the current path is not the same with desired path that the system wants to move into.
 		if (number == 0) {																	// If I want there to be error statments or not.
 			if (chdir(desiredPath.c_str()) == -1) {											// Make the directory change.
 				ColorChange("There was an issue moving to that directory", 2);				// Output an error if there was a problem making the directory jump.
 				currentPath = getcwd(path, MAX_SIZE);										// If there was a problem then we want our actual path that the system is in.
 			} else {
 				currentPath = getcwd(path, MAX_SIZE);										// If there wasnt a problem then we want our actual path that the system is in.	Not just the directory that they may have wanted.
-				previousPath = currentPath;
+				previousPath = savedPath;
 			}		
 		} else {
 			if (chdir(desiredPath.c_str()) == -1) {											// Make the directory change.
@@ -492,7 +493,7 @@ void Thursday::DirectoryChange(std::string desiredPath, int number) {
 				errorSwitch = 1;															// Set our error switch if we have a permission issue so that the dfs algorithm doesn't re-look at the directory again and get stuck in a loop.
 			} else {
 				currentPath = getcwd(path, MAX_SIZE);										// If there wasnt a problem then we want our actual path that the system is in.	
-				previousPath = currentPath;
+				previousPath = savedPath;
 			}
 		}
 	} else {
@@ -900,7 +901,7 @@ void Thursday::GetArguments(std::string theCommands, char* envp[]) {
 		}
 	}
 
-	if (tokens.size() == 0 || tokens.size() > 1)							// So this is for when we are looking at the first and only command. Then the second one is for when we are looking at the very end of a group of commands. 
+	if (input.size() > 0)
 		tokens.push_back(input);
 	
 	ArgumentChecker(tokens, quotes, envp);									// Send the incoming vectors and environment to Argument Checker.
@@ -1088,8 +1089,7 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
     int characterValue = 0;																	//To grab the ascii value of the first character in the command.
     int i = 0; 
     int key = 0; 
-    int size = incomingInput.size(); 
-
+    int size = incomingInput.size();
 	characterValue = incomingInput[i][0];													//Grab the ascii value of the first chararcter of the current command.
 	if ( signal == 0 ) { 
 		if (characterValue >= 97 && characterValue <= 108) {								//If the command is within A - L (a - l).
@@ -1183,8 +1183,9 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 					}
 				} else if (incomingInput[i] == "exit") {
 					SetupAndCloseSystem(2);
-					arguments.push_back("reset");
-					ExecuteFile("reset", arguments);
+					std::cout << "We are right here" << std::endl;
+					// arguments.push_back("reset");
+					// ExecuteFile("reset", arguments);
 					exit(0);
 				} else if (incomingInput[i] == "find") {
 					if (size == 3) {
