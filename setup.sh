@@ -1,6 +1,7 @@
 #/bin/bash
 dir=$(pwd -P)
 build_dir="${dir}/build"
+var=$(id)
 
 while true; do		
     read -p "Install to the system? (y/n): " yn
@@ -21,13 +22,16 @@ then
 		fi
 		
 		rm -rf ~/.local/share/Trash/*
+		rm -rf /lib/Thursday
+		rm /bin/Thurs
+
 		cd src
 		make
 		mv Thurs /bin
 		rm Thursday.o
 		rm Utilities.o
-		cd ..
-		cp Thursday /lib
+		cd ../../
+		cp -R Thursday /lib
 		
 		echo "To change to Thursday type /bin/Thurs"
 		echo "To change back to bash type /bin/bash"

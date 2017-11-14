@@ -1,6 +1,7 @@
 #/bin/bash
 dir=$(pwd -P)
 build_dir="${dir}/build"
+var=$(id)
 
 while true; do		
     read -p "Install to the system? (y/n): " yn

@@ -82,6 +82,39 @@ std::string utili::fileInformation(std::string pathName) {
 	return fileInfo;
 }
 
+std::vector<std::string> utili::get_environment(char * envp[]) {
+    int i = 0; 
+    bool variableFound = false;
+    bool equalSignFound = false;
+   	std::string str = "";
+    std::string command = "";
+    std::string value = "";
+    std::vector<std::string> environment;
+
+    while(envp[i] != NULL) {
+        str = envp[i];
+        for (int a = 0; a < str.size(); ++a) {
+            if (str[a] == '=') {
+                equalSignFound = true;
+            } else {
+                if (equalSignFound == false) {
+                    command += str[a];
+                } else {
+                    value += str[a];
+                }
+            }
+        }
+        environment.push_back(command);
+        environment.push_back(value);
+        equalSignFound = false;
+        command = "";
+        value = "";
+        i++;
+    }
+
+	return environment;
+}
+
 int utili::isNumber(std::string incomingString) {
 	
 	int counter = 0;

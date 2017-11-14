@@ -13,8 +13,9 @@ Thursday::Thursday() {
 	homeDestination = getcwd(path, MAX_SIZE);		// Uses a C function to get the current path and set it to the current path pointer.
 	
 	if (homeDestination == "/bin") {
-		homeDestination = "/lib";
-		currentPath = "/lib";
+		homeDestination = "/lib/Thursday";
+		currentPath = "/bin/bash";
+		DirectoryChange(homeDestination, 0);
 		dictionaryDestination = currentPath;
 		informationDestination = currentPath;
 		dictionaryDestination += "/Dictionary-1.2";	// This is used to get to the Dictionary directory.
@@ -674,7 +675,8 @@ void Thursday::EnvironmentUtilites(int Number, std::string variable, std::string
 			if (variable == Environment[i]) {											// If the variable was found in the vector.
 				Environment.erase(Environment.begin()+i);								// Delete the current position, which would be the name of the variable.
 				Environment.erase(Environment.begin()+i);								// Delete the next position in the vector which should be the value of the variable.
-				if (unsetenv(variable.c_str()) == -1) 
+				if (unsetenv(variable.c_str()) == -1) {} 
+					//Something
 			}
 		}
 	} else if (Number == 1) {															// If the user wants to add (setenv) the global variable.
@@ -732,20 +734,20 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 	/*--------------------------------------------------------------------*/
 	int i = 0;  																				// Used to iterate through the incoming arguments.
 	size_t arrSize = 100; 																		// Used to allocate bytes to a char pointer.
-	char ** dicks = new char * [arrSize];														// Used to allocat a char array pointer.
+	char ** myArray = new char * [arrSize];														// Used to allocat a char array pointer.
 	for (i = 0; i < arguments.size(); i++) {													// Loop through the incoming arguments.
-		dicks[i] = new char [arrSize];															// Allcocate memory for each element in the array.
-		strcpy(dicks[i], strdup(arguments[i].c_str()));											// Copy the incoming argument to the element in the array.
+		myArray[i] = new char [arrSize];														// Allcocate memory for each element in the array.
+		strcpy(myArray[i], strdup(arguments[i].c_str()));										// Copy the incoming argument to the element in the array.
 	}
-	dicks[i++] = NULL;																			// Null terminate the array for the exec command.
+	myArray[i++] = NULL;																		// Null terminate the array for the exec command.
 
     pid_t pid;																					// Create a data type to store a process number.
 	incomingCommand = FileChecker(incomingCommand, 0);											// Send the incoming command to find in the location of the binary in the system. Will either return just the command or the location path.
 
 	pid = fork();																				// Create another process.
 	if (pid == 0) {																				// If the process is the child.
-		if (execv(incomingCommand.c_str(), dicks) == -1) {										// Execute with the given command / location path, and char array of arguments.
-			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);			// If there is an error a messeage will be printed.
+		if (execv(incomingCommand.c_str(), myArray) == -1) {									// Execute with the given command / location path, and char array of arguments.
+			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);		// If there is an error a messeage will be printed.
 			return 0;
 		}
 	} else {
@@ -754,10 +756,10 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 	}
 
 	for (i = 0; i < arguments.size(); i++)														// Loop through the char array.
-		delete dicks[i];																		// Delete each element in the array.
+		delete myArray[i];																		// Delete each element in the array.
 
-	delete [] dicks;																			// Delete the char array pointer.
-	dicks = NULL;																				// Set the array pointer to NULL;
+	delete [] myArray;																			// Delete the char array pointer.
+	myArray = NULL;																				// Set the array pointer to NULL;
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are leaving the ExecuteFile method.", 3);
@@ -1372,32 +1374,25 @@ void Thursday::SetupAndCloseSystem(int number, int argc, char * envp[]) {
  	/*--------------------------------------------------------------------*/
 	std::string globalFileName = "";														// Used to open up the global environment for the system.
 	std::string thursdayCommandsFileName = "";												// Used to get the system commands of the system.
-	std::string stringTokens = "";															// Used to tokenize the incoming PATH global variable.
-	std::vector<std::string> temp;															// To store the outcoming vector from our file load.
 	thursdayCommandsFileName = informationDestination;										// Add the information destination to our temp file name.
 	thursdayCommandsFileName += "/ThursdayCommands.txt";									// Add the file name that we want to open for our system commands.
 	globalFileName = informationDestination;												// Add the information destination to our temp file name.
 	globalFileName += "/GlobalVariables.txt";												// Add the file name that we want to ope for our system environment variables.
-
+	std::cout <<  "HERE: " << getcwd(path, MAX_SIZE) << std::endl;
 	if ( number == 1) {																		// Setting up the system.
 		ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);		// Loads the Thursday Commands
-		int i = 0;
-		while (envp[i] != NULL) {
-			Environment.push_back(envp[i]);													// Put the variable into the Environment vector.
-			std::size_t stringFind;															// Setup a variable to search our path.
-			std::string str = envp[i];														// Save the environment variable to a string so that I can search it with a string command.
-			stringFind = str.find("sbin");													// I tried seaching for path but it is in multiple environment variables so I did sbin because it was the only thing that was in both the user and root path.
-			if (stringFind != std::string::npos) {											// Check to see if sbin is in the variable.
-				std::string input = "";														// Creat a variable to loop through the path.
-				Environment.push_back("PATH");												// Put the variable into the Environment vector.
-				str.erase(0, 5);															// Delete the "PATH=" part from the beginning of the variable.
-				std::istringstream iss (str);												// Tokenize the string aka the path variable.
-				while (std::getline(iss, input, ':'))										// Loop through it by : character.
-					PathVector.push_back(input);											// Store one of the paths into the path vector.
+		Environment = utili::get_environment(envp);
+		
+		std::string input = "";
+		for (int i = 0; i < Environment.size(); ++i) {
+			if (Environment[i] == "PATH") {
+				i++;
+				std::istringstream iss (Environment[i]);
+				while(std::getline(iss,input, ':'))
+					PathVector.push_back(input);
 			}
-			i++;																			// Increment the variable for the environment.
 		}
-		temp.clear();																		// If we are closing the system down.
+
 	} else if (number == 2) {																// Closing up the system.
 		fstream GlobalInput;																// Create a variable to open a file with.
 
