@@ -26,13 +26,11 @@
 using namespace utili;
 using namespace std;
 
-int main() {
+int main (int argc, char * argv[], char *envp[]) {
 
-	string str = "A a r o n V a l o r o s  o";
-	int number = 97;
-
-	cout << utili::remove_spaces(str) << endl;
-	cout << utili::convert_number_to_letter(number) << endl;
+	std::string str = "path=/home/something:/home/something2:/home/something3:";
+	str.erase(0, 5);
+	cout << str << endl;
 	
 	return 0;
 }

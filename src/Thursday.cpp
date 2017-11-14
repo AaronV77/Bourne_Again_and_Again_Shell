@@ -40,17 +40,14 @@ Thursday::Thursday() {
 	pid = getpid();									// Gets the process id for the process and saves it to an int variable.
 	ppid = getppid();								// Gets the parent process id for the process and saves it to an int variable.
 	uid = getuid();									// Gets the user id for the process and saves it to an int variable.
-	promptNumber = 2;								// For displaying the prompt and which one to display.
-	/*--------------------------------------------------------------------*/
-	SetupAndCloseSystem(1);							// Will load the thursday and os commands, users, the environment, and path into vectors.
-	/*--------------------------------------------------------------------*/	
+	promptNumber = 2;								// For displaying the prompt and which one to display.	
 }
 
 Thursday::~Thursday() {
 	/*------------------------------------------------------------------
 	Note: The deconstructor sets each pointer to NULL and then frees them.
 	--------------------------------------------------------------------*/	
-	SetupAndCloseSystem(2);
+	SetupAndCloseSystem(2, 0, NULL);
 	ThursdayCommands.clear();
 	Environment.clear();
 	PathVector.clear();	
@@ -677,18 +674,23 @@ void Thursday::EnvironmentUtilites(int Number, std::string variable, std::string
 			if (variable == Environment[i]) {											// If the variable was found in the vector.
 				Environment.erase(Environment.begin()+i);								// Delete the current position, which would be the name of the variable.
 				Environment.erase(Environment.begin()+i);								// Delete the next position in the vector which should be the value of the variable.
+				if (unsetenv(variable.c_str()) == -1) 
 			}
 		}
 	} else if (Number == 1) {															// If the user wants to add (setenv) the global variable.
 		for (int a = 0; a < Environment.size(); a++) {									// Loop through the environment vector.
-			if (variable == Environment[a])												// If the variable was found in the vector.
-				foundSwitch = true;														// Set our switch to ture if the variable was found.
+			if (variable == Environment[a])	{											// If the variable was found in the vector.
+				a++;																	// Increment our iterator to look at the next value in the vector.
+				Environment[a] == variableValue;										// Change our vector variable to the new value.
+				foundSwitch = true;														// Set our found switch to true.
+				unsetenv(variable.c_str());			 									// Unset the variable in the prcocesss environment, if it is not in the process then don't do anything.
+				setenv(variable.c_str(), variableValue.c_str(), -1);					
+			}
 		}
-		if (foundSwitch == true) {														// If the variable was found then don't add the variable.
-			ColorChange("\t\tSorry, but that global variable is already being used.", 3);
-		} else {	
+		if (foundSwitch != true) {														// If the variable was not found then we should add.
 			Environment.push_back(variable);											// Push the name of the global name into the vector.
 			Environment.push_back(variableValue);										// Push the value of the global name into the vector.
+			setenv(variable.c_str(), variableValue.c_str(), -1);
 		}
 	} else if (Number == 2) {															// If the user wants to get (getenv) of the global varaible.
 		for (int i = 0; i < Environment.size(); i++) {									// Loop through the Environment vector.
@@ -711,7 +713,7 @@ void Thursday::EnvironmentUtilites(int Number, std::string variable, std::string
 		ColorChange("\t\tThere is an issue with either arguemnt that was given.", 2);
     }
 	/*--------------------------------------------------------------------*/
-	SetupAndCloseSystem(2);																// Update the file that stores all of the environment variables.
+	SetupAndCloseSystem(2, 0, NULL);													// Update the file that stores all of the environment variables.
     
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are in the EnvironmentUtilites method.", 3);
@@ -1182,7 +1184,7 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "exit") {
-					SetupAndCloseSystem(2);
+					SetupAndCloseSystem(2, 0, envp);
 					std::cout << "We are right here" << std::endl;
 					// arguments.push_back("reset");
 					// ExecuteFile("reset", arguments);
@@ -1360,7 +1362,7 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
     return;
 }
 
-void Thursday::SetupAndCloseSystem(int number) {
+void Thursday::SetupAndCloseSystem(int number, int argc, char * envp[]) {
 	/*------------------------------------------------------------------
 	Note: This method loads users, environment (including the path), and 
 	* the operating system comands. This method was last updated on 9/25/2017.
@@ -1379,19 +1381,21 @@ void Thursday::SetupAndCloseSystem(int number) {
 
 	if ( number == 1) {																		// Setting up the system.
 		ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);		// Loads the Thursday Commands
-		
-		temp = FileLoader(temp, globalFileName, 0);											// Get the environment variables.
-		for (int b = 0; b < temp.size(); b++) {												// Loop through the temp vector.
-			if (temp[b].size() > 1) {														// If the incoming variable is greater than one.
-				Environment.push_back(temp[b]);												// Put the variable into the Environment vector.
-				if (temp[b] == "PATH") {													// If the variable matches with PATH.
-					b++;																	// Increment the iterator to look at the value.
-					istringstream iss (temp[b]);											// Tokenize the variable of the predetermined paths, when PATH was found.
-					Environment.push_back(temp[b]);											// Store the variable in our vector.
-					while (std::getline(iss,stringTokens,':'))								// Loop through until there are no more tokens.
-						PathVector.push_back(stringTokens);									// Store one of the paths into the path vector.
-				}
-			}														
+		int i = 0;
+		while (envp[i] != NULL) {
+			Environment.push_back(envp[i]);													// Put the variable into the Environment vector.
+			std::size_t stringFind;															// Setup a variable to search our path.
+			std::string str = envp[i];														// Save the environment variable to a string so that I can search it with a string command.
+			stringFind = str.find("sbin");													// I tried seaching for path but it is in multiple environment variables so I did sbin because it was the only thing that was in both the user and root path.
+			if (stringFind != std::string::npos) {											// Check to see if sbin is in the variable.
+				std::string input = "";														// Creat a variable to loop through the path.
+				Environment.push_back("PATH");												// Put the variable into the Environment vector.
+				str.erase(0, 5);															// Delete the "PATH=" part from the beginning of the variable.
+				std::istringstream iss (str);												// Tokenize the string aka the path variable.
+				while (std::getline(iss, input, ':'))										// Loop through it by : character.
+					PathVector.push_back(input);											// Store one of the paths into the path vector.
+			}
+			i++;																			// Increment the variable for the environment.
 		}
 		temp.clear();																		// If we are closing the system down.
 	} else if (number == 2) {																// Closing up the system.
@@ -1399,7 +1403,7 @@ void Thursday::SetupAndCloseSystem(int number) {
 
 		GlobalInput.open(globalFileName.c_str());											// Opens the stream for the global file.
 
-		if (!GlobalInput) {																	//
+		if (!GlobalInput) {
 			ColorChange("\t\tThere was an error opening the file in the SetupAndCloseSystem method 2.", 2);
 			return;	
 		}

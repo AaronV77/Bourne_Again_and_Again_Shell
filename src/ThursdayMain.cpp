@@ -15,11 +15,10 @@ int main (int argc, char * argv[], char *envp[]) {
 	std::vector<std::string> incomingCommands;																	//Used to store the incoming commands from the user and will be checked.
 	struct termios oldattr, newattr;																			//Setup terminal variables.
 	
-	Thursday home;																								//Create an instance of the class.																																			
-	
+	Thursday home;																								//Create an instance of the class.
+
 	if (argc > 0) {																								//Check to see if there are any arguments in the execution of the applicaiton.
 		int i = 0;																								//Used to iterate through all the incoming arguments at applicaton execution.
-		std::size_t stringFind;																					//Used to find a specific string in a string.
 		while (i < argc) {																						//Loop through the incoming argument at execution.
 			if (!strcmp(argv[i], "debug=on"))																	//If degub on is found we turn on debug for the whole application.
 				home.DebugSwitch(1);																			//Turn on the switch in the application.
@@ -30,6 +29,8 @@ int main (int argc, char * argv[], char *envp[]) {
 			i++;																								//Increment the iterator for the loop.
 		}
 	}
+
+	home.SetupAndCloseSystem(1, argc, envp);
 	
 	// incomingCommands.push_back("reset");																		//Put the reset in the vector to send to the ExecuteFile method.
 	// home.ExecuteFile("reset", incomingCommands);																//Reset the screen for the start of the application.
@@ -58,30 +59,30 @@ int main (int argc, char * argv[], char *envp[]) {
 				break;																							//Break out of the switch statement.
 			case 127: 																						//Backspace character.
 				if (LeftAndRightIterator > 1) {																	//Delete the characters in the pointer, but no further than what was typed.
-					printf("\b \b");
-					int endOfString = (theCommands.size()+1);
-					theCommands.erase(theCommands.begin()+(LeftAndRightIterator - 2));
-					if (endOfString != LeftAndRightIterator) {
-						LeftAndRightIterator--;
-						int i = 0;
-						int shift = (endOfString - LeftAndRightIterator);
-						for (i = 0; i < shift; ++i) {
-							printf ("\033[C");				
-							LeftAndRightIterator++;
+					printf("\b \b");																			//Delete thee character before the cursor on the screen.
+					int endOfString = (theCommands.size()+1);													//Store thee size of the original string with one extra character for the iterator.
+					theCommands.erase(theCommands.begin()+(LeftAndRightIterator - 2));							//Erase the character from the string.
+					if (endOfString != LeftAndRightIterator) {													//If the cursor is not at the end of the string.
+						LeftAndRightIterator--;																	//Subtract from the left and right iterator because our cursor moves over one when we delete the character.
+						int i = 0;																				//With so many for loops just create one iterator variable.
+						int shift = (endOfString - LeftAndRightIterator);										//Get our shift which is just the different from the back of the string to where the cursor is at on the string.
+						for (i = 0; i < shift; ++i) {															//Move the cursor to the end of the string, so that we can delete everything on the screen.
+							printf ("\033[C");																	//Function call to move the cursor on the screen to the right.		
+							LeftAndRightIterator++;																//Keep track of moving our iterator.
 						}
-						for (i = 0; i < (theCommands.size() + 1); ++i) {
-							printf("\b \b");
-							LeftAndRightIterator--;
+						for (i = 0; i < (theCommands.size() + 1); ++i) {										//Since our string is one less character it still has a space on the terminal display, so we can delete everything on the terminal screen.
+							printf("\b \b");																	//Delete the characters on the screen.
+							LeftAndRightIterator--;																//Move our iterator with the loop.
 						}
-						std::cout << theCommands;
-						LeftAndRightIterator = (theCommands.size() + 1);
+						std::cout << theCommands;																//Reprint our new string on the screen. This will push our cursor to the end of the string.
+						LeftAndRightIterator = (theCommands.size() + 1);										//So lets save where our new iterator lies on the screen.
 
-						for (i = 0; i < (shift - 1); ++i) {
-							printf("\033[D");
-							LeftAndRightIterator--;
+						for (i = 0; i < (shift - 1); ++i) {														//Loop to move our cursor on the letter we were on originally.
+							printf("\033[D");																	//Move the cursor to the left.
+							LeftAndRightIterator--;																//Move our iterator with the loop.
 						}
 					} else {
-						LeftAndRightIterator--;
+						LeftAndRightIterator--;																	//Since we are at the end our string we can just delete the character both on the screen and string.
 					}											
 				}
 				break;
@@ -128,7 +129,7 @@ int main (int argc, char * argv[], char *envp[]) {
 				} 
 				break;
 			case 201:																						//Right arrow key.
-				if (LeftAndRightIterator < (theCommands.size()+1)) {													//If the iterator is not going past the current string.	
+				if (LeftAndRightIterator < (theCommands.size()+1)) {											//If the iterator is not going past the current string.	
 					printf ("\033[C"); 																			//Move the cursor to the right by one.	
 					LeftAndRightIterator++;																		//Increment the iterator.
 				}	
@@ -142,28 +143,26 @@ int main (int argc, char * argv[], char *envp[]) {
 				break;
 			default: 																							//Catch every other character.
 			if (characterNumber < 195 || characterNumber > 204) {											//Look for any letter between a - z.
-				if ((theCommands.size()+1) != LeftAndRightIterator) {
-					std::string str = "";
-					str += characterNumber;
-					theCommands.insert((LeftAndRightIterator - 1), str);
-					int shift = (theCommands.size() - LeftAndRightIterator);
-					int i = 0;
-					for (i = 0; i < shift; ++i) {
-						printf("\033[C");
+				if ((theCommands.size()+1) != LeftAndRightIterator) {											//If the cursor is not at the end of the string.
+					std::string str = utili::convert_number_to_letter(characterNumber);							//Convert the character number into an actual letter.															
+					theCommands.insert((LeftAndRightIterator - 1), str);										//Insert the letter into our string.
+					int shift = (theCommands.size() - LeftAndRightIterator);									//Get our shift which is just the different from the back of the string to where the cursor is at on the string.
+					int i = 0;																					//Since there are more than one for loop, lets just create one variable.
+					for (i = 0; i < shift; ++i) {																//Loop to move the cursor to the end of the string.
+						printf("\033[C");																		//Move the cursor to the left.
+						LeftAndRightIterator--;																	//Move the iterator to the right.
+					}
+					for (i = 0; i < theCommands.size(); ++i) {													//Loop to delete the whole command off the screen.
+						printf("\b \b");																		//Delete a character off the screen.
 						LeftAndRightIterator--;
 					}
-					for (i = 0; i < theCommands.size(); ++i) {
-						printf("\b \b");
-						LeftAndRightIterator--;
-					}
-					cout << theCommands;
-					LeftAndRightIterator = (theCommands.size()+1);
+					std::cout << theCommands;																	//Print the updated string. This will put the cursor at the end of the string.
+					LeftAndRightIterator = (theCommands.size()+1);												//Set our iterator to the end of the string.
 					
-					for (i = 0; i < shift; ++i) {
-						printf("\033[D");
-						LeftAndRightIterator--;
+					for (i = 0; i < shift; ++i) {																//Loop to move the cursor to where we left off on the string.
+						printf("\033[D");																		//Move the cursor to the left.
+						LeftAndRightIterator--;																	//Move our iterator in.
 					}
-
 				} else {
 					theCommands += characterNumber;																//Add the character to the input string.
 					LeftAndRightIterator++;																		//Move the iterator with the incoming character.

@@ -47,7 +47,7 @@ public:
 	void PromptDisplay();
 	void Search(std::string argument);
 	void SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]);
-	void SetupAndCloseSystem(int number);
+	void SetupAndCloseSystem(int number, int argc, char **);
 	
 private:
 
