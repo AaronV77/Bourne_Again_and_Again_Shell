@@ -31,7 +31,7 @@ then
 		mv Thurs /bin
 		rm Thursday.o
 		rm Utilities.o
-		cd ..
+		cd ../../
 		cp Thursday /lib
 		
 		echo "To change to Thursday type /bin/Thurs"
