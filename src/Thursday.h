@@ -29,12 +29,11 @@ public:
 	~Thursday();
 	void ArgumentChecker(std::vector<std::string> tokens, std::vector<std::string> quotes, char * envp[]);
 	void ColorChange(std::string sentence, int signal);
-	void ColorSwitch(int signal);
+	void ColorSwitch(bool signal);
 	void CompressAndDecompress(int Number, std::string argument);
-	void DebugSwitch(int signal);
+	void DebugSwitch(bool signal);
 	string Cryptography(int number, int key, std::string message);
-	void DepthFirstSearch(std::string path, std::string command, int number, int theSwitch);
-	void DepthFirstSearchHeart(std::string searchWord, int theSwitch);
+	void DepthFirstSearch(std::string path, std::string searchWord, bool showDirectories);
 	void DirectoryChange(std::string desiredPath, int number);
 	void DirectoryDelete(std::string dirname);
 	void DisplayDirectories(std::string lsArgument, std::string pathName); 
@@ -53,20 +52,21 @@ private:
 
 	int BoolVar;
 	int colorOption;
-	int colorSwitch;
-	int commandSwitch;	
-	int debugSwitch;
-	int errorSwitch;
-	int found;
 	int gid;
 	int pid;
 	int ppid;
-	int uid;	
-	int promptNumber;	
-		
+	int promptNumber;
+	int uid;		
+	
+	bool colorSwitch;	
+	bool debugSwitch;	
+	bool errorSwitch;
+	bool waitSwitch;
+
 	std::string currentPath;
 	std::string currentPrompt;
 	std::string dictionaryDestination;
+	std::string findingHome;
 	std::string homeDestination;
 	std::string hostName;
 	std::string informationDestination;

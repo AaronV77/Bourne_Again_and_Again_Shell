@@ -7,41 +7,46 @@ Thursday::Thursday() {
 	Note: The constructor is just used to setup all the variables and load the
 	* users into the system.
 	--------------------------------------------------------------------*/
-	previousPath = ""; 								// Used in the constructor for find where our base directory is.					
-    gethostname(path, sizeof(path));				// Uses a C function to get the computers hostname.
-	hostName = path;								// Copies the name from the char array "path" to the hostname.
-	homeDestination = getcwd(path, MAX_SIZE);		// Uses a C function to get the current path and set it to the current path pointer.
+
+	colorSwitch = false; 							// Color switch so that the color is turned either on or off.
+	debugSwitch = false;							// Switch for turning on and off the debug statments.	
+	errorSwitch = false;							// Used for the DFS method and seeing if there are errors. 
+	waitSwitch = false;								// Used during our execution method, and is for when we are waiting for the child process to finish or not.
 	
-	if (homeDestination == "/bin") {
-		homeDestination = "/lib/Thursday";
-		currentPath = "/bin/bash";
-		DirectoryChange(homeDestination, 0);
-		dictionaryDestination = currentPath;
-		informationDestination = currentPath;
-		dictionaryDestination += "/Dictionary-1.2";	// This is used to get to the Dictionary directory.
-		informationDestination += "/information";	// This is used to get to all the information need for the system.
-	} else {
-		homeDestination += "/..";					// Move back a directory.
-		DirectoryChange(homeDestination, 0);		// Call a Library mehtod to move the system back a directory.
-		homeDestination = currentPath;				// Set the base path for the following paths.
-		dictionaryDestination = currentPath;
-		informationDestination = currentPath;
-		dictionaryDestination += "/Dictionary-1.2";	// This is used to get to the Dictionary directory.
-		informationDestination += "/information";	// This is used to get to all the information need for the system.
-	}
-		
 	BoolVar = 1;									// Used for the color of the system.
 	colorOption = 11;								// Color switch for turning on and off the colors for the program.
-	colorSwitch = 0; 								// Color switch so that the color is turned either on or off.
-	commandSwitch = 0;								// Switch for when & is found in the incoming input.
-	debugSwitch = 0;								// Switch for turning on and off the debug statments.
-	errorSwitch = 0;								// A switch to tell the DFS algorithm that there was an error in the change directtory method.
-    found = 0;										// To tell the DFS algorithm that a path was able to be found.
+	promptNumber = 2;								// For displaying the prompt and which one to display.	
 	gid = getgid();									// Gets the group id for the process and saves it to an int variable.
 	pid = getpid();									// Gets the process id for the process and saves it to an int variable.
 	ppid = getppid();								// Gets the parent process id for the process and saves it to an int variable.
 	uid = getuid();									// Gets the user id for the process and saves it to an int variable.
-	promptNumber = 2;								// For displaying the prompt and which one to display.	
+
+	previousPath = ""; 								// Used in the constructor for find where our base directory is.					
+    gethostname(path, sizeof(path));				// Uses a C function to get the computers hostname.
+	hostName = path;								// Copies the name from the char array "path" to the hostname.
+	currentPath = getcwd(path, MAX_SIZE);			// Get the systems current working path.
+
+	DepthFirstSearch("/home", "Thursday", true);	// Find where the home directory is being stored.
+	if (findingHome.size() > 0) {					// There is a variable in the DFS method keep track if we found our Thursday Directory. If Thursday was not found in /home.
+		homeDestination = findingHome;				// Use the last entry that was found with our search word in the DFS and make it our home directory.
+		DirectoryChange(homeDestination, 1);		// Change our directory to the home destination.
+		dictionaryDestination = currentPath;
+		informationDestination = currentPath;
+		dictionaryDestination += "/Dictionary-1.2";
+		informationDestination += "/information";
+	} else {
+		DepthFirstSearch("/lib", "Thursday", true);	// Find where the home directory is being stored.
+		if (findingHome.size() > 0) {				// If the home directory was not found then search our back up destination in /lib.
+			homeDestination = findingHome;			// Use the last entry that was found with our search word in the DFSS and make it our home directory.
+			DirectoryChange(homeDestination, 0);	// Change our directory to the home destination.
+			dictionaryDestination = currentPath;
+			informationDestination = currentPath;
+			dictionaryDestination += "/Dictionary-1.2";
+			informationDestination += "/information";
+		} else {
+			ColorChange("\t\tSYSTEM ERROR: The system could not find home", 2);
+		}
+	}
 }
 
 Thursday::~Thursday() {
@@ -157,7 +162,7 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 	string color = "";
 	Color::Modifier def(Color::FG_DEFAULT, BoolVar);										// We get the default color "def" because we want to allow the incoming input to be white again.
 
-	if (colorSwitch == 1) {																	// If the user wants the application to pring in color.
+	if (colorSwitch == true) {																// If the user wants the application to pring in color.
 		if (signal == 1) {																	// This block is for the users prompt color.
 			if ( colorOption == 1 ) {
 				Color::Modifier color(Color::FG_BLACK, BoolVar);
@@ -260,15 +265,15 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 	return;
 }
 
-void Thursday::ColorSwitch(int signal) {
+void Thursday::ColorSwitch(bool signal) {
 	/*-------------------------------------------------------------------
 	Note: This method just turns the color on and off easily for the main.
 	* This method was last updated on 11/6/2017.
 	--------------------------------------------------------------------*/
-	if (signal == 1) {
-		colorSwitch = 1;
-	} else if (signal == 0) {
-		colorSwitch = 0;
+	if (signal == true) {
+		colorSwitch = true;
+	} else if (signal == false) {
+		colorSwitch = false;
 	}
 	
 }
@@ -356,20 +361,20 @@ std::string Thursday::Cryptography(int number, int key, std::string message) {
 	return output;
 }
 
-void Thursday::DebugSwitch(int signal) {
+void Thursday::DebugSwitch(bool signal) {
 	/*-------------------------------------------------------------------
 	Note: This method just turns the debug statments on and off. This method
 	* was last updated on 11/6/2017.
 	--------------------------------------------------------------------*/	
-	if (signal == 1) {
-		debugSwitch = 1;
-	} else if (signal == 0) {
-		debugSwitch = 0;
+	if (signal == true) {
+		debugSwitch = true;
+	} else if (signal == false) {
+		debugSwitch = false;
 	}
 
 }
 
-void Thursday::DepthFirstSearch(std::string path, std::string command, int number, int theSwitch) {  
+void Thursday::DepthFirstSearch(std::string path, std::string searchWord, bool showDirectories) {  
 	/*-------------------------------------------------------------------
 	Note: This method is mainly used for find and whereis commands. This 
 	* method also ues the directory change, stack push / pop, and the
@@ -378,94 +383,71 @@ void Thursday::DepthFirstSearch(std::string path, std::string command, int numbe
     if (debugSwitch == true) 
 		ColorChange("\t\tMission - You are in the DepthFirstSearch method.", 3);
 	/*--------------------------------------------------------------------*/ 
+	
 	std::string input = "";
 	std::string thePath = currentPath;																	// Save the current path that we are currently at.
-	int counter = 0;
+	std::string addedPath = "";																			// Used to create a temporary current path.
 	
-	if (chdir(path.c_str()) == -1) {																	// Make sure that the given path is absolute.	
-		path = "/";																						// If not replace the path with the backslash and start from the beginning.
-		ColorChange("\t\tThe path given is not absolute replacing with / (backslash) instead.", 3);
-	} else {			
-		chdir(currentPath.c_str());																		// If the command is absolute then change the to that directory.
-	}
+	bool found = false;
+	int counter = 0;
+	struct stat s;																						// Create a variable to open the directory.
+    DIR * dir;																							// Open the directory with the ".".
+	dirent * entry;																						// Saves the opening to the directory.
 
     stringStack.push(path); 																			// Put the starting path into the stack.
     while(!stringStack.empty()) {																		// Loop until the current position in the stack is negative.
 		input = stringStack.top();																		// Pop off the last element in the stack.
 		stringStack.pop();
 		
-		if (number == 0) 																				// If the incoming number is 0 then the user wants all the commands to be printed out.
+		if (showDirectories == false) 																	// If the incoming number is 0 then the user wants all the commands to be printed out.
 			std::cout << '\t' << '\t' << " Directory: " << input << std::endl;
 		
 		DirectoryChange(input, 1);																		// Use the poped path from the stack and change the directory that the system is looking at.
 		 
-		if (errorSwitch == 0) {																			// Check to make sure that the global error switch was not triggered.
-			DepthFirstSearchHeart(command, theSwitch);													// Loop through the current directory, and push the directories onto the stack.
+		if (errorSwitch == false) {																		// Check to make sure that the global error switch was not triggered.
+			dir = opendir(".");
+			if (NULL != dir) {																			// Check to see if the directory is NULL.
+				while (entry = readdir(dir)) {															// Loop through the directory.
+					addedPath = currentPath;															// Add our current path to the addedPath variable.
+					if (currentPath != "/")																// Check to see that the current path does not already equal a backslash.
+						addedPath += "/";																// Add our back slash to add another directory to it.
+					addedPath += entry->d_name;															// Add the file / directory / or anything else that we are looking at in the directory to the path.
+					if (entry->d_name == searchWord) { 													// Check to see if what we are looking at matches what the user is searching for.
+						if (showDirectories == true) { 													// The commands find and whereis will be a 1, and dirs will be a 0.
+							cout << "\t\t" << addedPath << endl;										// Print the absolute path of where the file the user is looking for.
+							findingHome = addedPath;
+						}
+						found = true;																	// Set the found variable that the system has been able to find at least one location of the file that is being searched for.
+					} 
+					if (strcmp(entry->d_name,  ".") && strcmp(entry->d_name,  "..")) {					// Check to see if the system is looking at . and .. so that we don't store them.	
+						if (lstat(addedPath.c_str(), &s) == 0) {										// Retrieves information on the directory that we are looking at.
+							if (s.st_mode & S_IFLNK) {													// Check the mask type to see if the directory is a symbolic link.
+								//~ cout << "Random2 is a Symbolic link" << endl;						// If so do not do anything.
+							} else {
+								if (s.st_mode & S_IFDIR)												// If the path is a directory.
+									stringStack.push(addedPath);										// Push the path into the stack.
+							}
+						}
+					}
+				}  
+				if (closedir(dir) == -1)																// make sure that we can close the directory that we are looking at.
+					ColorChange("\t\tLS File Closing Failure: ", 2);									// Print an error if we cannot close the directory.
+			}		
 		} else {
-			errorSwitch = 0;																			// Reset our error switch.
+			errorSwitch = false;																		// Reset our error switch.
 		}
     }
-    if (found == 0) {																					// If the system not able to find the users requested directory.
-		if (number != 0)		 																		// For the wheris and find command, and not for the dirs command.
+    if (found == false) {																				// If the system not able to find the users requested directory.
+		if (showDirectories != 0)		 																// For the wheris and find command, and not for the dirs command.
 			ColorChange("\t\tThe file could not be found in the starting directory.", 3);
 	}
 	/*--------------------------------------------------------------------*/ 
 	DirectoryChange(thePath, 0);																		// Go back to the directory that we came from.
-	
     if (debugSwitch == true) 
-		ColorChange("Mission - You are leaving the DepthFirstSearch method.", 3);
+		ColorChange("\t\tMission - You are leaving the DepthFirstSearch method.", 3);
 
     return;
 }
-
-void Thursday::DepthFirstSearchHeart(std::string searchWord, int theSwitch) {
-	/*-------------------------------------------------------------------
-	Note: This method is specifically for the depth first search method. 
-	* The method just loops through the current directory from the algorthim
-	* and pushes each directory into the stack. This method was last updated 
-	* on 11/6/2017.
-	--------------------------------------------------------------------*/
-	if (debugSwitch == 1)
-		ColorChange("\t\tMission - You are in the DisplayDirectories method.", 3);
-	/*--------------------------------------------------------------------*/ 
-	struct stat s;																// Create a variable to open the directory.
-	std::string addedPath = "";													// Used to create a temporary current path.
-    DIR * dir = opendir(".");													// Open the directory with the ".".
-    dirent * entry;																// Used to save the file from the directory.
-
-    if (NULL != dir) {															// Check to see if the directory is NULL.
-		while (entry = readdir(dir)) {											// Loop through the directory.
-			addedPath = currentPath;											// Add our current path to the addedPath variable.
-			if (currentPath != "/")												// Check to see that the current path does not already equal a backslash.
-				addedPath += "/";												// Add our back slash to add another directory to it.
-			addedPath += entry->d_name;											// Add the file / directory / or anything else that we are looking at in the directory to the path.
-			if (entry->d_name == searchWord) { 									// Check to see if what we are looking at matches what the user is searching for.
-				if (theSwitch == 1) { 											// The commands find and whereis will be a 1, and dirs will be a 0.
-					cout << "\t\t" << addedPath << endl;						// Print the absolute path of where the file the user is looking for.
-				}
-				found = 1;														// Set the found variable that the system has been able to find at least one location of the file that is being searched for.
-			} 
-			if (strcmp(entry->d_name,  ".") && strcmp(entry->d_name,  "..")) {	// Check to see if the system is looking at . and .. so that we don't store them.	
-				if (lstat(addedPath.c_str(), &s) == 0) {						// Retrieves information on the directory that we are looking at.
-					if (s.st_mode & S_IFLNK) {									// Check the mask type to see if the directory is a symbolic link.
-						//~ cout << "Random2 is a Symbolic link" << endl;		// If so do not do anything.
-					} else {
-						if (s.st_mode & S_IFDIR)								// If the path is a directory.
-							stringStack.push(addedPath);						// Push the path into the stack.
-					}
-				}
-			}
-		}  
-		if (closedir(dir) == -1)												// make sure that we can close the directory that we are looking at.
-			ColorChange("\t\tLS File Closing Failure: ", 2);					// Print an error if we cannot close the directory.
-
-    }
-    /*--------------------------------------------------------------------*/ 
-    if (debugSwitch == 1) 
-		ColorChange("\t\tMission - You are leaving the DisplayDirectories method.", 3);
-
-    return;
-} 
 
 void Thursday::DirectoryChange(std::string desiredPath, int number) {
 	/*-------------------------------------------------------------------
@@ -488,7 +470,7 @@ void Thursday::DirectoryChange(std::string desiredPath, int number) {
 		} else {
 			if (chdir(desiredPath.c_str()) == -1) {											// Make the directory change.
 				currentPath = getcwd(path, MAX_SIZE);										// If there was a problem then we want our actual path that the system is in.
-				errorSwitch = 1;															// Set our error switch if we have a permission issue so that the dfs algorithm doesn't re-look at the directory again and get stuck in a loop.
+				errorSwitch = true;															// Set our error switch if we have a permission issue so that the dfs algorithm doesn't re-look at the directory again and get stuck in a loop.
 			} else {
 				currentPath = getcwd(path, MAX_SIZE);										// If there wasnt a problem then we want our actual path that the system is in.	
 				previousPath = savedPath;
@@ -574,7 +556,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		dir = opendir(pathName.c_str());																									// Else we will open up the path name.
 	
 	if (lsArgument == "all") {																												// If the ls argument is all.
-		DepthFirstSearch("/", "&&&&&", 0, 0);																								// We want to print all the directories in the system.
+		DepthFirstSearch("/", "", false);																									// We want to print all the directories in the system.
 	} else if (lsArgument == "" || lsArgument == "-l") {																					// Else if the ls argument is -l or empty.
 		while (entry = readdir(dir)) {																										// Loop through the directory.
 			stat(entry->d_name, &fileStruct);																								// Get information on the file that we are looking at.
@@ -751,7 +733,7 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 			return 0;
 		}
 	} else {
-		if (commandSwitch == false)																// If the running in the back ground command is false.
+		if (waitSwitch == false)																// If the running in the back ground command is false.
 			waitpid(pid, NULL, 0);																// Wait for the process to finish executing.
 	}
 
@@ -1181,15 +1163,14 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 							ColorChange("Sorry the first argument was not a number (key).", 2);
 						}
 						i++;
-						std::cout << "\t\t Here: " << Cryptography(1, key, incomingInput[i]) << std::endl;	
+						std::cout << "\t\t" << Cryptography(1, key, incomingInput[i]) << std::endl;	
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "exit") {
 					SetupAndCloseSystem(2, 0, envp);
-					std::cout << "We are right here" << std::endl;
-					// arguments.push_back("reset");
-					// ExecuteFile("reset", arguments);
+					arguments.push_back("reset");
+					ExecuteFile("reset", arguments);
 					exit(0);
 				} else if (incomingInput[i] == "find") {
 					if (size == 3) {
@@ -1199,12 +1180,12 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 							ColorChange("\t\tYour starting point argument is not a path.", 2);
 						} else {
 							i++;
-							DepthFirstSearch(random, incomingInput[i], 1, 1);
+							DepthFirstSearch(random, incomingInput[i], true);
 						}
 					} else if (size == 2) {
 						i++;
 						random = "/";
-						DepthFirstSearch(random, incomingInput[i], 1, 1);
+						DepthFirstSearch(random, incomingInput[i], true);
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
@@ -1244,6 +1225,8 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 								if (lsArgumentSwitch == false) {
 									lsArgumentSwitch = true;
 									lsArgument = incomingInput[i];
+								} else {
+									ColorChange("\t\tSorry the command ls can only take one argument at a time.", 2);
 								}
 							} else {
 								if ((FileChecker(incomingInput[i], 1)).size() > 0) {
@@ -1378,7 +1361,7 @@ void Thursday::SetupAndCloseSystem(int number, int argc, char * envp[]) {
 	thursdayCommandsFileName += "/ThursdayCommands.txt";									// Add the file name that we want to open for our system commands.
 	globalFileName = informationDestination;												// Add the information destination to our temp file name.
 	globalFileName += "/GlobalVariables.txt";												// Add the file name that we want to ope for our system environment variables.
-	std::cout <<  "HERE: " << getcwd(path, MAX_SIZE) << std::endl;
+
 	if ( number == 1) {																		// Setting up the system.
 		ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);		// Loads the Thursday Commands
 		Environment = utili::get_environment(envp);

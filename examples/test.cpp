@@ -28,10 +28,6 @@ using namespace std;
 
 int main (int argc, char * argv[], char *envp[]) {
 
-	std::string str = "path=/home/something:/home/something2:/home/something3:";
-	str.erase(0, 5);
-	cout << str << endl;
-	
 	return 0;
 }
 

@@ -21,10 +21,10 @@ int main (int argc, char * argv[], char *envp[]) {
 		int i = 0;																								//Used to iterate through all the incoming arguments at applicaton execution.
 		while (i < argc) {																						//Loop through the incoming argument at execution.
 			if (!strcmp(argv[i], "debug=on"))																	//If degub on is found we turn on debug for the whole application.
-				home.DebugSwitch(1);																			//Turn on the switch in the application.
+				home.DebugSwitch(true);																			//Turn on the switch in the application.
 
 			if (!strcmp(argv[i], "color=on"))																	//If color is found off then turn off the color in the application.
-				home.ColorSwitch(1);																			//Turn off the switch for the color in the application.
+				home.ColorSwitch(true);																			//Turn off the switch for the color in the application.
 
 			i++;																								//Increment the iterator for the loop.
 		}
@@ -32,8 +32,8 @@ int main (int argc, char * argv[], char *envp[]) {
 
 	home.SetupAndCloseSystem(1, argc, envp);
 	
-	//incomingCommands.push_back("reset");																		//Put the reset in the vector to send to the ExecuteFile method.
-	//home.ExecuteFile("reset", incomingCommands);																//Reset the screen for the start of the application.
+	incomingCommands.push_back("reset");																		//Put the reset in the vector to send to the ExecuteFile method.
+	home.ExecuteFile("reset", incomingCommands);																//Reset the screen for the start of the application.
 	incomingCommands.clear();																					//Clear the vector.
 	home.PromptDisplay();																						//Print basic prompt out.																	
 
