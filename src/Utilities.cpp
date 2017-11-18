@@ -136,6 +136,37 @@ int utili::isNumber(std::string incomingString) {
 		
 }
 
+void utili::print_content(std::string incomingString) {
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+	int columns = w.ws_col;
+	int iterator = 0;
+	std::string input = "";
+	std::istringstream iss (incomingString);
+
+	while (iss >> input) {
+		if (iterator == 0) {
+			std::cout << std::string(15, ' ');
+			std::cout << input << ' ';
+			iterator = input.size() + 16;
+		} else if (iterator > 0 && iterator < (columns - 15)) {
+			iterator += input.size();
+			iterator += 1;
+			std::cout << input << ' ';
+		} else {
+			iterator = 0;
+			std::cout << std::endl;
+			std::cout << std::string(15, ' ');
+			std::cout << input << ' ';
+			iterator = input.size() + 16;
+		}	
+	}
+	std::cout << std::endl;
+
+	return;
+}
+
 std::string utili::remove_spaces(std::string incomingString) {
 	std::string output = "";
 	for (int i = 0; i < incomingString.size(); ++i) {

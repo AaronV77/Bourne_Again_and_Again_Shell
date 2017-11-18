@@ -32,8 +32,6 @@ int main (int argc, char * argv[], char *envp[]) {
 
 	home.SetupAndCloseSystem(1, argc, envp);
 	
-	incomingCommands.push_back("reset");																		//Put the reset in the vector to send to the ExecuteFile method.
-	home.ExecuteFile("reset", incomingCommands);																//Reset the screen for the start of the application.
 	incomingCommands.clear();																					//Clear the vector.
 	home.PromptDisplay();																						//Print basic prompt out.																	
 
@@ -103,12 +101,11 @@ int main (int argc, char * argv[], char *envp[]) {
 					home.PromptDisplay();																		//print the normal prompt.
 					cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
 					theCommands = incomingCommands[UpAndDownIterator];											//Reset the input string with the previous command.
-					LeftAndRightIterator = theCommands.size();													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
+					LeftAndRightIterator = theCommands.size() + 1;												//Reset the left and right iterator so that the cursor doesn't move past the commmand.
 				} else {
 					UpAndDownIterator = 0;																		//Reset the iterator to zero.
 				}
 				break;
-			case 198: 																						//Down arrow key.
 				UpAndDownIterator++;																			//Increment the iterator.
 				if (UpAndDownIterator < incomingCommands.size() && incomingCommands.size() != 0) {				//If the up and down iterator is less than the size of the vector minus 1, and if the vector size is not equal to zero.
 					printf("%c[2K", 27);																		//Clear the printed terminal line.
@@ -116,7 +113,7 @@ int main (int argc, char * argv[], char *envp[]) {
 					home.PromptDisplay();																		//print the normal prompt.
 					cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
 					theCommands = incomingCommands[UpAndDownIterator];											//Reset the input string with the previous command.
-					LeftAndRightIterator = theCommands.size();													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
+					LeftAndRightIterator = theCommands.size() + 1;												//Reset the left and right iterator so that the cursor doesn't move past the commmand.
 				} else {																						//If we hit the very top of the vector then we want to clear the termina input just like bash.
 					if (theCommands.size() > 0) {
 						for (int d = 0; d < theCommands.size(); d++) {											//Loop through the number of characters currently being typed.

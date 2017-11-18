@@ -1,13 +1,17 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <grp.h>
 #include <iostream>
-#include <string>
-#include <time.h>
 #include <pwd.h>
+#include <sstream>
+#include <stdio.h>
+#include <string>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <unistd.h>
 #include <vector>
 
 namespace utili {   
@@ -17,7 +21,8 @@ namespace utili {
     std::string	date(int number);   
     std::string fileInformation(std::string pathName);
     std::vector<std::string> get_environment(char **);
-	int isNumber (std::string incomingString);
+    int isNumber(std::string incomingString);
+    void print_content(std::string incomingString);
     std::string remove_spaces(std::string incomingString);
     std::string remove_special_characters(std::string incomingString);
 

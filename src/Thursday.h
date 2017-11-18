@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <dirent.h>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <stack>
 #include <string>
@@ -63,6 +64,23 @@ private:
 	bool errorSwitch;
 	bool waitSwitch;
 
+	std::string colorDEF ="";
+	std::string colorLightRed = "";
+	std::string colorRed = "";
+	std::string colorLightYellow = "";
+	std::string colorYellow = "";
+	std::string colorLightGreen = "";
+	std::string colorGreen = "";
+	std::string colorLightCyan = "";
+	std::string colorCyan = "";
+	std::string colorLightBlue = "";
+	std::string colorBlue = "";
+	std::string colorLightMagenta ="";
+	std::string colorMagenta = "";
+	std::string colorLightGray = "";
+	std::string colorGray = "";
+	std::string colorBlack = "";
+
 	std::string currentPath;
 	std::string currentPrompt;
 	std::string dictionaryDestination;
@@ -76,7 +94,7 @@ private:
     std::vector<std::string> Environment;
     std::vector<std::string> PathVector;
     std::vector<std::string> ThursdayCommands;
-    std::vector<std::string> OSCommands;
+
     
 };
 

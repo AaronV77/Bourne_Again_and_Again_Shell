@@ -7,14 +7,14 @@ Thursday::Thursday() {
 	Note: The constructor is just used to setup all the variables and load the
 	* users into the system.
 	--------------------------------------------------------------------*/
+	ColorSwitch(false);								// Turn off the color.
 
-	colorSwitch = false; 							// Color switch so that the color is turned either on or off.
 	debugSwitch = false;							// Switch for turning on and off the debug statments.	
 	errorSwitch = false;							// Used for the DFS method and seeing if there are errors. 
 	waitSwitch = false;								// Used during our execution method, and is for when we are waiting for the child process to finish or not.
 	
 	BoolVar = 1;									// Used for the color of the system.
-	colorOption = 11;								// Color switch for turning on and off the colors for the program.
+	colorOption = 5;								// Color switch for turning on and off the colors for the program.
 	promptNumber = 2;								// For displaying the prompt and which one to display.	
 	gid = getgid();									// Gets the group id for the process and saves it to an int variable.
 	pid = getpid();									// Gets the process id for the process and saves it to an int variable.
@@ -24,29 +24,15 @@ Thursday::Thursday() {
 	previousPath = ""; 								// Used in the constructor for find where our base directory is.					
     gethostname(path, sizeof(path));				// Uses a C function to get the computers hostname.
 	hostName = path;								// Copies the name from the char array "path" to the hostname.
-	currentPath = getcwd(path, MAX_SIZE);			// Get the systems current working path.
+	homeDestination = getcwd(path, MAX_SIZE);		//Uses a C function to get the current path and set it to the current path pointer.
+	homeDestination += "/..";						//Move back a directory.
+	DirectoryChange(homeDestination, 0);			//Call a Library mehtod to move the system back a directory.
+	homeDestination = currentPath;					//Set the base path for the following paths.
+	dictionaryDestination = currentPath;
+	informationDestination = currentPath;
+	dictionaryDestination += "/Dictionary-1.2";		//This is used to get to the Dictionary directory.
+	informationDestination += "/information";		//This is used to get to all the information need for the system.
 
-	DepthFirstSearch("/home", "Thursday", true);	// Find where the home directory is being stored.
-	if (findingHome.size() > 0) {					// There is a variable in the DFS method keep track if we found our Thursday Directory. If Thursday was not found in /home.
-		homeDestination = findingHome;				// Use the last entry that was found with our search word in the DFS and make it our home directory.
-		DirectoryChange(homeDestination, 1);		// Change our directory to the home destination.
-		dictionaryDestination = currentPath;
-		informationDestination = currentPath;
-		dictionaryDestination += "/Dictionary-1.2";
-		informationDestination += "/information";
-	} else {
-		DepthFirstSearch("/lib", "Thursday", true);	// Find where the home directory is being stored.
-		if (findingHome.size() > 0) {				// If the home directory was not found then search our back up destination in /lib.
-			homeDestination = findingHome;			// Use the last entry that was found with our search word in the DFSS and make it our home directory.
-			DirectoryChange(homeDestination, 0);	// Change our directory to the home destination.
-			dictionaryDestination = currentPath;
-			informationDestination = currentPath;
-			dictionaryDestination += "/Dictionary-1.2";
-			informationDestination += "/information";
-		} else {
-			ColorChange("\t\tSYSTEM ERROR: The system could not find home", 2);
-		}
-	}
 }
 
 Thursday::~Thursday() {
@@ -158,100 +144,33 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 	* the output. There is a bool statment called BoolVar that will turn
 	* off the color. This method was last updated on 11/6/2017.
 	--------------------------------------------------------------------*/
-
-	string color = "";
-	Color::Modifier def(Color::FG_DEFAULT, BoolVar);										// We get the default color "def" because we want to allow the incoming input to be white again.
-
 	if (colorSwitch == true) {																// If the user wants the application to pring in color.
 		if (signal == 1) {																	// This block is for the users prompt color.
-			if ( colorOption == 1 ) {
-				Color::Modifier color(Color::FG_BLACK, BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 2 ) {
-				Color::Modifier color(Color::FG_RED,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 3 ) {
-				Color::Modifier color(Color::FG_GREEN,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 4 ) {
-				Color::Modifier color(Color::FG_YELLOW,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 5 ) { 
-				Color::Modifier color(Color::FG_BLUE,BoolVar);	
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 6 ) { 
-				Color::Modifier color(Color::FG_MEGENTA,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 7 ) {
-				Color::Modifier color(Color::FG_CYAN,BoolVar);	
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 8 ) {		
-				Color::Modifier color(Color::FG_LIGHT_GRAY,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 9 ) {
-				Color::Modifier color(Color::FG_DARK_GRAY,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 10 ) {
-				Color::Modifier color(Color::FG_LIGHT_RED,BoolVar);	
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 11 ) {
-				Color::Modifier color(Color::FG_LIGHT_GREEN,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 12 ) {
-				Color::Modifier color(Color::FG_LIGHT_YELLOW,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 13 ) {
-				Color::Modifier color(Color::FG_LIGHT_BLUE,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 14 ) {
-				Color::Modifier color(Color::FG_LIGHT_MAGENTA,BoolVar);	
-				std::cout << color << sentence << def;
-				return;
-			} else if ( colorOption == 15 ) {
-				Color::Modifier color(Color::FG_LIGHT_CYAN,BoolVar);
-				std::cout << color << sentence << def;
-				return;
-			} else {
-				Color::Modifier color(Color::FG_WHITE,BoolVar);
-				std::cout << color << sentence << def;
-				return;
+			switch(colorOption) {
+				case 1: std::cout << colorLightRed << sentence << colorDEF; break;
+				case 2: std::cout << colorRed << sentence << colorDEF; break;
+				case 3: std::cout << colorLightYellow << sentence << colorDEF; break;
+				case 4: std::cout << colorYellow << sentence << colorDEF; break;
+				case 5: std::cout << colorLightGreen << sentence << colorDEF; break;
+				case 6: std::cout << colorGreen << sentence << colorDEF; break;
+				case 7: std::cout << colorLightCyan << sentence << colorDEF; break;
+				case 8: std::cout << colorCyan << sentence << colorDEF; break;
+				case 9: std::cout << colorLightBlue << sentence << colorDEF; break;
+				case 10: std::cout << colorBlue << sentence << colorDEF; break;
+				case 11: std::cout << colorLightMagenta << sentence << colorDEF; break;
+				case 12: std::cout << colorMagenta << sentence << colorDEF; break;
+				case 13: std::cout << colorLightGray << sentence << colorDEF; break;
+				case 14: std::cout << colorGray << sentence << colorDEF; break;
+				case 15: std::cout << colorBlack << sentence << colorDEF; break;
+				default:
+					std::cout << sentence;
+					break;
 			}
 		} else if ( signal == 2 ) {															// For printing the error statments from the system.
-			Color::Modifier color(Color::FG_RED, BoolVar);
-			std::cout << color << sentence << def << std::endl;
+			std::cout << colorRed << sentence << colorDEF << std::endl;
 			return;
 		} else if ( signal == 3 ) {															// For printing the warning statments from the system.
-			Color::Modifier color(Color::FG_YELLOW, BoolVar);
-			std::cout << color << sentence << def << std::endl;
-			return;
-		} else if ( signal == 4 ) {															// The next four if statments is for the ls command.
-			Color::Modifier color(Color::FG_CYAN, BoolVar);
-			std::cout << color << sentence << def << std::endl;
-			return;
-		} else if ( signal == 5 ) {
-			Color::Modifier color(Color::FG_LIGHT_YELLOW, BoolVar);
-			std::cout << color << sentence << def << std::endl;
-			return;
-		} else if ( signal == 6 ) {
-			Color::Modifier color(Color::FG_LIGHT_GREEN, BoolVar);
-			std::cout << color << sentence << def << std::endl;
-			return;
-		} else if ( signal == 7 ) {
-			Color::Modifier color(Color::FG_RED, BoolVar);
-			std::cout << color << sentence << def << std::endl;
+			std::cout << colorYellow << sentence << colorDEF << std::endl;
 			return;
 		}
 	} else {
@@ -272,8 +191,40 @@ void Thursday::ColorSwitch(bool signal) {
 	--------------------------------------------------------------------*/
 	if (signal == true) {
 		colorSwitch = true;
+		colorDEF = "\033[39m";
+		colorLightRed = "\033[91m";
+		colorRed = "\033[31m";
+		colorLightYellow = "\033[93m";
+		colorYellow = "\033[33m";
+		colorLightGreen = "\033[92m";
+		colorGreen = "\033[32m";
+		colorLightCyan = "\033[96m";
+		colorCyan = "\033[36m";
+		colorLightBlue = "\033[94m";
+		colorBlue = "\033[34m";
+		colorLightMagenta = "\033[95m";
+		colorMagenta = "\033[35m";
+		colorLightGray = "\033[37m";
+		colorGray = "\033[90m";
+		colorBlack = "\033[30m";
 	} else if (signal == false) {
 		colorSwitch = false;
+		colorDEF ="";
+		colorLightRed = "";
+		colorRed = "";
+		colorLightYellow = "";
+		colorYellow = "";
+		colorLightGreen = "";
+		colorGreen = "";
+		colorLightCyan = "";
+		colorCyan = "";
+		colorLightBlue = "";
+		colorBlue = "";
+		colorLightMagenta ="";
+		colorMagenta = "";
+		colorLightGray = "";
+		colorGray = "";
+		colorBlack = "";
 	}
 	
 }
@@ -291,7 +242,7 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
 	string fileName = argument;																// Used to store the filename so that we can add .tgz to it.
 	std::size_t stringFind;																	// Used to find a string within a string.
 	string path = FileChecker("tar", 0);													// Get the location of the binary for tgz.
-	
+	std::cout << "Path: " << path << std::endl;
 	if (Number == 0) {																		// Store the arguments for compressing.	
 		fileName += ".tgz";																	// Add .tgz to the file name because this will be the new name for the compressed file.
 		arguments.push_back(path);															// The path is stored first.
@@ -313,7 +264,7 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
 		}
 	}
 	
-	ExecuteFile(path, arguments);															// Send arguments and path over to be executed.
+	ExecuteFile("tar", arguments);															// Send arguments and path over to be executed.
 	
 	/*--------------------------------------------------------------------*/ 
     if (debugSwitch == true) 
@@ -461,7 +412,7 @@ void Thursday::DirectoryChange(std::string desiredPath, int number) {
 	if (currentPath != desiredPath && desiredPath.size() > 0) {								// Check to see if the current path is not the same with desired path that the system wants to move into.
 		if (number == 0) {																	// If I want there to be error statments or not.
 			if (chdir(desiredPath.c_str()) == -1) {											// Make the directory change.
-				ColorChange("There was an issue moving to that directory", 2);				// Output an error if there was a problem making the directory jump.
+				ColorChange("\t\tThere was an issue moving to that directory", 2);				// Output an error if there was a problem making the directory jump.
 				currentPath = getcwd(path, MAX_SIZE);										// If there was a problem then we want our actual path that the system is in.
 			} else {
 				currentPath = getcwd(path, MAX_SIZE);										// If there wasnt a problem then we want our actual path that the system is in.	Not just the directory that they may have wanted.
@@ -544,12 +495,13 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 	struct stat fileStruct;																													// Used to access information about a file.
 	DIR * dir;																																// Used to open a directory and see what files are in it.
 	dirent * entry;																															// Used to access the contents of a directroy using the previous variable.
+	int totalNumberOfFiles = 0;
+	std::string tempFile = "";
 	std::vector<std::string> directories;																									// Used to store the directories.
 	std::vector<std::string> regularFiles;																									// Used to store the regular files.
 	std::vector<std::string> executableFiles;																								// Used to store the executables.
-	std::vector<std::string> random;																										// Used to store just the random files.
 	std::vector<std::string> symbolicFiles;																									// Used to stroe the symbolic links.
-											
+
 	if (pathName.size() == 0)																												// If the incoming path name is empty.
 		dir = opendir(".");																													// We will just open up the current directory.
 	else 
@@ -559,79 +511,111 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		DepthFirstSearch("/", "", false);																									// We want to print all the directories in the system.
 	} else if (lsArgument == "" || lsArgument == "-l") {																					// Else if the ls argument is -l or empty.
 		while (entry = readdir(dir)) {																										// Loop through the directory.
-			stat(entry->d_name, &fileStruct);																								// Get information on the file that we are looking at.
-			if ((fileStruct.st_mode & S_IFMT) == S_IFDIR) {																					// Check to see if the file is a directory.
-				directories.push_back(entry->d_name);																						// Add it to the directory vector.
-			} else if ((fileStruct.st_mode & S_IFMT) == S_IFLNK) {																			// Check to see if the file is a symbolic link.
+			if(pathName.size() > 0)	{																										// If there is an incoming path.
+				tempFile = pathName + '/' + entry->d_name;																					// If there is an incoming path then we want the whole path of the file we are looking at.																									
+				lstat(tempFile.c_str(), &fileStruct);																						// Get information on the file that we are looking at.
+			} else {
+				lstat(entry->d_name, &fileStruct);																							// If we are looking at a file in the directory we are currently in.
+			}
+			if ((fileStruct.st_mode & S_IFMT) == S_IFLNK) {																					// Check to see if the file is a symbolic link.
 				symbolicFiles.push_back(entry->d_name);																						// Add it to the symbolic link vector.
+			} else if ((fileStruct.st_mode & S_IFMT) == S_IFDIR) {																			// Check to see if the file is a directory.
+				directories.push_back(entry->d_name);																						// Add it to the directory vector.
 			} else if (! access(entry->d_name, X_OK) && ((fileStruct.st_mode & S_IFMT) == S_IFREG)) {										// Check to see if the file is an executable. 
 				executableFiles.push_back(entry->d_name);																					// Add it to the executable link vector.
 			} else if ((fileStruct.st_mode & S_IFMT) == S_IFREG) {																			// Check to see if the file is just a normal file.
 				regularFiles.push_back(entry->d_name);																						// Add it to the regular file vector.
-			} else {
-				random.push_back(entry->d_name);																							// If the file is nothing above then just add it to the rancom vector.
 			}	
 		}
 			
         if (closedir(dir) == -1)																											// Close the directory.
-            ColorChange("\t\tLS File Closing Failure: ", 2);																					// If there is an error, print one.
+            ColorChange("\t\tLS File Closing Failure: ", 2);																				// If there is an error, print one.
 		
+		if (directories.size()  > regularFiles.size()) {																					// See which one is bigger directories or regular files. These two are always going to out number 
+			if (executableFiles.size() > directories.size()) {																				// Do a check to see if by chance the number of executables has a bigger number than the directories.
+				totalNumberOfFiles = directories.size();																					// Set our iterator to the saved variable.
+			} else {
+				totalNumberOfFiles = directories.size();																					// Set our iterator to the saved variable.
+			}		
+		} else {
+			if (executableFiles.size() > regularFiles.size()) {																				// If directories is not bigger than regular then lets check to see if executables out numbers regular files.
+				totalNumberOfFiles = executableFiles.size();																				// Set our iterator to the saved variable.
+			} else {
+				totalNumberOfFiles = regularFiles.size();																					// Set our iterator to the saved variable.
+			}
+		}
+
 		std::sort(directories.begin(), directories.end());																					// Sort the vector alphabetically.
 		std::sort(symbolicFiles.begin(), symbolicFiles.end());																				// Sort the vector alphabetically.
 		std::sort(executableFiles.begin(), executableFiles.end());																			// Sort the vector alphabetically.
 		std::sort(regularFiles.begin(), regularFiles.end());																				// Sort the vector alphabetically.
-		std:;sort(random.begin(), random.end());																							// Sort the vector alphabetically.
 		
-		int i = 0;																															// Used to loop through all the vectors.
-		for (i = 0; i < directories.size(); i++) {																							// Loop through the directory vector.
-			if (lsArgument == "-l") {																										// If the ls argument was -l.
-				std::cout << "\t\t" << utili::fileInformation(directories[i]) << " " << std::left;										// Print file information aobut the file.
-				ColorChange(directories[i], 4);																								// Print the file in a certian color.
-			} else {
-				std::cout << "\t\t";																										// If the ls argument was not -l, just print tabs.
-				ColorChange(directories[i], 4);																								// Print the file in a certian color.
+		if (lsArgument == "-l") {																											// Print out the files with information.
+			int i = 0;
+			for (i = 0; i < directories.size(); i++) {																						// Loop through the directory.
+				if (pathName.size() > 0) 																									// Check to see if a path came through.
+					tempFile = pathName + '/' + directories[i];																				// If so then create our path to the file.
+				else 
+					tempFile = directories[i];																								// If there is no path then just save the file.
+				std::cout << "\t\t" << colorCyan << utili::fileInformation(tempFile) << " " << std::left << directories[i] << std::endl;	// We have to create the path so that the fileInformation method knows where to look for file info.
+			}
+
+			for (i = 0; i < symbolicFiles.size(); i++) {
+				if (pathName.size() > 0) 
+					tempFile = pathName + '/' + symbolicFiles[i];
+				else 
+					tempFile = symbolicFiles[i];				
+				std::cout << "\t\t" << colorLightYellow << utili::fileInformation(tempFile) << " " << std::left << symbolicFiles[i] << std::endl;
+			}
+
+			for (i = 0; i < executableFiles.size(); i++) {
+				if (pathName.size() > 0) 
+					tempFile = pathName + '/' + executableFiles[i];
+				else 
+					tempFile = executableFiles[i];				
+				std::cout << "\t\t" << colorLightGreen << utili::fileInformation(tempFile) << " " << std::left << executableFiles[i] << std::endl;
+			}
+
+			for (i = 0; i < regularFiles.size(); i++) {
+				if (pathName.size() > 0) 
+					tempFile = pathName + '/' + regularFiles[i];
+				else 
+					tempFile = regularFiles[i];				
+				std::cout << "\t\t" << colorDEF << utili::fileInformation(tempFile) << " " << std::left << regularFiles[i] << endl;
+			}
+		} else {																															// Prints out all the file names in columns by category and in order.
+			std::string sym = "", dir = "", exc = "", reg = "";
+			for (int i = 0; i < totalNumberOfFiles; i++) {																					// Loop through all the vectors.					
+				if (i < directories.size())																									// Makes sure that we are not indexing an empty array.
+					dir = directories[i];																									// Save the element from the vector.
+				else
+					dir = "    ";
+				if (i < regularFiles.size())
+					reg = regularFiles[i];
+				else
+					reg = "    ";
+				if (i < executableFiles.size())
+					exc = executableFiles[i];
+				else 
+					exc = "    ";	
+				if (i < symbolicFiles.size())
+					sym = symbolicFiles[i];
+				else 
+					sym = "    ";	
+					
+				std::cout << "\t" << colorCyan << setw(30) << left << dir
+						  << colorDEF << setw(30) << left << reg
+						  << colorLightGreen << setw(30) << left << exc
+						  << colorLightYellow << setw(30) << left << sym
+						  << std::endl;																										// Print the content in columns.
 			}
 		}
-		directories.clear();
-		for (i = 0; i < symbolicFiles.size(); i++) {
-			if (lsArgument == "-l") {
-				std::cout << "\t\t" << utili::fileInformation(symbolicFiles[i]) << " " << std::left;
-				ColorChange(symbolicFiles[i], 5);
-			} else {
-				std::cout << "\t\t";
-				ColorChange(directories[i], 5);		
-			}
-		}
+
+		directories.clear();																												// Clear the vectors out.
 		symbolicFiles.clear();
-		for (i = 0; i < executableFiles.size(); i++) {
-			if (lsArgument == "-l") {
-				std::cout << "\t\t" << utili::fileInformation(executableFiles[i]) << " " << std::left;
-				ColorChange(executableFiles[i], 6);
-			} else {
-				std::cout << "\t\t";
-				ColorChange(directories[i], 6);		
-			}
-		}
 		executableFiles.clear();
-		for (i = 0; i < regularFiles.size(); i++) {
-			if (lsArgument == "-l") {
-				std::cout << "\t\t" << utili::fileInformation(directories[i]) << " " << std::left << regularFiles[i] << std::endl;
-			} else {
-				std::cout << "\t\t" << regularFiles[i] << std::endl;
-			}
-		}
 		regularFiles.clear();
-		for (i = 0; i < random.size(); i++) {
-			if (lsArgument == "-l") {
-				std::cout << "\t\t" << utili::fileInformation(random[i]) << " " << std::left;
-				ColorChange(random[i], 7);
-			} else {
-				std::cout << "\t\t";
-				ColorChange(directories[i], 7);			
-			}
-		}
 	}
-	random.clear();
     /*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
 		ColorChange("\t\tMission - You are leaving the DisplayDirectories method.", 3);
@@ -725,7 +709,7 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 
     pid_t pid;																					// Create a data type to store a process number.
 	incomingCommand = FileChecker(incomingCommand, 0);											// Send the incoming command to find in the location of the binary in the system. Will either return just the command or the location path.
-
+	std::cout << "Here: " << incomingCommand << std::endl;
 	pid = fork();																				// Create another process.
 	if (pid == 0) {																				// If the process is the child.
 		if (execv(incomingCommand.c_str(), myArray) == -1) {									// Execute with the given command / location path, and char array of arguments.
@@ -956,7 +940,7 @@ void Thursday::PromptDisplay() {
 	--------------------------------------------------------------------*/	
     if (debugSwitch == 1)
         ColorChange("\t\tMission - You are in the PromptDisplay method.", 3); 
- 	/*--------------------------------------------------------------------*/
+	 /*--------------------------------------------------------------------*/
 	std::string thePrompt = "";						// A place to store the prompt that will be constructed.
 	if (promptNumber == 0) {						// The default option for a prompt.
 		thePrompt = "?: ";
@@ -1110,9 +1094,9 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 						}
 					} else if (size == 1) {
 						if (colorSwitch == 0)
-							colorSwitch = 1;
+							ColorSwitch(true);
 						else
-							colorSwitch = 0;
+							ColorSwitch(false);
 					} else {
 						ColorChange("\t\the number of arguments was incorrect.", 2);
 					}
@@ -1167,11 +1151,6 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
-				} else if (incomingInput[i] == "exit") {
-					SetupAndCloseSystem(2, 0, envp);
-					arguments.push_back("reset");
-					ExecuteFile("reset", arguments);
-					exit(0);
 				} else if (incomingInput[i] == "find") {
 					if (size == 3) {
 						i++;
@@ -1213,46 +1192,50 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 					std::cout << "\t\t" << "The process ID is: " << pid << std::endl;
 					std::cout << "\t\t" << "The parent process ID is: " << ppid << std::endl;								
 				} else if (incomingInput[i] == "ls") {
-					if (size > 1 && size <= 2) {
-						bool lsArgumentSwitch = false;
-						bool lsPathSwitch = false;
-						std::string lsPath = "";
-						std::string lsArgument = "";
-						i++;
-						std::cout << "" << std::endl;
-						while (i < incomingInput.size()) {
+					bool lsArgumentSwitch = false;
+					bool lsPathSwitch = false;
+					std::string lsPath = "", lsArgument = "";
+					i++;
+					std::cout << "" << std::endl;
+					if (size == 1) {
+						DisplayDirectories("","");
+					} else if (size == 2) {
+						if (incomingInput[i] == "-l" || incomingInput[i] == "all") {
+							lsArgumentSwitch = true;
+							lsArgument = incomingInput[i];
+						}
+						std::string checkPath = FileChecker(incomingInput[i], 1);
+						if (checkPath.size() > 0) {
+							lsPathSwitch = true;
+							lsPath = incomingInput[i];
+						}
+						if (lsArgumentSwitch == true) {
+							DisplayDirectories(lsArgument, "");
+						} else if (lsPathSwitch == true) {
+							DisplayDirectories("", lsPath);
+						} else {
+							DisplayDirectories("","");
+						}
+					} else if (size == 3) {
+						while (i <3) {
 							if (incomingInput[i] == "-l" || incomingInput[i] == "all") {
-								if (lsArgumentSwitch == false) {
-									lsArgumentSwitch = true;
-									lsArgument = incomingInput[i];
-								} else {
-									ColorChange("\t\tSorry the command ls can only take one argument at a time.", 2);
-								}
-							} else {
-								if ((FileChecker(incomingInput[i], 1)).size() > 0) {
-									if (lsPathSwitch == false) {
-										lsPathSwitch = true;
-										lsPath = incomingInput[i];
-									}
-								}
+								lsArgumentSwitch = true;
+								lsArgument = incomingInput[i];
+							}
+							std::string checkPath = FileChecker(incomingInput[i], 1);
+							if (checkPath.size() > 0) {
+								lsPathSwitch = true;
+								lsPath = incomingInput[i];
 							}
 							i++;
 						}
-						if (lsArgumentSwitch == true && lsPathSwitch == true) {	
+						if (lsArgumentSwitch == true && lsPathSwitch == true) {
 							DisplayDirectories(lsArgument, lsPath);
-						} else if (lsArgumentSwitch == true) {
-							DisplayDirectories(lsArgument, "");
-						} else if (lsPathSwitch == true) {
-							DisplayDirectories("", lsPath);	
 						} else {
-							DisplayDirectories("", "");	
+							DisplayDirectories("","");
 						}
-						std::cout << "" << std::endl;
-					} else {
-						std::cout << std::endl;
-						DisplayDirectories("","");
-						std::cout << std::endl;
 					}
+					std::cout << "" << colorDEF << std::endl;
 				}
 			}
 		} else if (characterValue >= 109 && characterValue <= 122) {						//If the command is within M - Z (m - z).
@@ -1359,40 +1342,20 @@ void Thursday::SetupAndCloseSystem(int number, int argc, char * envp[]) {
 	std::string thursdayCommandsFileName = "";												// Used to get the system commands of the system.
 	thursdayCommandsFileName = informationDestination;										// Add the information destination to our temp file name.
 	thursdayCommandsFileName += "/ThursdayCommands.txt";									// Add the file name that we want to open for our system commands.
-	globalFileName = informationDestination;												// Add the information destination to our temp file name.
-	globalFileName += "/GlobalVariables.txt";												// Add the file name that we want to ope for our system environment variables.
 
-	if ( number == 1) {																		// Setting up the system.
-		ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);		// Loads the Thursday Commands
-		Environment = utili::get_environment(envp);
-		
-		std::string input = "";
-		for (int i = 0; i < Environment.size(); ++i) {
-			if (Environment[i] == "PATH") {
-				i++;
-				std::istringstream iss (Environment[i]);
-				while(std::getline(iss,input, ':'))
-					PathVector.push_back(input);
-			}
+																							// Setting up the system.
+	ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);			//Loads the Thursday Commands
+	Environment = utili::get_environment(envp);
+	
+	std::string input = "";
+	for (int i = 0; i < Environment.size(); ++i) {
+		if (Environment[i] == "PATH") {
+			i++;
+			std::istringstream iss (Environment[i]);
+			while(std::getline(iss,input, ':'))
+				PathVector.push_back(input);
 		}
-
-	} else if (number == 2) {																// Closing up the system.
-		fstream GlobalInput;																// Create a variable to open a file with.
-
-		GlobalInput.open(globalFileName.c_str());											// Opens the stream for the global file.
-
-		if (!GlobalInput) {
-			ColorChange("\t\tThere was an error opening the file in the SetupAndCloseSystem method 2.", 2);
-			return;	
-		}
-		
-		for (int i = 0; i < Environment.size(); i++) {										// Loops until the end of the vector.
-			GlobalInput << Environment[i] << '#';											// Print the variable to the file.
-			if (i % 2 == 0)																	// If the iterator is every second location.
-				GlobalInput <<  std::endl;													// Print a new line in the file.
-		}
-		GlobalInput.close();																// Close the file.
-	}	
+	}
 	/*--------------------------------------------------------------------*/
 	if (debugSwitch == 1)
 		ColorChange("\t\tMission - You are leaving the SetupAndCloseSystem method.", 3);
