@@ -136,11 +136,35 @@ int utili::isNumber(std::string incomingString) {
 		
 }
 
-void utili::print_content(std::string incomingString) {
-    struct winsize w;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+void utili::print_content(std::vector<std::string> content) {
+	int columns = screen_size();
+	int iterator = 0;
+	std::string input = "";
 
-	int columns = w.ws_col;
+	for (int i = 0; i < content.size(); i++) {
+		std::istringstream iss (content[i]);
+		while (iss >> input) {
+			if (iterator == 0) {
+				std::cout << std::string(15, ' ');
+				std::cout << input << ' ';
+				iterator = input.size() + 16;
+			} else if (iterator > 0 && iterator < (columns - 15)) {
+				iterator += input.size();
+				iterator += 1;
+				std::cout << input << ' ';
+			} else {
+				iterator = 0;
+				std::cout << std::endl;
+				std::cout << std::string(15, ' ');
+				std::cout << input << ' ';
+				iterator = input.size() + 16;
+			}	
+		}
+	}
+}
+
+void utili::print_string(std::string incomingString) {
+	int columns = screen_size();
 	int iterator = 0;
 	std::string input = "";
 	std::istringstream iss (incomingString);
@@ -185,6 +209,12 @@ std::string utili::remove_special_characters(std::string incomingString) {
 	return output;
 }
 
+int utili::screen_size() {
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+	return w.ws_col;
+}
 
 
 
