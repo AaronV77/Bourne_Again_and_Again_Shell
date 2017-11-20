@@ -10,6 +10,7 @@ int main (int argc, char * argv[], char *envp[]) {
 	int quoteCounter = 0;																						//Used to keep track of how many quotes are in the stream.
 	int UpAndDownIterator = 0;																					//Used to keep track of where the system is in the commands vector.
 	int stringSize = 0;
+	int size = 0;
 	bool quoteFound = false;																					//Used to stop store characters in the "theCommands" variable.
 	std::string theCommands = "";																				//Used to store the whole incoming input from the user besides if there is a quote.
 	std::vector<std::string> incomingCommands;																	//Used to store the incoming commands from the user and will be checked.
@@ -30,9 +31,8 @@ int main (int argc, char * argv[], char *envp[]) {
 		}
 	}
 
-	home.SetupAndCloseSystem(1, argc, envp);
+	home.SetupAndCloseSystem(argc, envp);
 	
-	incomingCommands.clear();																					//Clear the vector.
 	home.PromptDisplay();																						//Print basic prompt out.																	
 
 	while (1) {																									//Loop for indeffinately.
@@ -43,9 +43,9 @@ int main (int argc, char * argv[], char *envp[]) {
 		characterNumber = getche();																				//Retrieve the character that was typed and send back the ascii value.
 		tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);																//Set the terminal to the old settings.
 		switch(characterNumber) {																				//Use a switch statment to do specific actions for certain characters.
-			case 9:																								//When a tab was pressed.
-			break;
-			case 10: 																							//When an enter key was pressed.
+			case 9:																							//When a tab was pressed.
+				break;
+			case 10: 																						//When an enter key was pressed.
 				if (theCommands != "") {																		//Make sure that the char pointer is not empty / NULL.
 					home.GetArguments(theCommands, envp);														//Send the commands in the incomingInput vector to the search commands method.
 					incomingCommands.push_back(theCommands);													//Store the old commands in this vector.				
@@ -106,6 +106,7 @@ int main (int argc, char * argv[], char *envp[]) {
 					UpAndDownIterator = 0;																		//Reset the iterator to zero.
 				}
 				break;
+			case 198:																						//Down arrow key	
 				UpAndDownIterator++;																			//Increment the iterator.
 				if (UpAndDownIterator < incomingCommands.size() && incomingCommands.size() != 0) {				//If the up and down iterator is less than the size of the vector minus 1, and if the vector size is not equal to zero.
 					printf("%c[2K", 27);																		//Clear the printed terminal line.
@@ -127,44 +128,59 @@ int main (int argc, char * argv[], char *envp[]) {
 				break;
 			case 201:																						//Right arrow key.
 				if (LeftAndRightIterator < (theCommands.size()+1)) {											//If the iterator is not going past the current string.	
-					printf ("\033[C"); 																			//Move the cursor to the right by one.	
+					printf("\033[C"); 																			//Move the cursor to the right by one.	
 					LeftAndRightIterator++;																		//Increment the iterator.
 				}	
 				break;
 			case 204: 																						//Left arrow key.																							
 				if (LeftAndRightIterator > 1) {																	//If the iterator is less than or equal to the vector size and is greater than zero.												
-					printf ("\033[D");																			//Move the cursor to the left by one.
+					printf("\033[D");																			//Move the cursor to the left by one.
 					LeftAndRightIterator--;																		//Decrment the iterator.
-
 				}	 
 				break;
-			default: 																							//Catch every other character.
-			if (characterNumber < 195 || characterNumber > 204) {											//Look for any letter between a - z.
-				if ((theCommands.size()+1) != LeftAndRightIterator) {											//If the cursor is not at the end of the string.
-					std::string str = utili::convert_number_to_letter(characterNumber);							//Convert the character number into an actual letter.															
-					theCommands.insert((LeftAndRightIterator - 1), str);										//Insert the letter into our string.
-					int shift = (theCommands.size() - LeftAndRightIterator);									//Get our shift which is just the different from the back of the string to where the cursor is at on the string.
-					int i = 0;																					//Since there are more than one for loop, lets just create one variable.
-					for (i = 0; i < shift; ++i) {																//Loop to move the cursor to the end of the string.
-						printf("\033[C");																		//Move the cursor to the left.
-						LeftAndRightIterator--;																	//Move the iterator to the right.
-					}
-					for (i = 0; i < theCommands.size(); ++i) {													//Loop to delete the whole command off the screen.
-						printf("\b \b");																		//Delete a character off the screen.
-						LeftAndRightIterator--;
-					}
-					std::cout << theCommands;																	//Print the updated string. This will put the cursor at the end of the string.
-					LeftAndRightIterator = (theCommands.size()+1);												//Set our iterator to the end of the string.
-					
-					for (i = 0; i < shift; ++i) {																//Loop to move the cursor to where we left off on the string.
-						printf("\033[D");																		//Move the cursor to the left.
-						LeftAndRightIterator--;																	//Move our iterator in.
-					}
-				} else {
-					theCommands += characterNumber;																//Add the character to the input string.
-					LeftAndRightIterator++;																		//Move the iterator with the incoming character.
+			case 210:																						//End key
+				size = theCommands.size() - (LeftAndRightIterator - 1);
+				if (size == 0) 
+					size = theCommands.size();
+				for (int i = 0; i < size; i++) {
+					printf("\033[C");
+					LeftAndRightIterator++;
 				}
-			}
+				break;
+			case 216:																						//Home key	
+				size = (LeftAndRightIterator - 1);
+				for (int i = 0; i < size; i++) {
+					printf("\033[D");
+					LeftAndRightIterator--;
+				}		
+				break;
+			default: 																							//Catch every other character.
+				if (characterNumber < 195 || characterNumber > 204) {											//Look for any letter between a - z.
+					if ((theCommands.size()+1) != LeftAndRightIterator) {											//If the cursor is not at the end of the string.
+						std::string str = utili::convert_number_to_letter(characterNumber);							//Convert the character number into an actual letter.															
+						theCommands.insert((LeftAndRightIterator - 1), str);										//Insert the letter into our string.
+						int shift = (theCommands.size() - LeftAndRightIterator);									//Get our shift which is just the different from the back of the string to where the cursor is at on the string.
+						int i = 0;																					//Since there are more than one for loop, lets just create one variable.
+						for (i = 0; i < shift; ++i) {																//Loop to move the cursor to the end of the string.
+							printf("\033[C");																		//Move the cursor to the left.
+							LeftAndRightIterator--;																	//Move the iterator to the right.
+						}
+						for (i = 0; i < theCommands.size(); ++i) {													//Loop to delete the whole command off the screen.
+							printf("\b \b");																		//Delete a character off the screen.
+							LeftAndRightIterator--;
+						}
+						std::cout << theCommands;																	//Print the updated string. This will put the cursor at the end of the string.
+						LeftAndRightIterator = (theCommands.size()+1);												//Set our iterator to the end of the string.
+						
+						for (i = 0; i < shift; ++i) {																//Loop to move the cursor to where we left off on the string.
+							printf("\033[D");																		//Move the cursor to the left.
+							LeftAndRightIterator--;																	//Move our iterator in.
+						}
+					} else {
+						theCommands += characterNumber;																//Add the character to the input string.
+						LeftAndRightIterator++;																		//Move the iterator with the incoming character.
+					}
+				}
 				break;
 		}
 		if (incomingCommands.size() > 100)																		//If there are more than 100 elements in the vector.
@@ -186,35 +202,43 @@ int getche(void) {
 	 * and printed. Then terminal is set back to normal.
 	--------------------------------------------------------------------*/	
 	struct termios oldattr, newattr;																			//Termions variables.
-    int check1 = 0, check2 = 0;																					//Our checks for special keys.
 	char c;																										//Used to store the character coming in.
-	
-    tcgetattr(STDIN_FILENO, &oldattr);																			//Get our current terminal settings.
+	bool specialCharacterSwitch = false;
+	int characterIterator = 0;																					//Some keys will output 3 or 4 charactes.
+	int savedCharacter = 0;
+	tcgetattr(STDIN_FILENO, &oldattr);																			//Get our current terminal settings.
     newattr = oldattr;																							//Copy the terminal settings.
     newattr.c_lflag &= ~( ICANON );																				//Give setting to allow the application to not print the incoming characters.
     tcsetattr(STDIN_FILENO, TCSANOW, &newattr);																	//Replace the terminal settings with the new ones.
+	
 	while ((c = getchar())) {																					//Loop through getting characters.
-		if (c != 27 && c != 126) {																				//
-			if (c != 91) {																						//
-				if (check1 == 0 && check2 == 0 && c != 9) {														//
-					printf("%c",c);																				//
-					return c;																					//
-				} else {
-					if (c == 9) 
-						return c;
-					check1 = 0; check2 = 0;																		//Reset the checks.
-					return c * 3;																				//Multiply the special character key by 3 so that it is not close to any other key value.
-				}
+		if (specialCharacterSwitch == false) {
+			if ((c >= 32 && c <= 126) || c == 10) {																//If the letter is betweenwhat we want and and can easily process.
+				printf("%c",c);																					//Just print the letter out and return.
+				tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);														//Give oru terminal the old settings again.
+				return c;
+			} else if (c == 9 || c == 127 ) {																	//Return the backspace and tab character, but don't print them.
+				tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);														//Give oru terminal the old settings again.
+				return c;		
 			} else {
-				check2 = 1;
+				specialCharacterSwitch = true;																	//Set our switch to true.
+				characterIterator++;																			//Start our iterator.
 			}
 		} else {
-			check1 = 1;
+			characterIterator++;																			//If we already found the start to one of our special keys with more than one output then increment.
+			if (characterIterator == 3) {																	//With keys that have more than one output the, the third number is the descriptor key.
+				if (c == 51 || c == 50) {																	//Looking at del and insert
+					savedCharacter =  c * 3;																//Save the character since we can't return it until we get all the incoming numbers from the key.
+				} else {
+					tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);												//Give oru terminal the old settings again.
+					return c * 3;
+				}
+			} else if (characterIterator == 4) {															//If the key outputs four numbers then we can ignore the last number.
+				tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);													//Give oru terminal the old settings again.
+				return savedCharacter;
+			}
 		}
 	}
-	tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);																	//Give oru terminal the old settings again.
-	
-    return c;
 }
 
 

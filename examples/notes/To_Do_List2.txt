@@ -1,0 +1,40 @@
+
+Make sure that there is "you are in (blank) method" and "you are leaving (blank) method".
+Make sure that error statments are using the method name.
+Make sure that pointers are being cleaned up in methods.
+Make sure that methods are not changing directories inorder to read / output to a file.
+Make sure that we are strduping the pointers and not just using them.
+Make sure that we are commeenting on what each line is doing in the methods.
+
+
+
+For the color feature:
+	- If found we should return something special
+	- Then have the argument checker return something special.
+
+
+Gotta Fix or Finish
+
+	 - Argument Checker
+	 - Color 
+
+	 - LS color
+	 - Search Commands
+	 
+
+Done:
+	 - Search and Help
+	 - We are going to have a problem with ./run something. This will be added to our os commad file.
+	
+	
+	void DisplayDirectories(char * searchWord, int number, int theSwitch); 
+	int SearchCommands(char * envp[], vector<char*>incomingInput, int signal);
+	
+	void therandom::ColorChange(char * sentence, int signal);
+	int ArgumentChecker(char * theCommands, char * envp[]);
+	void DepthFirstSearch(char * path, char * command, int number, int theSwitch);
+	void EnvironmentUtilites(int Number);
+
+	do an export
+	
+

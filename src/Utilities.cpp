@@ -138,52 +138,91 @@ int utili::isNumber(std::string incomingString) {
 
 void utili::print_content(std::vector<std::string> content) {
 	int columns = screen_size();
+	int indent = 0;
 	int iterator = 0;
 	std::string input = "";
+
+	if (columns <= 150) {
+		indent = 5;
+	} else if (columns <= 100) {
+		indent = 0;
+	}
 
 	for (int i = 0; i < content.size(); i++) {
 		std::istringstream iss (content[i]);
 		while (iss >> input) {
+			if (input == "newLine") {
+				iterator = 0;
+				std::cout << std::endl;
+			} else {
+				if (iterator == 0) {
+					std::cout << std::string(indent, ' ');
+					std::cout << input << ' ';
+					iterator = input.size() + indent + 1;
+				} else if ((input.size()+iterator) < (columns - indent)) {
+					iterator += input.size();
+					iterator += 1;
+					std::cout << input << ' ';
+				} else {
+					iterator = 0;
+					std::cout << std::endl;
+					std::cout << std::string(indent, ' ');
+					std::cout << input << ' ';
+					iterator = input.size() + indent + 1;
+				}
+			}	
+		}
+	}
+	std::cout << std::endl;
+}
+
+void utili::print_string(std::string incomingString) {
+	int columns = screen_size();
+	int indent = 0;
+	int iterator = 0;
+	std::string input = "";
+
+	if (columns <= 150) {
+		indent = 5;
+	} else if (columns <= 100) {
+		indent = 0;
+	}
+
+	std::istringstream iss (incomingString);
+	while (iss >> input) {
+		if (input.size() > 100) {
+			for (int i = 0; i < input.size(); i++) {
+				if (iterator == 0) {
+					std::cout << std::string(indent, ' ');
+					std::cout << input[i];
+					iterator = indent + 1;
+				} else if ((1 + iterator) < (columns - indent)) {
+					iterator += 1;
+					std::cout << input[i];
+				} else {
+					iterator = 0;
+					std::cout << std::endl;
+					std::cout << std::string(indent, ' ');
+					std::cout << input[i];
+					iterator = indent + 1;
+				}
+			}
+		} else {
 			if (iterator == 0) {
-				std::cout << std::string(15, ' ');
+				std::cout << std::string(indent, ' ');
 				std::cout << input << ' ';
-				iterator = input.size() + 16;
-			} else if (iterator > 0 && iterator < (columns - 15)) {
+				iterator = input.size() + indent + 1;
+			} else if ((input.size()+iterator) < (columns - indent)) {
 				iterator += input.size();
 				iterator += 1;
 				std::cout << input << ' ';
 			} else {
 				iterator = 0;
 				std::cout << std::endl;
-				std::cout << std::string(15, ' ');
+				std::cout << std::string(indent, ' ');
 				std::cout << input << ' ';
-				iterator = input.size() + 16;
-			}	
-		}
-	}
-}
-
-void utili::print_string(std::string incomingString) {
-	int columns = screen_size();
-	int iterator = 0;
-	std::string input = "";
-	std::istringstream iss (incomingString);
-
-	while (iss >> input) {
-		if (iterator == 0) {
-			std::cout << std::string(15, ' ');
-			std::cout << input << ' ';
-			iterator = input.size() + 16;
-		} else if (iterator > 0 && iterator < (columns - 15)) {
-			iterator += input.size();
-			iterator += 1;
-			std::cout << input << ' ';
-		} else {
-			iterator = 0;
-			std::cout << std::endl;
-			std::cout << std::string(15, ' ');
-			std::cout << input << ' ';
-			iterator = input.size() + 16;
+				iterator = input.size() + indent + 1;
+			}
 		}	
 	}
 	std::cout << std::endl;

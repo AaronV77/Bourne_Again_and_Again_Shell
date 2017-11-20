@@ -1,0 +1,38 @@
+To Do -
+
+Change all ifstream and do it manually with low level C. One less file to use.
+CPU Usage
+Event Reminder
+Create a calculator method
+Rework the keylogger
+
+
+
+Finished To Do - 
+
+Fix the tab issue.
+add unset
+Change system command names
+HomeDirectory can be gottent rid of.
+Check the Add user method
+Do double or triple tab on command printouts
+Find a way to negate the two while loops.
+Clean / revamp the execute command. There is no file checking, exec is weird, and unsafe.
+Put get, set, unset, and print enviornment variables methods together.
+See if we can get rid of the get password method.
+Check to see if a null environment is need to start up bash.
+Get rid of userpath
+Put system commands in a file along with the call to run the command.
+Get rid of the directory change in STDIN/OUT.
+Put trigger or debug turn on in the search commands.
+Error checking in the add user method
+Have a method for compressing files and decompressing files.
+Path vector should be an array, because it is one standard size.
+If there are more commands loaded into the file then there should be then exit.
+Have usage display basic information, and help with an argument to display information about a specific command.
+change where the log file is stored.
+Print out the or get all the commands in the libraries usesd.
+Add a date method.
+Fix the log, file name to a date.
+Create a method that would loop through all directories looking for a file.
+Create a file checker program, for existance or in the directory
