@@ -10,6 +10,7 @@ decompress#- This command will decompress a directory for the user. Takes one ar
 debug#- This command will turn on all of the debug statements within the program. Takes no other commands with it.#
 decrypt#- This command will take a message and decrypt it using a key.Takes two arguments, the first is the key and the last is the string you want to decrypt.#
 encrypt#- This command will take a message and encrypt it using a key.Takes two arguments, the first is the key and the last is the string you want to encrypt.#
+exit#- Thiss command will close out the program.#
 find#- This command will take a starting point to look for a file. Takes either one or two arguments. The first option is just the file, and will search the whole directory. The second option is the file and a starting point in the filesystem.#
 getenv#- This command will retrieve a system global variable.Takes one argument, the variable that you are looking for.#
 hd#- This command will display the home directory of the user. Takes no other commands with it. Takes no other arguments.#

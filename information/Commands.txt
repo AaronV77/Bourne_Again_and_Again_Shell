@@ -8,6 +8,7 @@ Program#decompress#- This command will decompress a directory for the user.#
 Program#debug#- This command will turn on all of the debug statements within the program.#
 Program#decrypt#- This command will take a message and decrypt it using a key.#
 Program#encrypt#- This command will take a message and encrypt it using a key.#
+Program#exit#- This command will exit the program.#
 Program#find#- This command will search for a file or directory in the file hiearchy.#
 Program#getenv#- This command will retrieve a system global variable.#
 Program#hd#- This command will display the home directory of the user. Takes no other commands with it.#

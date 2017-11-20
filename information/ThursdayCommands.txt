@@ -10,6 +10,7 @@ debug#
 decompress#
 decrypt#
 encrypt#
+exit#
 find#
 getenv#
 hd#

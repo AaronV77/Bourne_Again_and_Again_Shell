@@ -32,7 +32,9 @@ int main (int argc, char * argv[], char *envp[]) {
 	}
 
 	home.SetupAndCloseSystem(argc, envp);
-	
+	incomingCommands.push_back("reset");																		//Put the reset in the vector to send to the ExecuteFile method.
+	home.ExecuteFile("reset", incomingCommands);																//Reset the screen for the start of the application.
+	incomingCommands.clear();																					//Clear the vector.
 	home.PromptDisplay();																						//Print basic prompt out.																	
 
 	while (1) {																									//Loop for indeffinately.

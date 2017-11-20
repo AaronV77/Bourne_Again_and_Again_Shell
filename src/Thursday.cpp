@@ -109,11 +109,7 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std:
 			
 		} else {
 			if (quoteSwitch == false) {														// If the quote switch is on then we don't want to check against our application commands.
-				if (argumentPosition == 0) {												// If we are at the beginning of the loop lets see if we can't find our command. I don't want to keep searching for a command if we didn't find it in the beginning. If we find something that is ours afterwards then there is trouble.
-					commandAndArguments.push_back(tokens[i]);								// Add the token to the vector regardless if it is ours or not.	
-				} else {
-					commandAndArguments.push_back(tokens[i]);								// If we are not looking at the front of the command string, then lets add it anyway.
-				}
+				commandAndArguments.push_back(tokens[i]);									// Add the token to the vector regardless if it is ours or not.	
 			} else {
 				quoteSwitch = false;														// Reset our quote switch.
 			}
@@ -941,8 +937,16 @@ void Thursday::GetArguments(std::string theCommands, char* envp[]) {
 				foundQuote = false;											// Set our switch to false.
 			}
 		} else if (theCommands[i] == 32 && foundQuote == false) {			// If we are looking at a space and we are not in the middle of a quote. 
-			tokens.push_back(input);										// Store the input.					
-			input = "";														// Reset the input.
+			if (input.size() > 0) {
+				tokens.push_back(input);										// Store the input.					
+				input = "";														// Reset the input.
+			}
+		} else if (theCommands[i] == ';' && foundQuote == false) {
+			if (input.size() > 0) {
+				input += theCommands[i];
+				tokens.push_back(input);										// Store the input.					
+				input = "";														// Reset the input.
+			}
 		} else {
 			if (foundQuote == false) {										// If we are not in a quote.
 				input += theCommands[i];									// Add the element to the input.
@@ -1261,6 +1265,10 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
+				} else if (incomingInput[i] == "exit") {
+					arguments.push_back("reset");
+					ExecuteFile("reset", arguments);
+					exit(0);				
 				} else if (incomingInput[i] == "find") {
 					if (size == 3) {
 						i++;
