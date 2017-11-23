@@ -838,6 +838,7 @@ std::string Thursday::FileChecker(std::string argument, int signal) {
 		} else if ((fileCheck.st_mode & S_IFMT) == S_IFREG) {						// If the file is a regular file.
 			return argument;
 		}
+		argument = "";
 	}
 	/*--------------------------------------------------------------------*/ 
 	argument = "";																	// Reset the argument because the method didn't find the file.

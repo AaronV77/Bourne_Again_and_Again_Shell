@@ -1,6 +1,6 @@
 #include "Thursday.h"
 
-void autoComplete(std::stsring theCommands);
+void autoComplete(Thursday home, std::string theCommands);
 int getche(void);
 
 int main (int argc, char * argv[], char *envp[]) {					
@@ -12,6 +12,7 @@ int main (int argc, char * argv[], char *envp[]) {
 	int UpAndDownIterator = 0;																					//Used to keep track of where the system is in the commands vector.
 	int stringSize = 0;
 	int size = 0;
+	bool tabPressed = false;
 	bool quoteFound = false;																					//Used to stop store characters in the "theCommands" variable.
 	std::string theCommands = "";																				//Used to store the whole incoming input from the user besides if there is a quote.
 	std::vector<std::string> incomingCommands;																	//Used to store the incoming commands from the user and will be checked.
@@ -47,12 +48,18 @@ int main (int argc, char * argv[], char *envp[]) {
 		tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);																//Set the terminal to the old settings.
 		switch(characterNumber) {																				//Use a switch statment to do specific actions for certain characters.
 			case 9:																							//When a tab was pressed.
-				autoComplete(theCommands);
+				if (tabPressed == false) {
+					autoComplete(home, theCommands);
+					tabPressed = true;
+				} else {
+					//Print the contents of the directory with the matching characters.
+				}
 				break;
 			case 10: 																						//When an enter key was pressed.
 				if (theCommands != "") {																		//Make sure that the char pointer is not empty / NULL.
 					home.GetArguments(theCommands, envp);														//Send the commands in the incomingInput vector to the search commands method.
 					incomingCommands.push_back(theCommands);													//Store the old commands in this vector.				
+					tabPressed = false;
 				}
 				home.PromptDisplay();																		//Display the prompt.				
 				UpAndDownIterator = incomingCommands.size();													//Set the up and down iterator to zero.
@@ -61,6 +68,7 @@ int main (int argc, char * argv[], char *envp[]) {
 				break;																							//Break out of the switch statement.
 			case 127: 																						//Backspace character.
 				if (LeftAndRightIterator > 1) {																	//Delete the characters in the pointer, but no further than what was typed.
+					tabPressed = false;
 					printf("\b \b");																			//Delete thee character before the cursor on the screen.
 					int endOfString = (theCommands.size()+1);													//Store thee size of the original string with one extra character for the iterator.
 					theCommands.erase(theCommands.begin()+(LeftAndRightIterator - 2));							//Erase the character from the string.
@@ -100,6 +108,7 @@ int main (int argc, char * argv[], char *envp[]) {
 			case 195: 																						//Up arrow key																			
 				UpAndDownIterator--;																			//Decrement the iterator.
 				if (UpAndDownIterator >= 0 && incomingCommands.size() != 0) {									//Check to make sure the iterator is above  0.
+					tabPressed = false;
 					printf("%c[2K", 27);																		//Clear the current terminal line.
 					cout << "\r";																				//I forget what this does. Online says its a carriage return.
 					home.PromptDisplay();																		//print the normal prompt.
@@ -113,6 +122,7 @@ int main (int argc, char * argv[], char *envp[]) {
 			case 198:																						//Down arrow key	
 				UpAndDownIterator++;																			//Increment the iterator.
 				if (UpAndDownIterator < incomingCommands.size() && incomingCommands.size() != 0) {				//If the up and down iterator is less than the size of the vector minus 1, and if the vector size is not equal to zero.
+					tabPressed = false;
 					printf("%c[2K", 27);																		//Clear the printed terminal line.
 					cout << "\r";																				//I forget what this does. Online says its a carriage return.
 					home.PromptDisplay();																		//print the normal prompt.
@@ -160,6 +170,8 @@ int main (int argc, char * argv[], char *envp[]) {
 				break;
 			default: 																							//Catch every other character.
 				if (characterNumber < 195 || characterNumber > 204) {											//Look for any letter between a - z.
+					tabPressed = false;
+						
 					if ((theCommands.size()+1) != LeftAndRightIterator) {											//If the cursor is not at the end of the string.
 						std::string str = utili::convert_number_to_letter(characterNumber);							//Convert the character number into an actual letter.															
 						theCommands.insert((LeftAndRightIterator - 1), str);										//Insert the letter into our string.
@@ -196,34 +208,51 @@ int main (int argc, char * argv[], char *envp[]) {
 	return 0;
 }
 
-void autoComplete(std::string incomingTypedString) {
+void autoComplete(Thursday home, std::string incomingTypedString) {
 	size_t stringFind;
 	std::vector<std::string> directoryContents;
-	std::vector<std::string> tokens;
 	std::string input = "";
-	std::string path = "";
-	std::istringstream iss (incomingTypedString);
-	
-	while (iss >> input)
-		tokens.push_back(input);
+	std::string savedPath = "";
+	std::string lastItem = "";
+	std::string fileInfo = "";
+	std::string lastCharactersINTheString = 0;
 
-	for (int i = 0; i < tokens.size(); ++i) {
-		if (tokens[i] == "cd") {
-			i++;
-			if (i > tokens.size()) {
-				for (int i = 0; i < tokens.size(); ++i)
-					std::cout << "\t" << tokens[i] << std::endl;
-			} else {
-				stringFind = tokens[i].find("/");
-				if (utili::isNumber(tokens[i]) == 1) {
-					//There is a path
-				} else {
-					directoryContent = util::directory_contents(".");
+	std::istringstream iss (incomingTypedString);											// Take the incoming string and parse it by spaces.
+	while (iss >> input)																	// Loop through all the arguments in the incoming string.
+		lastItem = input;																	// We want the last item in the string because that is what the user was working on last.
+
+	fileInfo = home.FileChecker(lastItem, 1);												// See if what we are looking at is already a file in correct form.
+	if (fileInfo.size() == 0) {																// If the file that we are looking at is not a directory or file then lets do our autocomplete algorithm.
+		if (lastItem[0] == '/') {															// Check to see if we are looking at a path
+			for (int i = 0; i < lastItem.size(); i++) {										// Loop through the lastitem the user was working on.
+				if (lastItem[i] == '/') {													// If we are looking at a backslash then we are leaving a directory. Lets see if it is an actual path.
+					fileInfo = home.FileChecker(lastItem, 1);								// Check to see if the path in the system.
+					if (fileInfo.size() == 0) {												// If the path is not then we need to get out of the loop
+						break;
+					} else {																// If the path is in the system then we can keep going.
+						savedPath = input;													// Lets save the last directory that we were in, because we will need this to get the contents of the directory inorder to get what we need.
+						input += lastItem[i];												// Add the backslash onto the string and keep processing.
+						lastCharactersINTheString = "";										// This is getting everything after the backslash. We want to reset it so when we get what the user is looking for we can search for it.
+					}
+				} else {																	// If we are not looking at a backslash then lets add the character onto the string.
+					input += lastItem[i];
+					lastCharactersINTheString += lastItem[i];
 				}
-					int number = std::stoi(tokens[i]);
-				
+
 			}
-		} else if (tokens[i] == "mv" || tokens[i] == "cp") {
+			//Since we did see if the last argument was an actual path / file in the system, and made sure that the starting character was
+			//a backslash, then we know that the saved path is at least in the root directory. The loop will exit since it won't find another
+			//backslash, so we are ignoring the actual file that the user is trying to type.
+
+			// **** IF IT IS A FILE THEN JUST PRINT THE FILE NAME AND IF IT IS A DIRECTORY THEN PRINT THE NAME WITH A BACKSLASH *****
+
+			utili::directory_contents(savedPath);						// Get the contents of the savedpaths directory.
+			int number = utili::screen_size();
+			if (directoryContents.size() > 0) {												// Make sure that the directory has something in it.
+				std::cout << "LastCharacters: " << lastCharactersINTheString << std::endl;
+			}
+			//Loop again for the file
+		} else {																			// If not a path then the file being looked for is in the current directory.
 
 		}
 	}

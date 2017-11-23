@@ -52,12 +52,12 @@ std::string utili::date(int number) {
 	return output;
 }
 
-std::vector<std::string> directory_contents(std::string directoryPath) {
+std::vector<std::string> utili::directory_contents(std::string directoryPath) {
 
 	std::vector<std::string> contents;
 	DIR * dir;
 	dirent * entry;	
-	dir = opendir(directoryPath);
+	dir = opendir(directoryPath.c_str());
 
 	while (entry = readdir(dir))
 		contents.push_back(entry->d_name);

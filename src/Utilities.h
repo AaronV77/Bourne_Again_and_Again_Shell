@@ -1,6 +1,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <dirent.h>
 #include <grp.h>
 #include <iostream>
 #include <pwd.h>
@@ -19,7 +20,7 @@ namespace utili {
     /*-------------------------------------------------------------------------------------------*/
     std::string convert_number_to_letter(int incomingNumber);
     std::string	date(int number);   
-    std::vector<std::string> directory_contents(std:string directoryPath);
+    std::vector<std::string> directory_contents(std::string directoryPath);
     std::string fileInformation(std::string pathName);
     std::vector<std::string> get_environment(char **);
     int isNumber(std::string incomingString);
