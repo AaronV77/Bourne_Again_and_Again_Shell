@@ -52,6 +52,20 @@ std::string utili::date(int number) {
 	return output;
 }
 
+std::vector<std::string> directory_contents(std::string directoryPath) {
+
+	std::vector<std::string> contents;
+	DIR * dir;
+	dirent * entry;	
+	dir = opendir(directoryPath);
+
+	while (entry = readdir(dir))
+		contents.push_back(entry->d_name);
+
+	return contents;
+	
+}
+
 std::string utili::fileInformation(std::string pathName) {
 	struct group *grp;
 	struct passwd *pwd;

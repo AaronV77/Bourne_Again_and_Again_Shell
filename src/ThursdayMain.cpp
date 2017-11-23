@@ -1,5 +1,6 @@
 #include "Thursday.h"
 
+void autoComplete(std::stsring theCommands);
 int getche(void);
 
 int main (int argc, char * argv[], char *envp[]) {					
@@ -46,6 +47,7 @@ int main (int argc, char * argv[], char *envp[]) {
 		tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);																//Set the terminal to the old settings.
 		switch(characterNumber) {																				//Use a switch statment to do specific actions for certain characters.
 			case 9:																							//When a tab was pressed.
+				autoComplete(theCommands);
 				break;
 			case 10: 																						//When an enter key was pressed.
 				if (theCommands != "") {																		//Make sure that the char pointer is not empty / NULL.
@@ -192,6 +194,42 @@ int main (int argc, char * argv[], char *envp[]) {
 	}
 
 	return 0;
+}
+
+void autoComplete(std::string incomingTypedString) {
+	size_t stringFind;
+	std::vector<std::string> directoryContents;
+	std::vector<std::string> tokens;
+	std::string input = "";
+	std::string path = "";
+	std::istringstream iss (incomingTypedString);
+	
+	while (iss >> input)
+		tokens.push_back(input);
+
+	for (int i = 0; i < tokens.size(); ++i) {
+		if (tokens[i] == "cd") {
+			i++;
+			if (i > tokens.size()) {
+				for (int i = 0; i < tokens.size(); ++i)
+					std::cout << "\t" << tokens[i] << std::endl;
+			} else {
+				stringFind = tokens[i].find("/");
+				if (utili::isNumber(tokens[i]) == 1) {
+					//There is a path
+				} else {
+					directoryContent = util::directory_contents(".");
+				}
+					int number = std::stoi(tokens[i]);
+				
+			}
+		} else if (tokens[i] == "mv" || tokens[i] == "cp") {
+
+		}
+	}
+
+	return;
+	
 }
 
 int getche(void) {
