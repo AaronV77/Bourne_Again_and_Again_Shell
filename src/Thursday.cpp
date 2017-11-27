@@ -81,7 +81,6 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std:
 			if (ThursdayCommands[a] == tokens[i])											// Check to see if the token matches one of our commands in the ThrusdayCommands vector.
 				commandSwitch = true;														// If it does then we set our switch to true.													
 		}
-		
 		if (utili::isNumber(tokens[i]) == 1) {											// Looking for a number to insert a quote if there is one. Check to see if it is a number.
 			int number = std::stoi(tokens[i]);												// Save the number of the token.
 			if (number == currentQuote) {													// See if the number aligns up to our currentQuote iterator. If not then the number is for something else.
@@ -830,7 +829,7 @@ std::string Thursday::FileChecker(std::string argument, int signal) {
 		}
 	} else if (signal == 1) {														// If the user wants to see if the file exists.
 		struct stat fileCheck;														// Open up the struct to the file.
-		stat(argument.c_str(), &fileCheck);											// Stat will points the struct variable to the file.
+		lstat(argument.c_str(), &fileCheck);											// Stat will points the struct variable to the file.
 		if ((fileCheck.st_mode & S_IFMT) == S_IFDIR) {								// If the file is a directory.
 			return argument;
 		} else if ((fileCheck.st_mode & S_IFMT) == S_IFLNK) {						// If the file is a symbolic link.
@@ -1161,12 +1160,12 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 						i++;																//
 						stringFind = incomingInput[i].find('/');							// If there is a / in the path if so just try and change with that directory.																							
 						if (stringFind != std::string::npos) {								// See if there is a / in the element.					
-							DirectoryChange(incomingInput[i], 0);							// Make the directory change if a / was found.
+							DirectoryChange(incomingInput[i], 1);							// Make the directory change if a / was found.
 						} else {
 							random = currentPath;											// Add the currentPath to a string. I'm doing this because if I am moving from some where in the directory then I don't want to type the whole path.
 							random += "/";													// Add the / to the string.
 							random += incomingInput[i];										// Add the directory that the user wants to go into.
-							DirectoryChange(random, 0);										// Make the directory change.
+							DirectoryChange(random, 1);										// Make the directory change.
 						}
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect.", 2);
