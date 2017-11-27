@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <dirent.h>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <stack>
 #include <string>
@@ -31,10 +32,11 @@ public:
 	void ColorChange(std::string sentence, int signal);
 	void ColorSwitch(bool signal);
 	void CompressAndDecompress(int Number, std::string argument);
+	void CopyAndMoveFiles(std::string itemsBeingMoved, std::string destinationPath, bool functionSwitch);
 	void DebugSwitch(bool signal);
 	string Cryptography(int number, int key, std::string message);
 	void DepthFirstSearch(std::string path, std::string searchWord, bool showDirectories);
-	void DirectoryChange(std::string desiredPath, int number);
+	void DirectoryChange(std::string desiredPath, bool debugPrintSwitch);
 	void DirectoryDelete(std::string dirname);
 	void DisplayDirectories(std::string lsArgument, std::string pathName); 
 	std::string FileChecker(std::string argument, int signal);	
@@ -46,7 +48,7 @@ public:
 	void PromptDisplay();
 	void Search(std::string argument);
 	void SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]);
-	void SetupAndCloseSystem(int number, int argc, char **);
+	void SetupAndCloseSystem(int argc, char **);
 	
 private:
 
@@ -63,6 +65,23 @@ private:
 	bool errorSwitch;
 	bool waitSwitch;
 
+	std::string colorDEF ="";
+	std::string colorLightRed = "";
+	std::string colorRed = "";
+	std::string colorLightYellow = "";
+	std::string colorYellow = "";
+	std::string colorLightGreen = "";
+	std::string colorGreen = "";
+	std::string colorLightCyan = "";
+	std::string colorCyan = "";
+	std::string colorLightBlue = "";
+	std::string colorBlue = "";
+	std::string colorLightMagenta ="";
+	std::string colorMagenta = "";
+	std::string colorLightGray = "";
+	std::string colorGray = "";
+	std::string colorBlack = "";
+
 	std::string currentPath;
 	std::string currentPrompt;
 	std::string dictionaryDestination;
@@ -76,7 +95,7 @@ private:
     std::vector<std::string> Environment;
     std::vector<std::string> PathVector;
     std::vector<std::string> ThursdayCommands;
-    std::vector<std::string> OSCommands;
+
     
 };
 

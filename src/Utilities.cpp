@@ -52,6 +52,20 @@ std::string utili::date(int number) {
 	return output;
 }
 
+std::vector<std::string> utili::directory_contents(std::string directoryPath) {
+
+	std::vector<std::string> contents;
+	DIR * dir;
+	dirent * entry;	
+	dir = opendir(directoryPath.c_str());
+
+	while (entry = readdir(dir))
+		contents.push_back(entry->d_name);
+
+	return contents;
+	
+}
+
 std::string utili::fileInformation(std::string pathName) {
 	struct group *grp;
 	struct passwd *pwd;
@@ -136,6 +150,100 @@ int utili::isNumber(std::string incomingString) {
 		
 }
 
+void utili::print_content(std::vector<std::string> content) {
+	int columns = screen_size();
+	int indent = 0;
+	int iterator = 0;
+	std::string input = "";
+
+	if (columns <= 150) {
+		indent = 5;
+	} else if (columns <= 100) {
+		indent = 0;
+	}
+
+	for (int i = 0; i < content.size(); i++) {
+		std::istringstream iss (content[i]);
+		while (iss >> input) {
+			if (input == "newLine") {
+				iterator = 0;
+				std::cout << std::endl;
+			} else {
+				if (iterator == 0) {
+					std::cout << std::string(indent, ' ');
+					std::cout << input << ' ';
+					iterator = input.size() + indent + 1;
+				} else if ((input.size()+iterator) < (columns - indent)) {
+					iterator += input.size();
+					iterator += 1;
+					std::cout << input << ' ';
+				} else {
+					iterator = 0;
+					std::cout << std::endl;
+					std::cout << std::string(indent, ' ');
+					std::cout << input << ' ';
+					iterator = input.size() + indent + 1;
+				}
+			}	
+		}
+	}
+	std::cout << std::endl;
+}
+
+void utili::print_string(std::string incomingString) {
+	int columns = screen_size();
+	int indent = 0;
+	int iterator = 0;
+	std::string input = "";
+
+	if (columns <= 150) {
+		indent = 5;
+	} else if (columns <= 100) {
+		indent = 0;
+	}
+
+	std::istringstream iss (incomingString);
+	while (iss >> input) {
+		if (input.size() > 100) {
+			for (int i = 0; i < input.size(); i++) {
+				if (iterator == 0) {
+					std::cout << std::string(indent, ' ');
+					std::cout << input[i];
+					iterator = indent + 1;
+				} else if ((1 + iterator) < (columns - indent)) {
+					iterator += 1;
+					std::cout << input[i];
+				} else {
+					iterator = 0;
+					std::cout << std::endl;
+					std::cout << std::string(indent, ' ');
+					std::cout << input[i];
+					iterator = indent + 1;
+				}
+			}
+		} else {
+			if (iterator == 0) {
+				std::cout << std::string(indent, ' ');
+				std::cout << input << ' ';
+				iterator = input.size() + indent + 1;
+			} else if ((input.size()+iterator) < (columns - indent)) {
+				iterator += input.size();
+				iterator += 1;
+				std::cout << input << ' ';
+			} else {
+				iterator = 0;
+				std::cout << std::endl;
+				std::cout << std::string(indent, ' ');
+				std::cout << input << ' ';
+				iterator = input.size() + indent + 1;
+			}
+		}	
+	}
+	std::cout << std::endl;
+
+	return;
+}
+
 std::string utili::remove_spaces(std::string incomingString) {
 	std::string output = "";
 	for (int i = 0; i < incomingString.size(); ++i) {
@@ -154,6 +262,12 @@ std::string utili::remove_special_characters(std::string incomingString) {
 	return output;
 }
 
+int utili::screen_size() {
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+	return w.ws_col;
+}
 
 
 

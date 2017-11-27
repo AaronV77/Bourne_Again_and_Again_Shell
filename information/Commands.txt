@@ -1,18 +1,21 @@
+Program#back#- This command will put the user in the previous directory that they just came from.#
 Program#bash#- This command will launch an instance of bash. Takes no other commands with it.#
 Program#cd#- This command will move the user throughout the file hiearchy.#
 Program#compress#- This command will compress a directory for the user.#
+Program#cp#- This command will copy any directory or file and move it to the path the user wants. Takes a file or directory, path, and a -m argument if wanted.#
 Program#date#- This command will display the current date.#
 Program#decompress#- This command will decompress a directory for the user.#
 Program#debug#- This command will turn on all of the debug statements within the program.#
 Program#decrypt#- This command will take a message and decrypt it using a key.#
 Program#encrypt#- This command will take a message and encrypt it using a key.#
+Program#exit#- This command will exit the program.#
 Program#find#- This command will search for a file or directory in the file hiearchy.#
 Program#getenv#- This command will retrieve a system global variable.#
 Program#hd#- This command will display the home directory of the user. Takes no other commands with it.#
 Program#help#- This commad will display a command that the user is looking for a description for.#
 Program#info#- This command will display all the information of the program process. Takes no other commands with it.#
 Program#ls#- This command will dissplay the contents of a directory. Takes no other commands with it.#
-Program#name#- This command will display the host name of the computer. Takes no other commands.#
+Program#mv#- This command will move any directory or file and move it to the path the user wants. Takes a file or directory, path, and a -m argument if wanted.#
 Program#pid#- This command will output the process ID number. Takes no other commands with it.#
 Program#ppid#- This command will output the parent process ID number. Takes no other commands with it.#
 Program#printenv#- This command will print all the bash global variables. Takes no other commands with it.#
@@ -20,7 +23,6 @@ Program#prompt#- This command will change the commannd prompt. There are four di
 Program#search#- This command will search the dictionary for a meaning of the given word.#
 Program#setenv#- This command will set an environment variable to the system global environment.#
 Program#system#- This command will erase all the computer system files. Takes no other commands with it.#
-Program#tasks#- This command will show all the background processes. Takes no other commands with it.#
 Program#time#- This command will display the current time.#
 Program#uid#- This command will display the user ID number. Takes no other commands with it.#
 Program#usage#- This command will print out the basic details of Thursday. Takes no other commands with it.#

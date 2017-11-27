@@ -4,6 +4,7 @@ cd#
 color#
 commands#
 compress#
+cp#
 date#
 debug#
 decompress#
@@ -16,6 +17,7 @@ hd#
 help#
 info#
 ls#
+mv#
 pid#
 ppid#
 printenv#
