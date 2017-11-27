@@ -1,0 +1,10 @@
+
+
+To Do List
+
+    - Have a way to add definitions
+    - Have the auto complete
+    - Have the master branch copy have no comments in the code.
+    - Build tests for the system.
+    - Condense my library and make it better.
+    
