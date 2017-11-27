@@ -7,4 +7,4 @@ To Do List
     - Have the master branch copy have no comments in the code.
     - Build tests for the system.
     - Condense my library and make it better.
-    
+    - Implement when a user types shutdown it shuts down the system. "/sbin/shutdown -h now"
