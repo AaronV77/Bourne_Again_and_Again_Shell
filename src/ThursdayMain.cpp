@@ -112,6 +112,8 @@ int main (int argc, char * argv[], char *envp[]) {
 					LeftAndRightIterator--;																		//Since we are at the end our string we can just delete the character both on the screen and string.
 				}											
 			}
+		} else if (characterNumber == 150) {																//Insert Key
+			//Lets do nothing for this key.
 		} else if (characterNumber == 153) {																//Delete key.
 			if (LeftAndRightIterator != 1) {																	//Keep the user from deleteing to far over.
 				size = theCommands.size() - (LeftAndRightIterator - 1);
@@ -304,7 +306,7 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
 		directoryContents = utili::directory_contents(savedPath);
 	}
 
-	if (mySwitch == false) {
+	if (mySwitch == false) {																// If the user is trying to spam ping the tab key.
 		if (savedItems.size() == 1) {
 			for (int d = 0; d < savedItems[0].size(); d++) {
 				if (lastCharactersInTheString[d] != savedItems[0][d])
@@ -376,16 +378,16 @@ int getche(void) {
 				characterIterator++;																			//Start our iterator.
 			}
 		} else {
-			characterIterator++;																			//If we already found the start to one of our special keys with more than one output then increment.
-			if (characterIterator == 3) {																	//With keys that have more than one output the, the third number is the descriptor key.
-				if (c == 51 || c == 50) {																	//Looking at del and insert
-					savedCharacter =  c * 3;																//Save the character since we can't return it until we get all the incoming numbers from the key.
+			characterIterator++;																				//If we already found the start to one of our special keys with more than one output then increment.
+			if (characterIterator == 3) {																		//With keys that have more than one output the, the third number is the descriptor key.
+				if (c == 51 || c == 50) {																		//Looking at del and insert
+					savedCharacter =  c * 3;																	//Save the character since we can't return it until we get all the incoming numbers from the key.
 				} else {
-					tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);												//Give oru terminal the old settings again.
+					tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);													//Give oru terminal the old settings again.
 					return c * 3;
 				}
-			} else if (characterIterator == 4) {															//If the key outputs four numbers then we can ignore the last number.
-				tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);													//Give oru terminal the old settings again.
+			} else if (characterIterator == 4) {																//If the key outputs four numbers then we can ignore the last number.
+				tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);														//Give oru terminal the old settings again.
 				return savedCharacter;
 			}
 		}
