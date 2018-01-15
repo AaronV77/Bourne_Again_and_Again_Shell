@@ -8,7 +8,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ## Warnings
 
-I have only tested the system on the latest release of Mac which is “High Sierra”, Centos 7, and Ubuntu 16.10. There are bugs on the Mac side because of my lack of testing, and still some on Linux. I have a rough "tab auto complete mechanism" in place, but it does not have all the capabilities that the bash one has.  Lastly the commands that I have created within the system override the Linux versions. For example, the command "find" in Thursday will not take the same arguments as the comand "find" in a normal Linux Terminal. Here is a list of Thursday's commands:
+I have only tested the system on the latest release of Mac which is “High Sierra”, Centos 7, and Ubuntu 16.10. There are bugs on the Mac side because of my lack of testing, and still some on Linux.  Lastly the commands that I have created within the system override the Linux versions. For example, the command "find" in Thursday will not take the same arguments as the comand "find" in a normal Linux Terminal. Here is a list of Thursday's commands:
 
 back
 bash
@@ -72,6 +72,14 @@ To update the system just run the update script and it should update your system
 ## Testing
 
 There are no tests within the system, but if Thursday is not running on your machine correctly then at the exection of ./Thurs, do this instead, (./Thurs debug=on).
+
+
+# Upcoming New Features!! - 1/14/2018
+
+I have found the eagerness to work on this project again and feel like the shell is not where it should be, so you know what that is going to change in the new refactor! I am getting tired of having to test everything by hand but also lazy to the point of not wanting to have to program test for every command, but this is changing... I will make the testing package easy to use so that any level programmer can see when things are not working correctly and so on. A minor revisions will be a whole new test display system so that Thursday's output looks great for the given screen size of you terminal window. Another minor revision will be documents! Since I have been working with Python a lot I want to create a document suit with Sphinx and make working with this project easier.  
+
+These are just some of the thingss that I plan on doing, the refactor will consist of some other layouts of code that I will be changing. Lastly I will learn about licenses and the hopefully put the project under one. Expect these changes to be done by April!
+
 
 # Author: Aaron A. Valoroso
 
