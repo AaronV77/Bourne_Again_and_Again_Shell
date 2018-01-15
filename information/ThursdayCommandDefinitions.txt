@@ -4,7 +4,7 @@ cd#- This command will move the user throughout the file hiearchy. Takes one arg
 color#- This command will either turn the color on and off or change the color. Takes one and no arguments. The first option will change the color when a number is given 0 - 15, and the second option will turn the color on and off.#
 commands#- This command will display all the special commands that this application can take. Takes no other arguments.#
 compress#- This command will compress a directory for the user. Takes one argument, and is the file that you want to compresss.#
-cp#- This command will copy any directory or file to a loation that the user wants. Takes a file or director, a path, and if the user wants to a -m argument if the user wants to move to that directory as well.
+cp#- This command will copy any directory or file to a loation that the user wants. Takes a file or directory, a path, and if the user wants to a -m argument if the user wants to move to that directory as well.#
 date#- This command will display the current date. Takes no other argument.#
 decompress#- This command will decompress a directory for the user. Takes one argument, and is the file you want to decompress.# 
 debug#- This command will turn on all of the debug statements within the program. Takes no other commands with it.#
@@ -16,8 +16,8 @@ getenv#- This command will retrieve a system global variable.Takes one argument,
 hd#- This command will display the home directory of the user. Takes no other commands with it. Takes no other arguments.#
 help#- This commad will display a command that the user is looking for a description of. Takes only one argument, and the command you are looking for.# 
 info#- This command will display all the information of the program process. Takes no other commands with it. Takes no other argument.#
-ls#- This command will dissplay the contents of a directory. Takes no other commands with it. Takes one argument it can either be -l or all, -l will give you extra information about the file#
-mv#- This command will move any directory or file to a loation that the user wants. Takes a file or director, a path, and if the user wants to a -m argument if the user wants to move to that directory as well.
+ls#- This command will display the contents of a directory. Takes one argument it can either be -l or all, -l will give you extra information about the files, and all will #
+mv#- This command will move any directory or file to a loation that the user wants. Takes a file or director, a path, and if the user wants to a -m argument if the user wants to move to that directory as well.#
 pid#- This command will output the process ID number. Takes no other commands with it.#
 ppid#- This command will output the parent process ID number. Takes no other commands with it.#
 printenv#- This command will print all the bash global variables. Takes no other commands with it.#

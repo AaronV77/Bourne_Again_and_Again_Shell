@@ -233,6 +233,7 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
 	size_t stringFind;
 	int numberOfCharacters = 0;
 	bool isOrNotIsAPath = false;
+	struct stat fileStruct;
 	std::vector<std::string> savedItems;
 	std::vector<std::string> directoryContents;
 	std::string input = "";
@@ -241,107 +242,135 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
 	std::string lastItem = "";
 	std::string fileInfo = "";
 	std::string lastCharactersInTheString = "";
-	
-	fileInfo = home.FileChecker(incomingTypedString, 1);									// See if what we are looking at is already a file in correct form.
-	if (fileInfo.size() == 0) {																// If the file that we are looking at is not a directory or file then lets do our autocomplete algorithm.
-		if (incomingTypedString[0] == '/') {												// Check to see if we are looking at a path
-			isOrNotIsAPath = true;
-			for (int a = 0; a < incomingTypedString.size(); a++) {							// Loop through the last input stream the user was working on. Its what they are searching for.
-				if (incomingTypedString[a] == '/') {										// If we are looking at a backslash then we are leaving a directory. Lets see if it is an actual path.
-					input += incomingTypedString[a];
-					fileInfo = home.FileChecker(input, 1);									// Check to see if the path in the system.
-					if (fileInfo.size() == 0) {												// If the path is not then we need to get out of the loop
-						break;
-					} else {																// If the path is in the system then we can keep going.
-						savedPath = input;													// Lets save the last directory that we were in, because we will need this to get the contents of the directory inorder to get what we need.
-						lastCharactersInTheString = "";										// This is getting everything after the backslash. We want to reset it so when we get what the user is looking for we can search for it.
-					}
-				} else {																	// If we are not looking at a backslash then lets add the character onto the string.
-					input += incomingTypedString[a];
-					lastCharactersInTheString += incomingTypedString[a];
-				}
 
-			}
-			//Since we did see if the last argument was an actual path / file in the system, and made sure that the starting character was
-			//a backslash, then we know that the saved path is at least in the root directory. The loop will exit since it won't find another
-			//backslash, so we are ignoring the actual file that the user is trying to type.
-			input = "";
-			directoryContents = utili::directory_contents(savedPath);						// Get all the files and directories in the current directory.
-			// numberOfCharacters = lastCharactersInTheString.size();
-			if (directoryContents.size() > 0) {												// Make sure that the directory has something in it.
-				for (int b = 0; b < directoryContents.size(); b++) {						// Loop through the directory that is all in a vector.
-					input = directoryContents[b];											// Save the current item from the vector of the directory.
-					for (int c = 0; c < lastCharactersInTheString.size(); c++)				// Loop through the number of characters afte the last back slash that was found in the previous loop.
-						comparisonCharacters += input[c];									// Build a new string with the same number of characters of the thing that we are looking for.
-	
-					if (lastCharactersInTheString == comparisonCharacters)					// Take the item that the user is looking for and compare it to everything in that directory.
-						savedItems.push_back(directoryContents[b]);							// Since there can be more than one item with the same name or number of characters. We store the item.
-	
-					comparisonCharacters = "";												// We reset the comparison string.
+	if (incomingTypedString[0] == '/') {												// Check to see if we are looking at a path
+		isOrNotIsAPath = true;
+		for (int a = 0; a < incomingTypedString.size(); a++) {							// Loop through the last input stream the user was working on. Its what they are searching for.
+			if (incomingTypedString[a] == '/') {										// If we are looking at a backslash then we are leaving a directory. Lets see if it is an actual path.
+				input += incomingTypedString[a];
+				fileInfo = home.FileChecker(input, 1);									// Check to see if the path in the system.
+				if (fileInfo.size() == 0) {												// If the path is not then we need to get out of the loop
+					break;
+				} else {																// If the path is in the system then we can keep going.
+					savedPath = input;													// Lets save the last directory that we were in, because we will need this to get the contents of the directory inorder to get what we need.
+					lastCharactersInTheString = "";										// This is getting everything after the backslash. We want to reset it so when we get what the user is looking for we can search for it.
 				}
+			} else {																	// If we are not looking at a backslash then lets add the character onto the string.
+				input += incomingTypedString[a];
+				lastCharactersInTheString += incomingTypedString[a];
 			}
-		} else {																			// If what we are looking at is not a path.. So basically the file or directory has to be in the current directory that we are in.
-			input = "";
-			savedPath = ".";																// If we didn't find a path then lets look in the current directory.
-			numberOfCharacters = incomingTypedString.size();
-			lastCharactersInTheString = incomingTypedString;
-			directoryContents = utili::directory_contents(savedPath);
-			
-			if (directoryContents.size() > 0) {												// Make sure that the directory has something in it.
-				for (int b = 0; b < directoryContents.size(); b++) {
-					input = directoryContents[b];
-					for (int c = 0; c < numberOfCharacters; c++)
-						comparisonCharacters += input[c];
-	
-					if (lastCharactersInTheString == comparisonCharacters)
-						savedItems.push_back(directoryContents[b]);
-	
-					comparisonCharacters = "";
-				}
+
+		}
+		//Since we did see if the last argument was an actual path / file in the system, and made sure that the starting character was
+		//a backslash, then we know that the saved path is at least in the root directory. The loop will exit since it won't find another
+		//backslash, so we are ignoring the actual file that the user is trying to type.
+		input = "";
+		directoryContents = utili::directory_contents(savedPath);						// Get all the files and directories in the current directory.
+		if (directoryContents.size() > 0) {												// Make sure that the directory has something in it.
+			for (int b = 0; b < directoryContents.size(); b++) {						// Loop through the directory that is all in a vector.
+				input = directoryContents[b];											// Save the current item from the vector of the directory.
+				for (int c = 0; c < lastCharactersInTheString.size(); c++)				// Loop through the number of characters afte the last back slash that was found in the previous loop.
+					comparisonCharacters += input[c];									// Build a new string with the same number of characters of the thing that we are looking for.
+
+				if (lastCharactersInTheString == comparisonCharacters)					// Take the item that the user is looking for and compare it to everything in that directory.
+					savedItems.push_back(directoryContents[b]);							// Since there can be more than one item with the same name or number of characters. We store the item.
+
+				comparisonCharacters = "";												// We reset the comparison string.
 			}
 		}
-	} else {
-		savedPath = incomingTypedString;
+	} else {																			// If what we are looking at is not a path.. So basically the file or directory has to be in the current directory that we are in.
+		input = "";
+		savedPath = ".";																// If we didn't find a path then lets look in the current directory.
+		numberOfCharacters = incomingTypedString.size();
 		lastCharactersInTheString = incomingTypedString;
 		directoryContents = utili::directory_contents(savedPath);
+		if (directoryContents.size() > 0) {												// Make sure that the directory has something in it.
+			for (int b = 0; b < directoryContents.size(); b++) {
+				input = directoryContents[b];
+				for (int c = 0; c < numberOfCharacters; c++)
+					comparisonCharacters += input[c];
+				
+				if (lastCharactersInTheString == comparisonCharacters)
+					savedItems.push_back(directoryContents[b]);
+
+				comparisonCharacters = "";
+			}
+		}
 	}
 
-	if (mySwitch == false) {																// If the user is trying to spam ping the tab key.
-		if (savedItems.size() == 1) {
-			for (int d = 0; d < savedItems[0].size(); d++) {
-				if (lastCharactersInTheString[d] != savedItems[0][d])
-					std::cout << savedItems[0][d];
+	if (mySwitch == false) {																// If the user has only pressed the tab key once.
+		if (savedItems.size() == 1) {														// If there was only one item in the vector then lets print out the whole item.
+			for (int d = 0; d < savedItems[0].size(); d++) {								// Loop through the our only item that we were able to find.
+				if (lastCharactersInTheString[d] != savedItems[0][d])						// Print out the characters that I don't have in the user input.
+					std::cout << savedItems[0][d];											// Display the characters to the screen.
 			}
-			if (isOrNotIsAPath == true) 
-				return savedPath + savedItems[0];
-			else 
-				return savedItems[0];
+			if (isOrNotIsAPath == true) { 													// If what wwe found was not a full absolute path.
+				string path = savedPath = savedItems[0];									// Combined the path and the found file part or whole file.
+				stat(path.c_str(), &fileStruct);											// Get information about the file.
+				if (fileStruct.st_mode & S_IFDIR) {											// See if the file is a directory.
+					cout << "/";
+					return path + "/";														// Return the whole path to the main so that the commands has the new path.		
+				} else {
+					return path;
+				}
+			} else {
+				stat(savedItems[0].c_str(), &fileStruct);									// Get information about the file.
+				if (fileStruct.st_mode & S_IFDIR) {											// See if the file is a directory.
+					cout << "/";
+					return savedItems[0] + "/";												// If we are looking at the current directory then we just neeed the lastpart of what the user was trying to type.
+				} else {
+					return savedItems[0];
+				}
+			}	
+		} else if (savedItems.size() > 0) {													// If there is more than one option, we want to fill in as much for the filename as we can before it starts to differ.
+			string exampleSearch = savedItems[0];
+			int exampleSearchSize = savedItems[0].size();
+			string foundSearch = "";
+			bool searchTest = false;
+
+			for (int e = 0; e < exampleSearchSize; e++) {									// Loop through the our only item that we were able to find.
+				for (int f = 0; f < savedItems.size(); f++) {
+					if (savedItems[f][e] != exampleSearch[e]) {
+						searchTest = true;
+						break;
+					}
+				}
+				if (searchTest == true) {
+					break;
+				} else {
+					if (e <= incomingTypedString.size()) {	
+						if (exampleSearch[e] != incomingTypedString[e])
+							foundSearch += exampleSearch[e];
+					} else {
+						foundSearch += exampleSearch[e];
+					}
+				}
+			}
+			std::cout << foundSearch;
+			return incomingTypedString + foundSearch;										// If we were not able to find anything then we just return what the user typed in.
 		} else {
 			return incomingTypedString;
 		}
-	} else {
-		std::cout << std::endl;
-		if (isOrNotIsAPath == true) {
-			cout << setw(40) << left;
-			for (int e = 0; e < savedItems.size(); e++) {
+	} else {																				// If the user wants to display everything in the directory that is similar to what the user wants.
+		cout << endl;
+		if (savedItems.size() > 0) {														// If what the user typed in is not an absolute path.
+			for (int e = 0; e < savedItems.size(); e++) {									// Loop through all the items that we found that match what we want.
 				if ((e % 4) == 0)
 					std::cout << std::endl;
 				
-				std::cout << savedItems[e] << setw(40) << left;
+				std::cout << setw(40) << left <<  savedItems[e];
 			}
 		} else {
-			cout << setw(40) << left;
-			for (int f = 0; f < directoryContents.size(); f++) {
+			for (int f = 0; f < directoryContents.size(); f++) {							// Loop through all the items that in the directory specified.
 				if ((f % 4) == 0)
 					std::cout << std::endl;
 
-				std::cout << directoryContents[f] << setw(40) << left;
+				std::cout << setw(40) << left << directoryContents[f];
 			}
 		}
 		std::cout << std::endl << std::endl;
 		return incomingTypedString;
 	}
-
 	return "";
 }
 

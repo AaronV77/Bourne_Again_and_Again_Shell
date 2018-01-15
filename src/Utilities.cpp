@@ -59,6 +59,9 @@ std::vector<std::string> utili::directory_contents(std::string directoryPath) {
 	dirent * entry;	
 	dir = opendir(directoryPath.c_str());
 
+	if (dir == NULL)  
+		return contents;
+	
 	while (entry = readdir(dir))
 		contents.push_back(entry->d_name);
 

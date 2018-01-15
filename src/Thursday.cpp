@@ -21,6 +21,7 @@ Thursday::Thursday() {
 	ppid = getppid();								// Gets the parent process id for the process and saves it to an int variable.
 	uid = getuid();									// Gets the user id for the process and saves it to an int variable.
 
+	currentPrompt = "No custom Prompt has been set: ";
 	previousPath = ""; 								// Used in the constructor for find where our base directory is.					
     gethostname(path, sizeof(path));				// Uses a C function to get the computers hostname.
 	hostName = path;								// Copies the name from the char array "path" to the hostname.
@@ -81,12 +82,15 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std:
 			if (ThursdayCommands[a] == tokens[i])											// Check to see if the token matches one of our commands in the ThrusdayCommands vector.
 				commandSwitch = true;														// If it does then we set our switch to true.													
 		}
-		if (utili::isNumber(tokens[i]) == 1) {											// Looking for a number to insert a quote if there is one. Check to see if it is a number.
-			int number = std::stoi(tokens[i]);												// Save the number of the token.
-			if (number == currentQuote) {													// See if the number aligns up to our currentQuote iterator. If not then the number is for something else.
-				commandAndArguments.push_back(quotes[currentQuote]);						// If the number is aligned with our iterator then lets store the quote into our vector.
-				currentQuote++;																// Increment our iterator of how many quotes we have found.
-				quoteSwitch = true;															// Turn on our quote switch.
+
+		if (quotes.size() > 0) {															// Lets do a simple check to make sure that there are even quotes in the input string.
+			if (utili::isNumber(tokens[i]) == 1) {											// Looking for a number to insert a quote if there is one. Check to see if it is a number.
+				int number = std::stoi(tokens[i]);											// Save the number of the token.
+				if (number == currentQuote) {												// See if the number aligns up to our currentQuote iterator. If not then the number is for something else.
+					commandAndArguments.push_back(quotes[currentQuote]);					// If the number is aligned with our iterator then lets store the quote into our vector.
+					currentQuote++;															// Increment our iterator of how many quotes we have found.
+					quoteSwitch = true;														// Turn on our quote switch.
+				}
 			}
 		}
 
@@ -378,7 +382,7 @@ void Thursday::DepthFirstSearch(std::string path, std::string searchWord, bool s
     if (debugSwitch == true) 
 		ColorChange("\t\tMission - You are in the DepthFirstSearch method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	
+	std::vector<std::string> paths;
 	std::string input = "";
 	std::string thePath = currentPath;																	// Save the current path that we are currently at.
 	std::string addedPath = "";																			// Used to create a temporary current path.
@@ -394,10 +398,10 @@ void Thursday::DepthFirstSearch(std::string path, std::string searchWord, bool s
 		input = stringStack.top();																		// Pop off the last element in the stack.
 		stringStack.pop();
 		
-		if (showDirectories == false) 																	// If the incoming number is 0 then the user wants all the commands to be printed out.
+		if (showDirectories == true) 																	// If the incoming number is 0 then the user wants all the commands to be printed out.
 			std::cout << '\t' << '\t' << " Directory: " << input << std::endl;
 		
-		DirectoryChange(input, 1);																		// Use the poped path from the stack and change the directory that the system is looking at.
+		DirectoryChange(input, false);																	// Use the poped path from the stack and change the directory that the system is looking at.
 		 
 		if (errorSwitch == false) {																		// Check to make sure that the global error switch was not triggered.
 			dir = opendir(".");
@@ -408,7 +412,7 @@ void Thursday::DepthFirstSearch(std::string path, std::string searchWord, bool s
 						addedPath += "/";																// Add our back slash to add another directory to it.
 					addedPath += entry->d_name;															// Add the file / directory / or anything else that we are looking at in the directory to the path.
 					if (entry->d_name == searchWord) { 													// Check to see if what we are looking at matches what the user is searching for.
-						if (showDirectories == true) { 													// The commands find and whereis will be a 1, and dirs will be a 0.
+						if (showDirectories == false) { 												// The commands find and whereis will be a 1, and dirs will be a 0.
 							cout << "\t\t" << addedPath << endl;										// Print the absolute path of where the file the user is looking for.
 							findingHome = addedPath;
 						}
@@ -421,6 +425,7 @@ void Thursday::DepthFirstSearch(std::string path, std::string searchWord, bool s
 							} else {
 								if (s.st_mode & S_IFDIR)												// If the path is a directory.
 									stringStack.push(addedPath);										// Push the path into the stack.
+									paths.push_back(addedPath);
 							}
 						}
 					}
@@ -431,7 +436,7 @@ void Thursday::DepthFirstSearch(std::string path, std::string searchWord, bool s
 		} else {
 			errorSwitch = false;																		// Reset our error switch.
 		}
-    }
+	}
     if (found == false) {																				// If the system not able to find the users requested directory.
 		if (showDirectories != 0)		 																// For the wheris and find command, and not for the dirs command.
 			ColorChange("\t\tThe file could not be found in the starting directory.", 3);
@@ -517,7 +522,7 @@ void Thursday::DirectoryDelete(std::string dirname) {
 		}
 		closedir(dp);																		// Once done looping, close the stream of directories.
 	} else {
-		ColorChange("\t\tCouldn't open the directory", 3);										// Print out a statement if the directory was NULL.
+		ColorChange("\t\tCouldn't open the directory", 3);									// Print out a statement if the directory was NULL.
 	}
  	/*--------------------------------------------------------------------*/
  	remove(dirname.c_str());																// Remove the directory from the hiearchy. 
@@ -556,7 +561,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		dir = opendir(pathName.c_str());																									// Else we will open up the path name.
 	
 	if (lsArgument == "all") {																												// If the ls argument is all.
-		DepthFirstSearch("/", "", false);																									// We want to print all the directories in the system.
+		DepthFirstSearch("/", "", true);																									// We want to print all the directories in the system.
 	} else if (lsArgument == "" || lsArgument == "-l") {																					// Else if the ls argument is -l or empty.
 		while (entry = readdir(dir)) {																										// Loop through the directory.
 			if(pathName.size() > 0)	{																										// If there is an incoming path.
@@ -631,7 +636,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 					tempFile = regularFiles[i];				
 				std::cout << "\t\t" << colorDEF << utili::fileInformation(tempFile) << " " << std::left << regularFiles[i] << endl;
 			}
-		} else {																															// Prints out all the file names in columns by category and in order.
+		} else {																																// Prints out all the file names in columns by category and in order.
 			if (columns > 100) {
 				std::string sym = "", dir = "", exc = "", reg = "";
 				for (int i = 0; i < totalNumberOfFiles; i++) {																					// Loop through all the vectors.					
@@ -772,6 +777,7 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are in the ExecuteFile method.", 3);
 	/*--------------------------------------------------------------------*/
+
 	int i = 0;  																				// Used to iterate through the incoming arguments.
 	size_t arrSize = 100; 																		// Used to allocate bytes to a char pointer.
 	char ** myArray = new char * [arrSize];														// Used to allocat a char array pointer.
@@ -780,10 +786,10 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 		strcpy(myArray[i], strdup(arguments[i].c_str()));										// Copy the incoming argument to the element in the array.
 	}
 	myArray[i++] = NULL;																		// Null terminate the array for the exec command.
-
+	
     pid_t pid;																					// Create a data type to store a process number.
 	incomingCommand = FileChecker(incomingCommand, 0);											// Send the incoming command to find in the location of the binary in the system. Will either return just the command or the location path.
-
+	
 	pid = fork();																				// Create another process.
 	if (pid == 0) {																				// If the process is the child.
 		if (execv(incomingCommand.c_str(), myArray) == -1) {									// Execute with the given command / location path, and char array of arguments.
@@ -803,7 +809,7 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are leaving the ExecuteFile method.", 3);
-
+	
     return 1;
 }
 
@@ -837,7 +843,6 @@ std::string Thursday::FileChecker(std::string argument, int signal) {
 		} else if ((fileCheck.st_mode & S_IFMT) == S_IFREG) {						// If the file is a regular file.
 			return argument;
 		}
-		argument = "";
 	}
 	/*--------------------------------------------------------------------*/ 
 	argument = "";																	// Reset the argument because the method didn't find the file.
@@ -1039,6 +1044,7 @@ void Thursday::PromptDisplay() {
 		thePrompt = hostName;
 		thePrompt += ":";
 		thePrompt += currentPath;
+		thePrompt += ": ";
 	} else if (promptNumber == 4) {					// The option to have the users custom prompt.
 		thePrompt = currentPrompt;
 	}
@@ -1215,15 +1221,16 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 							fileSwitch = true;
 							 cpPath = incomingInput[i];
 						}
-					}
-					if (fileSwitch == true && pathSwitch == true) {
-						CopyAndMoveFiles(cpFile, cpPath, false);
-						if (size == 4) {
-							i++;
-							if (incomingInput[i] == "-m")
-								DirectoryChange(cpPath, true);
+						if (fileSwitch == true && pathSwitch == true) {
+							CopyAndMoveFiles(cpFile, cpPath, false);
+							if (size == 4) {
+								i++;
+								if (incomingInput[i] == "-m")
+									DirectoryChange(cpPath, true);
+							}
 						}
-
+					} else {
+						ColorChange("\t\tSorry insufficient number of arguments.", 2);
 					}
 				} else if (incomingInput[i] == "date") { 
 					std::cout << "\t\t" << utili::date(1) << std::endl; 
@@ -1277,12 +1284,12 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 							ColorChange("\t\tYour starting point argument is not a path.", 2);
 						} else {
 							i++;
-							DepthFirstSearch(random, incomingInput[i], true);
+							DepthFirstSearch(random, incomingInput[i], false);
 						}
 					} else if (size == 2) {
 						i++;
 						random = "/";
-						DepthFirstSearch(random, incomingInput[i], true);
+						DepthFirstSearch(random, incomingInput[i], false);
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
@@ -1313,11 +1320,12 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 					bool lsArgumentSwitch = false;
 					bool lsPathSwitch = false;
 					std::string lsPath = "", lsArgument = "";
-					i++;
+
 					std::cout << "" << std::endl;
 					if (size == 1) {
 						DisplayDirectories("","");
 					} else if (size == 2) {
+						i++;
 						if (incomingInput[i] == "-l" || incomingInput[i] == "all") {
 							lsArgumentSwitch = true;
 							lsArgument = incomingInput[i];
@@ -1377,15 +1385,16 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 							fileSwitch = true;
 							 mvPath = incomingInput[i];
 						}
-					}
-					if (fileSwitch == true && pathSwitch == true) {
-						CopyAndMoveFiles(mvFile, mvPath, true);
-						if (size == 4) {
-							i++;
-							if (incomingInput[i] == "-m")
-								DirectoryChange(mvPath, true);
+						if (fileSwitch == true && pathSwitch == true) {
+							CopyAndMoveFiles(mvFile, mvPath, true);
+							if (size == 4) {
+								i++;
+								if (incomingInput[i] == "-m")
+									DirectoryChange(mvPath, true);
+							}
 						}
-
+					} else {
+						ColorChange("\t\tSorry insufficient number of arguments.", 2);
 					}
 				} else if (incomingInput[i] == "pid") { 
 					std::cout << "\t\t" << "The process ID is: " << getpid() << std::endl;
@@ -1406,12 +1415,10 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 									ColorChange("\t\tSorry but the current prompt is empty.", 2);
 								}
 							} else if (std::stoi(incomingInput[i]) == 5) {
-								if (size > 2) {
-									i++;
-									currentPrompt = incomingInput[i];
-								} else {
-									ColorChange("\t\tThe number of arguments was incorrect.", 2);
-								}
+								std::cout << std::endl << "\t\t Please enter your custom prompt: ";
+								std::getline(cin, currentPrompt);
+								currentPrompt += " ";
+								std::cout << std::endl;
 							} else {
 								ColorChange("\t\tThat is not an option for the prompt.", 2);
 							}
