@@ -84,8 +84,6 @@ These are just some of the thingss that I plan on doing, the refactor will consi
 # Author: Aaron A. Valoroso
 
 
-
-
 ## Inspiring Quotes
 
  The programmers of tomorrow are the wizards of the future. You're going to look like you have magic  powers compared to everybody else.
