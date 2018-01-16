@@ -159,6 +159,9 @@ void utili::print_content(std::vector<std::string> content) {
 	int iterator = 0;
 	std::string input = "";
 
+	if (indent < 0)
+		indent = 0;
+
 	for (int i = 0; i < content.size(); i++) {
 		std::istringstream iss (content[i]);
 		while (iss >> input) {
@@ -192,6 +195,9 @@ void utili::print_string(std::string incomingString) {
 	int indent = ((columns / 10) - 10);
 	int iterator = 0;
 	std::string input = "";
+
+	if (indent < 0)
+		indent = 0;
 
 	std::istringstream iss (incomingString);
 	while (iss >> input) {
