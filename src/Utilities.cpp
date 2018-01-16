@@ -155,15 +155,9 @@ int utili::isNumber(std::string incomingString) {
 
 void utili::print_content(std::vector<std::string> content) {
 	int columns = screen_size();
-	int indent = 0;
+	int indent = ((columns / 10) - 10);
 	int iterator = 0;
 	std::string input = "";
-
-	if (columns <= 150) {
-		indent = 5;
-	} else if (columns <= 100) {
-		indent = 0;
-	}
 
 	for (int i = 0; i < content.size(); i++) {
 		std::istringstream iss (content[i]);
@@ -195,15 +189,9 @@ void utili::print_content(std::vector<std::string> content) {
 
 void utili::print_string(std::string incomingString) {
 	int columns = screen_size();
-	int indent = 0;
+	int indent = ((columns / 10) - 10);
 	int iterator = 0;
 	std::string input = "";
-
-	if (columns <= 150) {
-		indent = 5;
-	} else if (columns <= 100) {
-		indent = 0;
-	}
 
 	std::istringstream iss (incomingString);
 	while (iss >> input) {

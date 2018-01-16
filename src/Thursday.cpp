@@ -884,9 +884,7 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 	} else if ( signal == 1) {																// This option will display just the basic contents of a file that is # ending.
 		while (!InputData.eof()) {															// Loop through the file.
 			std::getline(InputData, input, '#');											// Get the line from in the file.
-			if (input.size() > 0) {													// If the input from the file is not empty.
-				incomingVector.push_back(input);
-			}
+			incomingVector.push_back(input);
 		}
 		utili::print_content(incomingVector);
 		incomingVector.clear();
@@ -899,6 +897,7 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
 			definition = utili::remove_special_characters(definition);						// Check the special characters in the definition, then replace the definition.
 			//--------------------------------------------------------------
 			if (word.size() > 0) {															// If the word size is not empty.
+				std::cout << std::endl;
 				input = std::to_string(i) + ": " + word + " " + definition;
 				utili::print_string(input);
 				i++;																		// Increment our iterator in the loop.
@@ -943,14 +942,14 @@ void Thursday::GetArguments(std::string theCommands, char* envp[]) {
 			}
 		} else if (theCommands[i] == 32 && foundQuote == false) {			// If we are looking at a space and we are not in the middle of a quote. 
 			if (input.size() > 0) {
-				tokens.push_back(input);										// Store the input.					
-				input = "";														// Reset the input.
+				tokens.push_back(input);									// Store the input.					
+				input = "";													// Reset the input.
 			}
 		} else if (theCommands[i] == ';' && foundQuote == false) {
 			if (input.size() > 0) {
 				input += theCommands[i];
-				tokens.push_back(input);										// Store the input.					
-				input = "";														// Reset the input.
+				tokens.push_back(input);									// Store the input.					
+				input = "";													// Reset the input.
 			}
 		} else {
 			if (foundQuote == false) {										// If we are not in a quote.
@@ -1098,6 +1097,7 @@ void Thursday::Search(std::string argument) {
 		ColorChange("\t\tThere was an error opening the file in the Search method.", 2);
 		return;
 	}
+
 	while (!InputData.eof()) {														// Loop through the file.
 		std::getline(InputData, word, '#');											// Get the word.
 		std::getline(InputData, definition, '#');									// Get the directory.
@@ -1106,17 +1106,11 @@ void Thursday::Search(std::string argument) {
 		definition = utili::remove_special_characters(definition);					// Check to make sure that there are no special characters in the definition.
 		//~ //--------------------------------------------------------------
 		if (word == searchWord) {													// If we found the search word that the user was looking for.
+			std::cout << std::endl;
 			output = word;															// Add the word to our output.
 			output += " -";															// Add a space and dash to the output.
 			output += definition;													// Add the definition to the output.
-			for (int i = 0; i < output.size(); i++) {								// Loop through each output combination.
-				if (i % 80 == 0) {													// At 80 characters, add a new line, and then tab.		
-					std::cout << "\n\t\t" << output[i];								// Print the output with tabs.
-				} else {
-					std::cout << output[i];											// Print the output with no tabs.
-				}
-			}
-			std::cout << std::endl;													// Print a space between each word.
+			utili::print_string(output);
 			mySwitch = true;														// Turn the switch for true. 
 		}
 	}
@@ -1195,6 +1189,7 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 					fileName = informationDestination; 
 					fileName += "/ThursdayCommandDefinitions.txt"; 
 					FileLoader(temp, fileName, 2); 
+					std::cout << std::endl;
 				} else if (incomingInput[i] == "compress") { 
 					if (size == 2) { 
 						i++; 
@@ -1465,6 +1460,7 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
 				} else if (incomingInput[i] == "usage") {
+					std::cout << std::endl;
 					fileName = informationDestination;
 					fileName += "/Usage.txt";
 					temp = FileLoader(temp, fileName, 1);

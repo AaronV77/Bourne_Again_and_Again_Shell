@@ -328,21 +328,21 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
 			string foundSearch = "";
 			bool searchTest = false;
 
-			for (int e = 0; e < exampleSearchSize; e++) {									// Loop through the our only item that we were able to find.
-				for (int f = 0; f < savedItems.size(); f++) {
-					if (savedItems[f][e] != exampleSearch[e]) {
-						searchTest = true;
+			for (int e = 0; e < exampleSearchSize; e++) {									// Loop through the number of characters of the first item in the vector.
+				for (int f = 0; f < savedItems.size(); f++) {								// Loop through everything that matches what the user was trying to type.
+					if (savedItems[f][e] != exampleSearch[e]) {								// Check to see any of the saved items does not match the same character to the first element in the vector.
+						searchTest = true;													// If we have found an string that does not match, then we know that this string is what we can "auto complete too".
 						break;
 					}
 				}
-				if (searchTest == true) {
+				if (searchTest == true) {													// If we have found a string that does not match anymore.
 					break;
-				} else {
-					if (e <= incomingTypedString.size()) {	
-						if (exampleSearch[e] != incomingTypedString[e])
-							foundSearch += exampleSearch[e];
+				} else {																	// If we are still good
+					if (e <= incomingTypedString.size()) {									// Make sure that we are not indexing out of the incoming user input.
+						if (exampleSearch[e] != incomingTypedString[e])						// We don't want to add the same stuff that the user was trying to add before.
+							foundSearch += exampleSearch[e];								// Add the missing content to the string.
 					} else {
-						foundSearch += exampleSearch[e];
+						foundSearch += exampleSearch[e];									// We have surpassed what the user has then lets keep adding the missing content.
 					}
 				}
 			}
