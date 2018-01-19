@@ -788,7 +788,7 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 
 	int i = 0;  																				// Used to iterate through the incoming arguments.
 	size_t arrSize = 100; 																		// Used to allocate bytes to a char pointer.
-	char ** myArray = new char * [arrSize];														// Used to allocat a char array pointer.
+	char ** myArray = new char * [arrSize];														// Used to allocat an array of char pointers.
 	for (i = 0; i < arguments.size(); i++) {													// Loop through the incoming arguments.
 		myArray[i] = new char [arrSize];														// Allcocate memory for each element in the array.
 		strcpy(myArray[i], strdup(arguments[i].c_str()));										// Copy the incoming argument to the element in the array.
