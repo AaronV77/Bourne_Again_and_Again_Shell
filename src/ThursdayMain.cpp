@@ -421,6 +421,7 @@ int getche(void) {
 			}
 		}
 	}
+	return -1;
 }
 
 

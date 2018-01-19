@@ -414,7 +414,7 @@ void Thursday::DepthFirstSearch(std::string path, std::string searchWord, bool s
 		if (errorSwitch == false) {																		// Check to make sure that the global error switch was not triggered.
 			dir = opendir(".");
 			if (NULL != dir) {																			// Check to see if the directory is NULL.
-				while (entry = readdir(dir)) {															// Loop through the directory.
+				while ((entry = readdir(dir))) {															// Loop through the directory.
 					addedPath = currentPath;															// Add our current path to the addedPath variable.
 					if (currentPath != "/")																// Check to see that the current path does not already equal a backslash.
 						addedPath += "/";																// Add our back slash to add another directory to it.
@@ -516,7 +516,7 @@ void Thursday::DirectoryDelete(std::string dirname) {
 
 	dp = opendir(dirname.c_str());															// Grabs where the directory is loacted in the stream.
 	if (dp != NULL) {																		// Checks to see if the loaction is NULL.
-		while (ep = readdir(dp)) {															// Reads where the directory is located.
+		while ((ep = readdir(dp))) {															// Reads where the directory is located.
 			snprintf(abs_filename, FILENAME_MAX, "%s/%s", dirname.c_str(), ep->d_name);		// Have no clue what this does.
 			if (lstat(abs_filename, &stFileInfo) < 0)										// Checks for symbolic links
 				perror ( abs_filename );													// Print out error
@@ -571,7 +571,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 	if (lsArgument == "all") {																												// If the ls argument is all.
 		DepthFirstSearch("/", "", true);																									// We want to print all the directories in the system.
 	} else if (lsArgument == "" || lsArgument == "-l") {																					// Else if the ls argument is -l or empty.
-		while (entry = readdir(dir)) {																										// Loop through the directory.
+		while ((entry = readdir(dir))) {																										// Loop through the directory.
 			if(pathName.size() > 0)	{																										// If there is an incoming path.
 				tempFile = pathName + '/' + entry->d_name;																					// If there is an incoming path then we want the whole path of the file we are looking at.																									
 				lstat(tempFile.c_str(), &fileStruct);																						// Get information on the file that we are looking at.
@@ -737,7 +737,7 @@ void Thursday::EnvironmentUtilites(int Number, std::string variable, std::string
 		for (int a = 0; a < Environment.size(); a++) {									// Loop through the environment vector.
 			if (variable == Environment[a])	{											// If the variable was found in the vector.
 				a++;																	// Increment our iterator to look at the next value in the vector.
-				Environment[a] == variableValue;										// Change our vector variable to the new value.
+				Environment[a] = variableValue;											// Change our vector variable to the new value.
 				foundSwitch = true;														// Set our found switch to true.
 				unsetenv(variable.c_str());			 									// Unset the variable in the prcocesss environment, if it is not in the process then don't do anything.
 				setenv(variable.c_str(), variableValue.c_str(), -1);					
