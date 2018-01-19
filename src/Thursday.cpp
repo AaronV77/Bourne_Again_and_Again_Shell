@@ -78,11 +78,19 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std:
 			semiColonSwitch = true;
 		}
 		
+		
 		for (int a = 0; a < ThursdayCommands.size(); a++) {									// Loop through my vector of acceptable commands that the application can use.
-			if (ThursdayCommands[a] == tokens[i])											// Check to see if the token matches one of our commands in the ThrusdayCommands vector.
-				commandSwitch = true;														// If it does then we set our switch to true.													
+			if (myCommandSwitch == false) {
+				if (ThursdayCommands[a] == tokens[i])										// Check to see if the token matches one of our commands in the ThrusdayCommands vector.
+					commandSwitch = true;													// If it does then we set our switch to true.													
+			} else {
+				if (tokens[i] == "enable") {
+					myCommandSwitch = false;
+					ColorChange("\t\tThursday's commands have been enable.", 3);
+				}
+			}
 		}
-
+		
 		if (quotes.size() > 0) {															// Lets do a simple check to make sure that there are even quotes in the input string.
 			if (utili::isNumber(tokens[i]) == 1) {											// Looking for a number to insert a quote if there is one. Check to see if it is a number.
 				int number = std::stoi(tokens[i]);											// Save the number of the token.
@@ -94,7 +102,7 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std:
 			}
 		}
 
-		if (semiColonSwitch == true) {														// If the semiColon was found earlier in the process.
+		if (semiColonSwitch == true && ((tokens.size() - 1) != i)) {						// If the semiColon was found earlier in the process, and make sure that we are not looking at element in the vector. If so then we just want to move on and let the next check run the command.
 			commandAndArguments.push_back(tokens[i]);										// Add it to our vector.
 			if (notMineSwitch == true && commandSwitch == false) {							// Had to put this hear for commands that don't have a semicolon.
 				SearchCommands(commandAndArguments, 1, envp);								// Send it to our SearchCommands method for exec.
@@ -175,7 +183,7 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 		if (signal == 1) {																	// If no color is needed then just print the prompt normal.
 			std::cout << sentence;
 		} else {
-			std::cout << sentence << endl;													// Else print everything normal.
+			std::cout << sentence << std::endl;													// Else print everything normal.
 		}
 	}
 		
@@ -237,9 +245,9 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
 		ColorChange("\t\tMission - You are in the CompressAndDecompress method.", 3);
 	/*--------------------------------------------------------------------*/ 
 	std::vector<std::string> arguments;														// To store all the arguments that will be sent to the Execution method.
-	string fileName = argument;																// Used to store the filename so that we can add .tgz to it.
+	std::string fileName = argument;														// Used to store the filename so that we can add .tgz to it.
 	std::size_t stringFind;																	// Used to find a string within a string.
-	string path = FileChecker("tar", 0);													// Get the location of the binary for tgz.
+	std::string path = FileChecker("tar", 0);												// Get the location of the binary for tgz.
 
 	if (Number == 0) {																		// Store the arguments for compressing.	
 		fileName += ".tgz";																	// Add .tgz to the file name because this will be the new name for the compressed file.
@@ -413,7 +421,7 @@ void Thursday::DepthFirstSearch(std::string path, std::string searchWord, bool s
 					addedPath += entry->d_name;															// Add the file / directory / or anything else that we are looking at in the directory to the path.
 					if (entry->d_name == searchWord) { 													// Check to see if what we are looking at matches what the user is searching for.
 						if (showDirectories == false) { 												// The commands find and whereis will be a 1, and dirs will be a 0.
-							cout << "\t\t" << addedPath << endl;										// Print the absolute path of where the file the user is looking for.
+							std::cout << "\t\t" << addedPath << std::endl;								// Print the absolute path of where the file the user is looking for.
 							findingHome = addedPath;
 						}
 						found = true;																	// Set the found variable that the system has been able to find at least one location of the file that is being searched for.
@@ -634,7 +642,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 					tempFile = pathName + '/' + regularFiles[i];
 				else 
 					tempFile = regularFiles[i];				
-				std::cout << "\t\t" << colorDEF << utili::fileInformation(tempFile) << " " << std::left << regularFiles[i] << endl;
+				std::cout << "\t\t" << colorDEF << utili::fileInformation(tempFile) << " " << std::left << regularFiles[i] << std::endl;
 			}
 		} else {																																// Prints out all the file names in columns by category and in order.
 			if (columns > 100) {
@@ -663,31 +671,31 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 						indent = 20;
 					}
 
-					std::cout << "\t" << colorCyan << setw(indent) << left << dir
-							<< colorDEF << setw(indent) << left << reg
-							<< colorLightGreen << setw(indent) << left << exc
-							<< colorLightYellow << setw(indent) << left << sym
+					std::cout << "\t" << colorCyan << std::setw(indent) << std::left << dir
+							<< colorDEF << std::setw(indent) << std::left << reg
+							<< colorLightGreen << std::setw(indent) << std::left << exc
+							<< colorLightYellow << std::setw(indent) << std::left << sym
 							<< std::endl;																										// Print the content in columns.
 				}
 			} else {
 				int i = 0;
 				indent = 10;
 				if (directories.size() > 0)
-					std::cout << setw(indent) << left << "-----------Directories-----------" << std::endl;				
+					std::cout << std::setw(indent) << std::left << "-----------Directories-----------" << std::endl;				
 				for (i = 0; i < directories.size(); i++)
-					std::cout << setw(indent) << left << directories[i] << std::endl;
+					std::cout << std::setw(indent) << std::left << directories[i] << std::endl;
 				if (regularFiles.size() > 0)
-					std::cout << setw(indent) << left << "----------Regular-Files------------" << std::endl;
+					std::cout << std::setw(indent) << std::left << "----------Regular-Files------------" << std::endl;
 				for (i = 0; i < regularFiles.size(); i++)
-					std::cout << setw(indent) << left << regularFiles[i] << std::endl;
+					std::cout << std::setw(indent) << std::left << regularFiles[i] << std::endl;
 				if (executableFiles.size() > 0)
-					std::cout << setw(indent) << left << "-----------Executable-Files-----------" << std::endl;
+					std::cout << std::setw(indent) << std::left << "-----------Executable-Files-----------" << std::endl;
 				for (i = 0; i < executableFiles.size(); i++)
-					std::cout << setw(indent) << left << executableFiles[i] << std::endl;
+					std::cout << std::setw(indent) << std::left << executableFiles[i] << std::endl;
 				if (symbolicFiles.size() > 0)
-					std::cout << setw(indent) << left << "-----------Symbolic-Files-----------" << std::endl;	
+					std::cout << std::setw(indent) << std::left << "-----------Symbolic-Files-----------" << std::endl;	
 				for (i = 0; i < symbolicFiles.size(); i++)
-					std::cout << setw(indent) << left << symbolicFiles[i] << std::endl;			
+					std::cout << std::setw(indent) << std::left << symbolicFiles[i] << std::endl;			
 			}
 		}
 
@@ -744,7 +752,7 @@ void Thursday::EnvironmentUtilites(int Number, std::string variable, std::string
 		for (int i = 0; i < Environment.size(); i++) {									// Loop through the Environment vector.
 			if (variable == Environment[i]) {											// If the variable was found in the vector.
 				i++;																	// Increment the iterator.
-				std::cout << "\t\t" << "The environment variable for " << variable << " is: " << Environment[i] << endl;
+				std::cout << "\t\t" << "The environment variable for " << variable << " is: " << Environment[i] << std::endl;
 				foundSwitch = true;														// Set our switch to true if the variable was found.
 			}
 		}
@@ -852,7 +860,7 @@ std::string Thursday::FileChecker(std::string argument, int signal) {
 	return argument;																// If there was no path found then just return the incoming command.
 }
 
-vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std::string fileName, int signal) {
+std::vector<std::string> Thursday::FileLoader(std::vector<std::string> incomingVector, std::string fileName, int signal) {
 	/*-------------------------------------------------------------------
 	Note: This method provides three different options for opening files and
 	* displaying the contents of the file. It also is a place to store the 
@@ -867,7 +875,7 @@ vector<std::string> Thursday::FileLoader(vector<std::string> incomingVector, std
  	std::string word = "";																	// Used to store the word.
  	std::string definition = "";															// Used to store the definition of the word.
 	
-	ifstream InputData;																		// Create a variable for opening a file.
+	std::ifstream InputData;																// Create a variable for opening a file.
 	InputData.open(fileName);																// Open the incoming file.
 	
 	if (!InputData) {																		// Check to see if the file can be opened.
@@ -990,7 +998,7 @@ void Thursday::Help(std::string argument) {
 	fileName = informationDestination;															// Add the information destination to the variable.
 	fileName += "/Commands.txt";																// Add the filename to the temporary variable.
 
-	ifstream InputData;																			// Create a variable for opening a file.
+	std::ifstream InputData;																	// Create a variable for opening a file.
 	InputData.open(fileName);																	// Open the file.
 	if (!InputData) {																			// If the file was not found then print an error statment.
 		ColorChange("\t\tThere was an error opening the file in the Library Usage Method.", 2);
@@ -1091,7 +1099,7 @@ void Thursday::Search(std::string argument) {
     fileName += letter;																// Add the letter to the temp variable.
     fileName += ".txt";																// Add the extension to open the file in the dictionary.
 
-	ifstream InputData;																// Create a variable for  opening a file.
+	std::ifstream InputData;														// Create a variable for  opening a file.
 	InputData.open(fileName);														// Open the file.
 	if (!InputData) {																// If the file could not be found then we pritn and error.
 		ColorChange("\t\tThere was an error opening the file in the Search method.", 2);
@@ -1125,7 +1133,7 @@ void Thursday::Search(std::string argument) {
 	return;
 }
 
-void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char * envp[]) {
+void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]) {
 	/*------------------------------------------------------------------
 	Note: This method takes in the command and runs it through the big 
 	* if statment. The if statments are categorize by alphanumeric. 
@@ -1146,6 +1154,7 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
     int key = 0; 
     int size = incomingInput.size();
 	characterValue = incomingInput[i][0];													//Grab the ascii value of the first chararcter of the current command.
+
 	if ( signal == 0 ) { 
 		if (characterValue >= 97 && characterValue <= 108) {								//If the command is within A - L (a - l).
 			if (characterValue >= 97 && characterValue <= 102) {							//If the command is within A - F (a - f).
@@ -1253,6 +1262,11 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 						std::cout << "\t\t" << Cryptography(2, key, incomingInput[i]) << std::endl;
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect.", 2);
+					}
+				} else if (incomingInput[i] == "disable") {
+					if (myCommandSwitch == false) {
+						myCommandSwitch = true;
+						ColorChange("\t\tThursday's commands have been disabled.", 3);
 					}
 				} else if (incomingInput[i] == "encrypt") {
 					if (size == 3) {
@@ -1394,7 +1408,7 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 				} else if (incomingInput[i] == "pid") { 
 					std::cout << "\t\t" << "The process ID is: " << getpid() << std::endl;
 				} else if (incomingInput[i] == "ppid") {
-					std:;cout << "\t\t" << "The parent process ID is: " << getppid() << std::endl;
+					std::cout << "\t\t" << "The parent process ID is: " << getppid() << std::endl;
 				} else if (incomingInput[i] == "printenv") {
 					EnvironmentUtilites(3, "", "");
 				} else if (incomingInput[i] == "prompt") {
@@ -1411,7 +1425,7 @@ void Thursday::SearchCommands(vector<std::string>incomingInput, int signal, char
 								}
 							} else if (std::stoi(incomingInput[i]) == 5) {
 								std::cout << std::endl << "\t\t Please enter your custom prompt: ";
-								std::getline(cin, currentPrompt);
+								std::getline(std::cin, currentPrompt);
 								currentPrompt += " ";
 								std::cout << std::endl;
 							} else {

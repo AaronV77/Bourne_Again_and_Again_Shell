@@ -3,9 +3,7 @@
 
 #include <algorithm>
 #include <dirent.h>
-
 #include <fstream>
-
 #include <iomanip>
 #include <iostream>
 #include <stack>
@@ -16,11 +14,9 @@
 #include <termios.h>
 #include <unistd.h>
 #include <vector>
-#include "colorModification.h"
 #include "Utilities.h"
 
 using namespace utili;
-using namespace Color;
 
 class Thursday {
  
@@ -36,7 +32,7 @@ public:
 	void CompressAndDecompress(int Number, std::string argument);
 	void CopyAndMoveFiles(std::string itemsBeingMoved, std::string destinationPath, bool functionSwitch);
 	void DebugSwitch(bool signal);
-	string Cryptography(int number, int key, std::string message);
+	std::string Cryptography(int number, int key, std::string message);
 	void DepthFirstSearch(std::string path, std::string searchWord, bool showDirectories);
 	void DirectoryChange(std::string desiredPath, bool debugPrintSwitch);
 	void DirectoryDelete(std::string dirname);
@@ -65,6 +61,7 @@ private:
 	bool colorSwitch;	
 	bool debugSwitch;	
 	bool errorSwitch;
+	bool myCommandSwitch;
 	bool waitSwitch;
 
 	std::string colorDEF ="";

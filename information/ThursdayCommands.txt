@@ -9,6 +9,8 @@ date#
 debug#
 decompress#
 decrypt#
+disable#
+enable#
 encrypt#
 exit#
 find#

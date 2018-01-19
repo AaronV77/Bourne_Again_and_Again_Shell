@@ -132,17 +132,17 @@ int main (int argc, char * argv[], char *envp[]) {
 			if (UpAndDownIterator >= 0 && incomingCommands.size() != 0) {										//Check to make sure the iterator is above  0.
 				tabPressed = false;
 				printf("%c[2K", 27);																			//Clear the current terminal line.
-				cout << "\r";																					// forget what this does. Online says its a carriage return.
+				std::cout << "\r";																				// forget what this does. Online says its a carriage return.
 				home.PromptDisplay();																			//print the normal prompt.
-				cout  << incomingCommands[UpAndDownIterator]; 													//Reset the output and pring the colored prompt and print out the previous command.
+				std::cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
 				theCommands = incomingCommands[UpAndDownIterator];												//Reset the input string with the previous command.
 				LeftAndRightIterator = theCommands.size() + 1;													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
 			} else if (theCommands.size() == 0) {																//If there is nothing on the screen then we want to make sure to reprint the first item in the array.							
 				UpAndDownIterator = 0;	
 				printf("%c[2K", 27);																			//Clear the current terminal line.
-				cout << "\r";																					//I forget what this does. Online says its a carriage return.
+				std::cout << "\r";																				//I forget what this does. Online says its a carriage return.
 				home.PromptDisplay();																			//print the normal prompt.
-				cout  << incomingCommands[UpAndDownIterator]; 													//Reset the output and pring the colored prompt and print out the previous command.
+				std::cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
 				theCommands = incomingCommands[UpAndDownIterator];												//Reset the input string with the previous command.
 				LeftAndRightIterator = theCommands.size() + 1;													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
 			} else {
@@ -153,9 +153,9 @@ int main (int argc, char * argv[], char *envp[]) {
 			if (UpAndDownIterator < incomingCommands.size() && incomingCommands.size() != 0) {					//If the up and down iterator is less than the size of the vector minus 1, and if the vector size is not equal to zero.
 				tabPressed = false;
 				printf("%c[2K", 27);																			//Clear the printed terminal line.
-				cout << "\r";																					//I forget what this does. Online says its a carriage return.
+				std::cout << "\r";																				//I forget what this does. Online says its a carriage return.
 				home.PromptDisplay();																			//print the normal prompt.
-				cout  << incomingCommands[UpAndDownIterator]; 													//Reset the output and pring the colored prompt and print out the previous command.
+				std::cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
 				theCommands = incomingCommands[UpAndDownIterator];												//Reset the input string with the previous command.
 				LeftAndRightIterator = theCommands.size() + 1;													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
 			} else {																							//If we hit the very top of the vector then we want to clear the termina input just like bash.
@@ -305,10 +305,10 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
 					std::cout << savedItems[0][d];											// Display the characters to the screen.
 			}
 			if (isOrNotIsAPath == true) { 													// If what wwe found was not a full absolute path.
-				string path = savedPath = savedItems[0];									// Combined the path and the found file part or whole file.
+				std::string path = savedPath = savedItems[0];								// Combined the path and the found file part or whole file.
 				stat(path.c_str(), &fileStruct);											// Get information about the file.
 				if (fileStruct.st_mode & S_IFDIR) {											// See if the file is a directory.
-					cout << "/";
+					std::cout << "/";
 					return path + "/";														// Return the whole path to the main so that the commands has the new path.		
 				} else {
 					return path;
@@ -316,16 +316,16 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
 			} else {
 				stat(savedItems[0].c_str(), &fileStruct);									// Get information about the file.
 				if (fileStruct.st_mode & S_IFDIR) {											// See if the file is a directory.
-					cout << "/";
+					std::cout << "/";
 					return savedItems[0] + "/";												// If we are looking at the current directory then we just neeed the lastpart of what the user was trying to type.
 				} else {
 					return savedItems[0];
 				}
 			}	
 		} else if (savedItems.size() > 0) {													// If there is more than one option, we want to fill in as much for the filename as we can before it starts to differ.
-			string exampleSearch = savedItems[0];
+			std::string exampleSearch = savedItems[0];
 			int exampleSearchSize = savedItems[0].size();
-			string foundSearch = "";
+			std::string foundSearch = "";
 			bool searchTest = false;
 
 			for (int e = 0; e < exampleSearchSize; e++) {									// Loop through the number of characters of the first item in the vector.
@@ -352,20 +352,20 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
 			return incomingTypedString;
 		}
 	} else {																				// If the user wants to display everything in the directory that is similar to what the user wants.
-		cout << endl;
+		std::cout << std::endl;
 		if (savedItems.size() > 0) {														// If what the user typed in is not an absolute path.
 			for (int e = 0; e < savedItems.size(); e++) {									// Loop through all the items that we found that match what we want.
 				if ((e % 4) == 0)
 					std::cout << std::endl;
 				
-				std::cout << setw(40) << left <<  savedItems[e];
+				std::cout << std::setw(40) << std::left <<  savedItems[e];
 			}
 		} else {
 			for (int f = 0; f < directoryContents.size(); f++) {							// Loop through all the items that in the directory specified.
 				if ((f % 4) == 0)
 					std::cout << std::endl;
 
-				std::cout << setw(40) << left << directoryContents[f];
+				std::cout << std::setw(40) << std::left << directoryContents[f];
 			}
 		}
 		std::cout << std::endl << std::endl;
