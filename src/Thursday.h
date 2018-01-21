@@ -3,13 +3,16 @@
 
 #include <algorithm>
 #include <dirent.h>
+#include <fcntl.h>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <stack>
+#include <stdio.h>
 #include <string>
 #include <string.h>
-#include <sstream>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <termios.h>
 #include <unistd.h>

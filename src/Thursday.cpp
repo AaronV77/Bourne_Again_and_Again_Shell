@@ -61,6 +61,7 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std:
 	/*--------------------------------------------------------------------*/ 
 	int argumentPosition = 0;																// Used to keep track on the position on the input stream.
 	int currentQuote = 0;																	// Used to align up to the incoming quotes in the stream.
+	int operatorType = 0;																	// Used to tell what type of operator we found.
 	bool commandSwitch = false;																// Used to see if I found one of my personal commands.
 	bool notMineSwitch = false;																// Used to see if we found the execution of something.
 	bool quoteSwitch = false;																// Used when we are inputing a quote for the SearchCommands Vector.
@@ -69,9 +70,20 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std:
 	std::vector<std::string> commandAndArguments;											// Used to send either a whole input stream or a chunck to the SearchCommands.
 	
 	for (int i = 0; i < tokens.size(); i++) {												// Loop through the tokens.
-		if (tokens[i] == ">" || tokens[i] == "<" || tokens[i] == "|")						// Check to see if our token is an operator.
+
+		if (tokens[i] == ">") {
 			notMineSwitch = true;															// If we have found an operator, then what we have in our vector is not for my application to handle. I don't process operators so lets just give it to exec.
-		
+			operatorType = 2;
+		}
+		if (tokens[i] == "<") {
+			notMineSwitch = true;															// If we have found an operator, then what we have in our vector is not for my application to handle. I don't process operators so lets just give it to exec.
+			operatorType = 3;
+		}
+		if (tokens[i] == "|") {
+			notMineSwitch = true;															// If we have found an operator, then what we have in our vector is not for my application to handle. I don't process operators so lets just give it to exec.
+			operatorType = 4;
+		}
+
 		stringFind = tokens[i].find(';');													// See if the argument that we are looking at has a semicolon. A semicolon represents an end of a command.
 		if (stringFind != std::string::npos) {												// If there is a semicolon.
 			tokens[i].erase(tokens[i].begin()+(tokens[i].size() - 1), tokens[i].end());		// Delete if off the end of our token.		
@@ -105,7 +117,7 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std:
 		if (semiColonSwitch == true && ((tokens.size() - 1) != i)) {						// If the semiColon was found earlier in the process, and make sure that we are not looking at element in the vector. If so then we just want to move on and let the next check run the command.
 			commandAndArguments.push_back(tokens[i]);										// Add it to our vector.
 			if (notMineSwitch == true && commandSwitch == false) {							// Had to put this hear for commands that don't have a semicolon.
-				SearchCommands(commandAndArguments, 1, envp);								// Send it to our SearchCommands method for exec.
+				SearchCommands(commandAndArguments, operatorType, envp);					// Send it to our SearchCommands method for exec.
 			} else if (notMineSwitch == false && commandSwitch == false) {
 				SearchCommands(commandAndArguments, 1, envp);								// Send it to our SearchCommands method for processing.
 			} else {
@@ -129,7 +141,7 @@ void Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std:
 	}
 
 	if (notMineSwitch == true && commandSwitch == false) {									// Had to put this hear for commands that don't have a semicolon.
-		SearchCommands(commandAndArguments, 1, envp);										// Send it to our SearchCommands method for exec.
+		SearchCommands(commandAndArguments, operatorType, envp);							// Send it to our SearchCommands method for exec.
 	} else if (notMineSwitch == false && commandSwitch == false) {	
 		SearchCommands(commandAndArguments, 1, envp);										// Send it to our SearchCommands method for processing.
 	} else {
@@ -1485,7 +1497,27 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 		}
 	} else if (signal == 1) {																// If the incoming vector of commands is not associated with this application.
 		ExecuteFile(incomingInput[i], incomingInput); 										// Send the first argument and then send the rest of the vector.
-		return;
+	} else if (signal == 2) {
+		// STD OUT
+		if ( incomingInput.size() >= 3) {
+
+		} else {
+			ColorChange("\t\tThere are not enough items for standard out.", 3);
+		}
+	} else if (signal == 3) {
+		// STD IN
+		if ( incomingInput.size() >= 3) {
+			
+		} else {
+			ColorChange("\t\tThere are not enough items for standard in.", 3);
+		}		
+	} else if (signal == 4) {
+		// PIPE
+		if ( incomingInput.size() >= 3) {
+
+		} else {
+			ColorChange("\t\tThere are not enough items for pipping+.", 3);
+		}
 	}
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
@@ -1527,3 +1559,56 @@ void Thursday::SetupAndCloseSystem(int argc, char * envp[]) {
 	return;
 }
 
+void StandardIn(char * path2, char * args2[], char * InputFile, char * envp[]) {	
+    pid_t pid;	
+    int fd = 0;
+	int stdin_copy = dup(0);
+
+    pid = fork();
+    if (pid == 0) {
+        close(0);
+        fd = open(InputFile, O_RDONLY);	
+		if (execve(path2, args2, envp) == -1) {
+			std::cout << "There was a problem with stdin function." << std::endl;
+		}
+    } else {
+		waitpid(pid, 0, WUNTRACED);
+	}
+    close(fd);
+	dup2(stdin_copy, 0);
+	close(stdin_copy);
+
+    return;
+}
+
+void StandardOut(char * path3, char * args3[], char * OutputFile, char * envp[]) { 
+    pid_t pid, tmp;
+	int fd2 = 0;
+    int stdout_copy = dup(1);
+
+	pid = fork();
+	if (pid == 0) {
+		close(1);
+		fd2 = open(OutputFile, O_RDWR|O_CREAT|O_APPEND, 0600);
+		if (execve(path3, args3, envp) == -1) {
+			std::cout << "There was a problem with stdout function." << std::endl;		
+		}
+	} else {
+		waitpid(pid, 0, WUNTRACED);
+	}
+	close(fd2);
+	dup2(stdout_copy, 1);
+	close(stdout_copy);
+
+	return;
+}
+
+void Pipe(char * path4, char * args4[], char * path5, char * args5[], char * envp[]) {
+	
+	char * tempFile = (char*)"pipe.txt";
+	StandardOut(path4, args4, tempFile, envp);
+	StandardIn(path5, args5, tempFile, envp);
+
+
+	return;
+}
