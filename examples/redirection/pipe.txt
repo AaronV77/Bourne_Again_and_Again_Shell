@@ -25,3 +25,12 @@ output.txt
 pipe.txt
 stdin_ex.cpp
 stdin.o
+a.out
+exec_ex.cpp
+exec.o
+fork_pipe.cpp
+input.txt
+output.txt
+pipe.txt
+stdin_ex.cpp
+stdin.o

@@ -41,6 +41,7 @@ int main(int argc, char * argv[], char * envp[]) {
 	char * args3[] = {argument3, NULL};
 	char * OutputFile = (char*)"output.txt";
 	StandardOut(path3, args3, OutputFile, envp);
+    std::cout << "Check output.txt for proof" << std::endl;
 
 	cout << endl << "PIPE EXECUTION" << endl;
 	// Showing that Piping works.
