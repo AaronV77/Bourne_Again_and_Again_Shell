@@ -443,9 +443,10 @@ void Thursday::DepthFirstSearch(std::string path, std::string searchWord, bool s
 							if (s.st_mode & S_IFLNK) {													// Check the mask type to see if the directory is a symbolic link.
 								//~ cout << "Random2 is a Symbolic link" << endl;						// If so do not do anything.
 							} else {
-								if (s.st_mode & S_IFDIR)												// If the path is a directory.
+								if (s.st_mode & S_IFDIR) {												// If the path is a directory.
 									stringStack.push(addedPath);										// Push the path into the stack.
 									paths.push_back(addedPath);
+								}
 							}
 						}
 					}

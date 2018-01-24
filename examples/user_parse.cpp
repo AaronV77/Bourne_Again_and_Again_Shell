@@ -58,15 +58,11 @@ int main() {
             if (iss.tellg() == -1)                                                                          // Check to see if the next token is the last.
                 lastItem = true;                                                                            // If so then set our bool statment to true.
             /*------------------------------------------------------------------------------*/
-            if (foundDoubleQuote == false && foundSingleQuote == false) {
+            if (foundDoubleQuote == false && foundSingleQuote == false && operatorFound == false) {
                 if (input == ">") {                                                                         // Check to see if the token is an operator.
-                    if (operatorType != 0)
-                        errorFound = true;
                     operatorType = 2;                                                                           //                                                                         
                     operatorFound = true;                                                                       //
                 } else if (input == "<") {                                                                  //
-                    if (operatorType != 0)
-                        errorFound = true;
                     operatorType = 3;                                                                           //
                     operatorFound = true;                                                                       //
                 } else if (input == "|") {                                                                  //
@@ -81,6 +77,7 @@ int main() {
                             std::cout << i << ": " << pipeSecondCommands[i] << std::endl;
                         std::cout << std::endl;
                         // Will have to make a Pipe call from here.
+
                         pipeFirstCommands.clear();
                         pipeFirstCommands = pipeSecondCommands;
                         pipeSecondCommands.clear();
@@ -88,8 +85,6 @@ int main() {
                         moreOperatorsFound = true;
                         operatorFound = true;
                     } else {
-                        if (operatorType != 0)
-                            errorFound = true;
                         operatorType = 4;                                                                       //
                         operatorFound = true;                                                                   //
                         pipeFirstCommands = commands;                                                           //
@@ -170,7 +165,6 @@ int main() {
             /*------------------------------------------------------------------------------*/
             if (errorFound == false) {
                 if (operatorFound == true) {                                                                    //
-                    operatorFound = false;                                                                      //
                     if (operatorType != 4)                                                                      //
                         needNextArgument = true;                                                                //
                     else                                                                                        //
@@ -285,6 +279,7 @@ int main() {
                     singleQuote = "";
                     doubleQuote = "";        
                 } else {                                                                                        //
+                    operatorFound = false;
                     argumentPosition++;                                                                         //
                     if (foundSingleQuote == false && foundDoubleQuote == false && operatorFound == false) {     //
                         commands.push_back(input);                                                              //
