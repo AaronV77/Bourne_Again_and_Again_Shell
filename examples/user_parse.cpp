@@ -5,25 +5,30 @@
 std::vector<std::string> LoadVector();
 
 int main() {
+    std::string error_message = "";
     std::string incomingInput = "";
     std::string singleQuote = "";
     std::string doubleQuote = "";
     std::string input = "";
     std::string outputPath = "";
     std::string inputPath = "";
+    std::string filePath = "going_out_too";
 
-    bool foundSingleQuote = false;
-    bool foundDoubleQuote = false;
-    bool needNextArgument = false;
-    bool pipeWasFound = false;
-    bool operatorFound = false;
-    bool semiColonFound = false;
-    bool lastItem = false;
-    bool commandSwitch = false;
-    bool errorFound = false;
-    bool skipTheCommandAdd = false;
+    bool single_quote_flag = false;
+    bool double_quote_flag = false;
+    bool next_argument_flag = false;
+    bool standard_in_flag = false;
+    bool standard_out_flag = false;
+    bool standard_out_secondary_flag = false;
+    bool pipe_flag = false;
+    bool pipe_secondary_flag = false;
+    bool semicolon_flag = false;
+    bool last_item_flag = false;
+    bool my_command_flag = false;
+    bool error_flag = false;
+    bool skip_command_flag = false;
     bool moreOperatorsFound = false;
-    bool foundWhiteSpace = false;
+    bool white_space_flag = false;
 
     std::size_t stringFind;
 
@@ -44,11 +49,11 @@ int main() {
         do {
             if (incomingInput[incomingInput.size() - 1] == 32) {
                 incomingInput.erase(incomingInput.begin()+(incomingInput.size() - 1), incomingInput.end());
-                foundWhiteSpace = true;
+                white_space_flag = true;
             } else {
-                foundWhiteSpace = false;
+                white_space_flag = false;
             }
-        } while (foundWhiteSpace == true);
+        } while (white_space_flag == true);
 
         std::istringstream iss (incomingInput);                                                             // Prepare the incoming string
         while(std::getline(iss,input,' ')) {                                                                // Loop through the string by tokenizing by space.
@@ -56,63 +61,82 @@ int main() {
             size = input.size();                                                                            // Get the length of the token.
             /*------------------------------------------------------------------------------*/
             if (iss.tellg() == -1)                                                                          // Check to see if the next token is the last.
-                lastItem = true;                                                                            // If so then set our bool statment to true.
+                last_item_flag = true;                                                                      // If so then set our bool statment to true.
             /*------------------------------------------------------------------------------*/
-            if (foundDoubleQuote == false && foundSingleQuote == false && operatorFound == false) {
+            if (double_quote_flag == false && single_quote_flag == false) {
                 if (input == ">") {                                                                         // Check to see if the token is an operator.
-                    operatorType = 2;                                                                           //                                                                         
-                    operatorFound = true;                                                                       //
+                    if (pipe_flag == true) {
+                        pipeSecondCommands = commands;
+                        std::cout << "We have to run this through our spcial method for pipe" << std::endl;
+                        std::cout << "And run it to another ouptput file" << std::endl;
+                        std::cout << "File Path: " << filePath << std::endl;
+                        for (int i = 0; i < pipeSecondCommands.size(); i++)
+                            std::cout << i << ": " << pipeSecondCommands[i] << std::endl;
+                        standard_out_secondary_flag = true;
+                    } else if (standard_out_flag == true || standard_in_flag == true) {
+                        error_flag = true;
+                        error_message = "Check1";
+                    }
+                    standard_out_flag = true;
                 } else if (input == "<") {                                                                  //
-                    operatorType = 3;                                                                           //
-                    operatorFound = true;                                                                       //
+                    standard_in_flag = true;
+                    if (standard_out_flag == true || pipe_flag == true) {
+                        error_flag = true;
+                        error_message = "Check2";
+                    }
                 } else if (input == "|") {                                                                  //
-                    if (pipeWasFound == true) {
+                    if (pipe_flag == true) {
                         pipeSecondCommands = commands;
                         std::cout << "Pipe PT3:" << std::endl;
                         for (int i = 0; i < pipeFirstCommands.size(); i++)
                             std::cout << i << ": " << pipeFirstCommands[i] << std::endl;
-                    
-                        std::cout << std::endl << "Pipe PT4:" << std::endl;
+
+                        std::cout << std::endl << "Pipe PT4 - Pipe to specail method:" << std::endl;
                         for (int i = 0; i < pipeSecondCommands.size(); i++)
                             std::cout << i << ": " << pipeSecondCommands[i] << std::endl;
                         std::cout << std::endl;
                         // Will have to make a Pipe call from here.
-
+                        next_argument_flag = true;
+                        pipe_secondary_flag = true;
                         pipeFirstCommands.clear();
-                        pipeFirstCommands = pipeSecondCommands;
                         pipeSecondCommands.clear();
                         commands.clear();
-                        moreOperatorsFound = true;
-                        operatorFound = true;
                     } else {
+                        if (standard_out_flag == true || standard_in_flag == true) {
+                            error_flag = true;
+                            error_message = "Check3";
+                        }
                         operatorType = 4;                                                                       //
-                        operatorFound = true;                                                                   //
+                        pipe_flag = true;                                                                       //
+                        next_argument_flag = true;
                         pipeFirstCommands = commands;                                                           //
                         commands.clear();                                                                       //
                     }
                 }   
             }
             /*------------------------------------------------------------------------------*/
-            if (input[size - 1] == ';') {                                                                   //
-                input.erase(input.begin()+(input.size() - 1), input.end());	                                //
-                semiColonFound = true;                                                                      //
-            } else {                                                                                        //
-                stringFind = input.find(';');                                                               //
-                if (stringFind != std::string::npos) {                                                      //
-                    if (foundDoubleQuote != true && foundSingleQuote != true) {                             //
-                        std::cout << "There was some big mistake with your commands." << std::endl;         //
-                        break;                                                                              //
+            if (double_quote_flag == false && single_quote_flag == false) {
+                if (input[size - 1] == ';') {                                                                   //
+                    input.erase(input.begin()+(input.size() - 1), input.end());	                                //
+                    semicolon_flag = true;                                                                      //
+                } else {                                                                                        //
+                    stringFind = input.find(';');                                                               //
+                    if (stringFind != std::string::npos) {                                                      //
+                        if (double_quote_flag != true && single_quote_flag != true) {                           //
+                            std::cout << "There was some big mistake with your commands." << std::endl;         //
+                            break;                                                                              //
+                        }
                     }
                 }
             }
             /*------------------------------------------------------------------------------*/
-            if (foundDoubleQuote == false) {                                                                //
+            if (double_quote_flag == false) {                                                               //
                 if (input[0] == 39 || input[size - 1] == 39) {                                              //
-                    if (foundSingleQuote == false) {                                                        //
-                        foundSingleQuote = true;                                                            //
+                    if (single_quote_flag == false) {                                                       //
+                        single_quote_flag = true;                                                           //
                     } else {                                                                                //
-                        foundSingleQuote = false;                                                           //
-                        skipTheCommandAdd = true;                                                           //
+                        single_quote_flag = false;                                                          //
+                        skip_command_flag = true;                                                           //
                         singleQuote += input;                                                               //
                         commands.push_back(singleQuote);                                                    //
                         singleQuote = "";                                                                   //
@@ -120,24 +144,23 @@ int main() {
                 } else {                                                                                    //
                     stringFind = input.find("'");                                                           //
                     if (stringFind != std::string::npos) {                                                  //
-                        errorFound = true;                                                                  //
-                        if (foundSingleQuote == false) {                                                    //
-                            foundSingleQuote = true;                                                        //
-                        } else {                                                                            //
-                            foundSingleQuote = false;                                                       //
-                            singleQuote = "";                                                               //
+                        error_flag = true;                                                                  //
+                        error_message = "Check4";
+                        if (single_quote_flag == true) {                                                    //
+                            single_quote_flag = false;                                                      //
+                            singleQuote = "";
                         }
                     }
                 }
             }
             /*------------------------------------------------------------------------------*/
-            if (foundSingleQuote == false) {                                                                //
+            if (single_quote_flag == false) {                                                               //
                 if (input[0] == '"' || input[size - 1] == '"') {                                            //
-                    if (foundDoubleQuote == false) {                                                        //
-                        foundDoubleQuote = true;                                                            //
+                    if (double_quote_flag == false) {                                                       //
+                        double_quote_flag = true;                                                           //
                     } else {                                                                                //
-                        foundDoubleQuote = false;                                                           //
-                        skipTheCommandAdd = true;                                                           //
+                        double_quote_flag = false;                                                          //
+                        skip_command_flag = true;                                                           //
                         doubleQuote += input;                                                               //
                         commands.push_back(doubleQuote);                                                    //
                         doubleQuote = "";                                                                   //
@@ -145,11 +168,10 @@ int main() {
                 } else {                                                                                    //
                     stringFind = input.find('"');                                                           //
                     if (stringFind != std::string::npos) {                                                  //
-                        errorFound = true;                                                                  //
-                        if (foundDoubleQuote == false) {                                                    //
-                            foundDoubleQuote = true;                                                        //
-                        } else {                                                                            //
-                            foundDoubleQuote = false;                                                       //
+                        error_flag = true;                                                                  //
+                        error_message = "Check5";
+                        if (double_quote_flag == true) {                                                    //
+                            double_quote_flag = false;                                                      //
                             doubleQuote = "";                                                               //
                         }
                     }
@@ -159,140 +181,124 @@ int main() {
             if (argumentPosition == 0) {                                                                    //
                 for (int a = 0; a < ThursdayCommands.size(); a++) {                                         //
                     if (ThursdayCommands[a] == input)                                                       //
-                        commandSwitch = true;	                                                            //												
+                        my_command_flag = true;	                                                            //												
                 }
             }
             /*------------------------------------------------------------------------------*/
-            if (errorFound == false) {
-                if (operatorFound == true) {                                                                    //
-                    if (operatorType != 4)                                                                      //
-                        needNextArgument = true;                                                                //
-                    else                                                                                        //
-                        pipeWasFound = true;                                                                    //
-                } else if (needNextArgument == true) {                                                          //
-                    needNextArgument = false;                                                                   //
-                    if (operatorType == 2) {                                                                    //
-                        if ((semiColonFound == true || lastItem == true) && errorFound == false) {              //
-                            outputPath = input;                                                                 //
-                            std::cout << "Standard Out" << std::endl;
-                            for (int i = 0; i < commands.size(); i++)
-                                std::cout << i << ": " << commands[i] << std::endl;
-                            std::cout << "File: " << outputPath << std::endl;
-                            //Make the stdout Call
-                            //leading commands are in the vector.
-                            //The output file is in the string.
-                        } else {                                                                                //
-                            std::cout << "There was some error with the commands you were trying to give.1" << std::endl;
-                        }
-                    } else if (operatorType == 3) {                                                             //
-                        if ((semiColonFound == true || lastItem == true) && errorFound == false) {              //
-                            inputPath = input;                                                                  //
+            if (error_flag == false) {
+                if (standard_in_flag == true || standard_out_flag == true) {                                      //
+                    next_argument_flag = true;                                                                    //
+                } else if (next_argument_flag == true && (last_item_flag == true || semicolon_flag == true)) {    //
+                    if (argumentPosition >= 1) {
+                        next_argument_flag = false;                                                               //
+                        if (standard_out_flag == true) {                                                          //
+                            outputPath = input;                                                                   //
+                            if (standard_out_secondary_flag == true) {
+                                std::cout << "We are going to execute the CP command or find some way to copy the contents over~!" << std::endl;
+                                std::cout << "Output file is: " << outputPath << std::endl;
+                            } else {
+                                std::cout << "Standard Out" << std::endl;
+                                for (int i = 0; i < commands.size(); i++)
+                                    std::cout << i << ": " << commands[i] << std::endl;
+                                std::cout << "File: " << outputPath << std::endl;
+                            }
+                            outputPath = "";
+                        } else if (standard_in_flag == true) {                                                    //
+                            inputPath = input;                                                                    //
                             std::cout << "Standard In" << std::endl;
                             for (int i = 0; i < commands.size(); i++)
                                 std::cout << i << ": " << commands[i] << std::endl;
                             std::cout << "File: " << inputPath << std::endl;
-                            //Make the stdin Call
-                            //leading commands are in the vector.
-                            //The output file is in the string.
-                        } else {                                                                                //
-                            std::cout << "There was some error with the commands you were trying to give.2" << std::endl;
+                            inputPath = "";
                         }
+                        next_argument_flag = false;
+                        standard_in_flag = false;
+                        standard_out_flag = false;
+                        standard_out_secondary_flag = false;
+                        semicolon_flag = false;
+                        last_item_flag = false;
+                        my_command_flag = false;
+                        commands.clear();
+                        argumentPosition = 0;
+                    } else {
+                        std::cout << "Sorry there was error some where - 1 !" << std::endl;
+                        break;
                     }
-                    singleQuote = "";
-                    doubleQuote = "";
-                    outputPath = "";
-                    inputPath = "";
-                    foundSingleQuote = false;
-                    foundDoubleQuote = false;
-                    needNextArgument = false;
-                    operatorFound = false;
-                    semiColonFound = false;
-                    lastItem = false;
-                    commandSwitch = false;
-                    errorFound = false;
-                    skipTheCommandAdd = false;
-                    moreOperatorsFound = false;
-                    commands.clear();
-                    operatorType = 0;
-                    argumentPosition = 0;
-                } else if (pipeWasFound == true && lastItem == true) {                                          //
-                    if (errorFound == false && foundDoubleQuote == false && foundSingleQuote == false) {        //
-                        if (skipTheCommandAdd == false)                                                         //
-                            commands.push_back(input);                                                          //
+                } else if (pipe_flag == true && (last_item_flag == true || semicolon_flag == true)) {             //
+                    if (argumentPosition >= 1) {
+                        commands.push_back(input);                                                                  //
                         
-                        pipeSecondCommands = commands;                                                          //
-                        std::cout << "Pipe PT1:" << std::endl;
-                        for (int i = 0; i < pipeFirstCommands.size(); i++)
-                            std::cout << i << ": " << pipeFirstCommands[i] << std::endl;
-                    
-                        std::cout << std::endl << "Pipe PT2:" << std::endl;
-                        for (int i = 0; i < pipeSecondCommands.size(); i++)
-                            std::cout << i << ": " << pipeSecondCommands[i] << std::endl;
-                        // The first command and arguments are in the pipeFirstCommands vector.
-                        // Everything else after the opeator are in the pipeSecondCommands vector.
-                    } else {                                                                                    //
-                        std::cout << "Sorry - there was an error with the commands that you had entered." << std::endl;
+                        if (pipe_secondary_flag == true) {
+                            pipeSecondCommands = commands;
+                            std::cout << "We have to run the standard IN again for PIPE" << std::endl;
+                            std::cout << "File Path: " << filePath << std::endl;
+                            for (int i = 0; i < pipeSecondCommands.size(); i++)
+                                std::cout << i << ": " << pipeSecondCommands[i] << std::endl;
+                        } else {
+                            pipeSecondCommands = commands;
+                            std::cout << "Pipe PT1:" << std::endl;
+                            for (int i = 0; i < pipeFirstCommands.size(); i++)
+                                std::cout << i << ": " << pipeFirstCommands[i] << std::endl;
+                        
+                            std::cout << std::endl << "Pipe PT2:" << std::endl;
+                            for (int i = 0; i < pipeSecondCommands.size(); i++)
+                                std::cout << i << ": " << pipeSecondCommands[i] << std::endl;
+                        }
+                        commands.clear();
+                        pipeFirstCommands.clear();
+                        pipeSecondCommands.clear();
+                        pipe_flag = false;
+                        pipe_secondary_flag = false;
+                        last_item_flag = false;
+                        my_command_flag = false;
+                        argumentPosition = 0;
+                        operatorType = 0;
+                    } else {
+                        std::cout << "Sorry there was error some where - 2!" << std::endl;
+                        break;
+                    }
+                } else if (semicolon_flag == true || last_item_flag == true) {                                  //
+                    if (skip_command_flag == false)                                                         //
+                        commands.push_back(input);                                                          //
+
+                    if (my_command_flag == false) {                                                         //
+                        std::cout << "1 - Commands: " << std::endl;
+                        for (int i = 0; i < commands.size(); i++)
+                            std::cout << i << ": " << commands[i] << std::endl;
+                        // SearchCommands(commandAndArguments, 1, envp);
+                    } else if (my_command_flag == true) {                                                   //
+                        std::cout << "2 - Commands: " << std::endl;
+                        for (int i = 0; i < commands.size(); i++)
+                            std::cout << i << ": " << commands[i] << std::endl;
+                        // SearchCommands(commandAndArguments, 0, envp);
                     }
                     commands.clear();
-                    pipeFirstCommands.clear();
-                    pipeSecondCommands.clear();
-                    pipeWasFound = false;
-                    lastItem = false;
-                    errorFound = false;
-                    operatorFound = false;
-                    foundDoubleQuote = false;
-                    foundSingleQuote = false;
-                    skipTheCommandAdd = false;
-                    commandSwitch = false;
-                    argumentPosition = 0;
-                    operatorType = 0;
-                    singleQuote = "";
-                    doubleQuote ="";
-                } else if (semiColonFound == true || lastItem == true) {                                        //
-                    if (errorFound == false && foundDoubleQuote == false && foundSingleQuote == false) {        //
-                        if (skipTheCommandAdd == false)                                                         //
-                            commands.push_back(input);                                                          //
-
-                        if (commandSwitch == false) {                                                           //
-                            std::cout << "1 - Commands: " << std::endl;
-                            for (int i = 0; i < commands.size(); i++)
-                                std::cout << i << ": " << commands[i] << std::endl;
-                            // SearchCommands(commandAndArguments, 1, envp);
-                        } else if (commandSwitch == true) {                                                     //
-                            std::cout << "2 - Commands: " << std::endl;
-                            for (int i = 0; i < commands.size(); i++)
-                                std::cout << i << ": " << commands[i] << std::endl;
-                            // SearchCommands(commandAndArguments, 0, envp);
-                        }
-                    } else {                                                                                    //
-                        std::cout << "Sorry - there was an error with the commands that you had entered." << std::endl;
-                    } 
-                    commands.clear();
-                    semiColonFound = false;
-                    lastItem = false;
-                    errorFound = false;
-                    foundSingleQuote = false;
-                    foundDoubleQuote = false;
-                    skipTheCommandAdd = false;
-                    commandSwitch = false;    
+                    semicolon_flag = false;
+                    last_item_flag = false;
+                    single_quote_flag = false;
+                    double_quote_flag = false;
+                    skip_command_flag = false;
+                    my_command_flag = false;    
                     argumentPosition = 0;  
                     singleQuote = "";
                     doubleQuote = "";        
-                } else {                                                                                        //
-                    operatorFound = false;
+                } else if (next_argument_flag == false) {                                                       //
                     argumentPosition++;                                                                         //
-                    if (foundSingleQuote == false && foundDoubleQuote == false && operatorFound == false) {     //
+                    if (single_quote_flag == false && double_quote_flag == false) {                             //
                         commands.push_back(input);                                                              //
-                    } else if (foundSingleQuote == true) {                                                      //
+                    } else if (single_quote_flag == true) {                                                     //
                         singleQuote += input;                                                                   //
                         singleQuote += " ";                                                                     //
-                    } else if (foundDoubleQuote == true) {                                                      //
+                    } else if (double_quote_flag == true) {                                                     //
                         doubleQuote += input;                                                                   //
                         doubleQuote += " ";                                                                     //
                     }
+                } else {
+                    next_argument_flag = false;
                 }
             } else {
                 std::cout << "Sorry there was error some where!" << std::endl;
+                std::cout << "ERROR: " << error_message << std::endl;
                 break;
             }
         }
@@ -300,18 +306,21 @@ int main() {
         doubleQuote = "";
         outputPath = "";
         inputPath = "";
-        foundSingleQuote = false;
-        foundDoubleQuote = false;
-        needNextArgument = false;
-        pipeWasFound = false;
-        operatorFound = false;
-        semiColonFound = false;
-        lastItem = false;
-        commandSwitch = false;
-        errorFound = false;
-        skipTheCommandAdd = false;
+        single_quote_flag = false;
+        double_quote_flag = false;
+        next_argument_flag = false;
+        standard_in_flag = false;
+        standard_out_flag = false;
+        standard_out_secondary_flag = false;
+        pipe_flag = false;
+        pipe_secondary_flag = false;
+        semicolon_flag = false;
+        last_item_flag = false;
+        my_command_flag = false;
+        error_flag = false;
+        skip_command_flag = false;
         moreOperatorsFound = false;
-        foundWhiteSpace = false;
+        white_space_flag = false;
         pipeFirstCommands.clear();
         pipeSecondCommands.clear();
         commands.clear();
