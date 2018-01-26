@@ -79,11 +79,11 @@ int main() {
                     }
                     standard_out_flag = true;
                 } else if (input == "<") {                                                                  //
-                    standard_in_flag = true;
-                    if (standard_out_flag == true || pipe_flag == true) {
+                    if (standard_out_flag == true || pipe_flag == true || standard_in_flag == true) {
                         error_flag = true;
                         error_message = "Check2";
                     }
+                    standard_in_flag = true;
                 } else if (input == "|") {                                                                  //
                     if (pipe_flag == true) {
                         pipeSecondCommands = commands;
