@@ -1,0 +1,45 @@
+
+(space)(space)usage(space)(space)
+(space)usage;(space)(space)usage(space)(space)
+git commit -m "Hello"
+git commit -m "Hello
+git commit -m "Hello's"'
+git commit -m "Hello"'
+next_character_flag
+usage > output.txt > output.txt
+usage > output.txt
+usage > output.txt > output2.txt
+usage >> > output.txt
+usage >> output.txt
+usage >>> output.txt
+
+./a.out < input.txt
+./a.out < input.txt < input2.txt
+
+ls | head -3 | tail -1 > output.txt         (stdout, stdin, stdout, stdin, stdout)
+./a.out < input.txt | head -3 | tail -1     (stdin, stdout, stdin, stdout, stdin)
+
+usage > output.txt < input.txt
+
+Rules:
+    - We cannot have standard in, standard out, and pipe out next to each other in any combination. (usage > < | output.txt)
+    - Cannot have a weird number of spaces before, in the middle, or at the end of incoming string.
+    - With a standard in or standard out, we can only have one argument.
+    - Cannot have a standard in and standard out in one section of input.
+    - Cannoot have an odd of single or double quotes.
+    - Cannot have a mixed match of quotes.
+    - Cannot have an interchange of single and double quotes.
+
+Take Care of:
+    - Spaces throughout the section of code.                - Done
+    - Correct number of quote symbols.                      - Done
+    - No operators back to back.                            - Done
+    - Allow >> to exist.                                    - Done
+    - Only one file after stdin and stdout.                 - Done
+    - Allow every other stdin and stdout with a pipe.       - Not Done
+
+Ideas:
+    - If we have usage > output1.txt > output.txt, this will distribute the data to both files.
+    - If we have ./a.out < input1.txt < input2.txt, this will import both datasets into ./a.out.
+
+Operator Chain Rules
