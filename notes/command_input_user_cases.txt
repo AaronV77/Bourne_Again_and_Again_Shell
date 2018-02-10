@@ -1,0 +1,21 @@
+(space)(space)usage(space)(space)
+(space)usage;(space)(space)usage(space)(space)
+git commit -m "Hello"
+git commit -m "Hello
+git commit -m "Hello's"'
+git commit -m "Hello"'
+next_character_flag
+usage > output.txt > output.txt
+usage > output.txt
+usage > output.txt > output2.txt
+usage >> > output.txt
+usage >> output.txt
+usage >>> output.txt
+
+./a.out < input.txt
+./a.out < input.txt < input2.txt
+
+ls | head -3 | tail -1 > output.txt         (stdout, stdin, stdout, stdin, stdout)
+./a.out < input.txt | head -3 | tail -1     (stdin, stdout, stdin, stdout, stdin)
+
+usage > output.txt < input.txt
