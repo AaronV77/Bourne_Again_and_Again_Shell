@@ -72,6 +72,7 @@ std::vector<std::string> LoadVector() {
 std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, std::string incoming_input) {
     std::string token = "";
     std::string special_symbol_container = "";
+    bool error_flag = false;
     bool ampersand_flag = false;
     bool next_operator_find_flag = false;
     bool single_quote_flag = false;
@@ -81,6 +82,8 @@ std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, 
     bool curly_brace_char_flag = false;
     bool skip_this_char = false;
     bool operator_found_flag = false;
+    bool waitpid_flag = false;
+    int which_command_parser = 0;
     int argument_position = 0;
 
     // This loop just gets rid of all spaces and tokens the incoming input.
@@ -131,6 +134,7 @@ std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, 
                         special_symbol_container += incoming_input[a];
                     } else {
                         std::cout << "There is a parentheses char error." << std::endl;
+                        error_flag = true;
                         break;
                     }
                 } else if (incoming_input[a] == ')') {
@@ -142,6 +146,7 @@ std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, 
                         special_symbol_container = "";
                     } else {
                         std::cout << "There is a parentheses char error." << std::endl;
+                        error_flag = true;
                         break;
                     }
                 }
@@ -156,6 +161,7 @@ std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, 
                         special_symbol_container += incoming_input[a];
                     } else {
                         std::cout << "There is a bracket char error." << std::endl;
+                        error_flag = true;
                         break;
                     }
                 } else if (incoming_input[a] == ']') {
@@ -167,6 +173,7 @@ std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, 
                         special_symbol_container = "";
                     } else {
                         std::cout << "There is a bracket char error." << std::endl;
+                        error_flag = true;
                         break;
                     }
                 }
@@ -181,6 +188,7 @@ std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, 
                         special_symbol_container += incoming_input[a];
                     } else {
                         std::cout << "There is a curly brace char error." << std::endl;
+                        error_flag = true;
                         break;
                     }
                 } else if (incoming_input[a] == '}') {
@@ -192,6 +200,7 @@ std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, 
                         special_symbol_container = "";
                     } else {
                         std::cout << "There is a curly brace char error." << std::endl;
+                        error_flag = true;
                         break;
                     }
                 }
@@ -201,19 +210,21 @@ std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, 
             if (incoming_input[a] == '>' || incoming_input[a] == '<' || incoming_input[a] == '|') {
                 if (operator_found_flag == false) {
                     operator_found_flag = true;
+                    which_command_parser = 1;
                 } else {
                     if (incoming_input[a] != '>') {
                         std::cout << "There are to many operators near by error-1." << std::endl;
-                        incoming_commands.clear();
+                        error_flag = true;
                         break;
                     }
                 }
             } else if (incoming_input[a] == '&') {
                 if (ampersand_flag == false) {
                     ampersand_flag = true;
+                    waitpid_flag = true;
                 } else {
                     std::cout << "There was an ampersand error-1." << std::endl;
-                    incoming_commands.clear();
+                    error_flag = true;
                     break;
                 }
             }
@@ -235,7 +246,7 @@ std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, 
                     if (ampersand_flag == true) {
                         if (argument_position != 0) {
                             std::cout << "There was an ampersand error-2." << std::endl;
-                            incoming_commands.clear();
+                            error_flag = true;
                             break;
                         } else {
                             ampersand_flag = false;
@@ -244,7 +255,7 @@ std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, 
                     if (token.size() > 0) {
                         if (next_operator_find_flag == true) {
                             std::cout << "There are to many operators near by error-2." << std::endl;
-                            incoming_commands.clear();
+                            error_flag = true;
                             break;
                         }
                         if (operator_found_flag == true) {
@@ -254,7 +265,7 @@ std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, 
                                 next_operator_find_flag = true;
                             } else {
                                 std::cout << "There was an incorrect operator found error-1." << std::endl;
-                                incoming_commands.clear();
+                                error_flag = true;
                                 break;
                             }
                         }
@@ -270,25 +281,25 @@ std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, 
                     } else {
                         std:: cout << "There was a double quote error with this secton of input." << std::endl;
                     }
-                    incoming_commands.clear();
+                    error_flag = true;
                     break;
                 } else if (parentheses_char_flag == true) {
                     std::cout << "There was a parentheses error with this seciton of input." << std::endl;
-                    incoming_commands.clear();
+                    error_flag = true;
                     break;
                 } else if (bracket_char_flag == true) {
                     std::cout << "There was a bracket error with this seciton of input." << std::endl;
-                    incoming_commands.clear();
+                    error_flag = true;
                     break;
                 } else if (curly_brace_char_flag == true) {
                     std::cout << "There was a curly brace error with this seciton of input." << std::endl;
-                    incoming_commands.clear();
+                    error_flag = true;
                     break;
                 } else {
                     if (ampersand_flag == true) {
                         if (argument_position != 0) {
                             std::cout << "There was an ampersand error-3." << std::endl;
-                            incoming_commands.clear();
+                            error_flag = true;
                             break;
                         } else {
                             ampersand_flag = false;
@@ -297,13 +308,13 @@ std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, 
                     if (token.size() > 0) {
                         if (next_operator_find_flag == true) {
                             std::cout << "There are to many operators near by error-3." << std::endl;
-                            incoming_commands.clear();
+                            error_flag = true;
                             break;
                         }
                         if (operator_found_flag == true) {
                             if (token != ">" || token != ">>" || token != "1>" || token != "1>>" || token != "2>" || token != "2>>" || token != "<" || token != "0<" || token != "|") {
                                 std::cout << "There was an incorrect operator found error-2." << std::endl;
-                                incoming_commands.clear();
+                                error_flag = true;
                                 break;
                             } else {
                                 operator_found_flag = false;
@@ -320,5 +331,16 @@ std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, 
             }
         }
     }
+    
+    if (error_flag == false) {
+        if (which_command_parser == 0) {
+            // Do the normal loop.
+        } else {
+            // Do the loop for the operators.
+        }
+    } else {
+        incoming_commands.clear();
+    }
+
     return incoming_commands;
 }
