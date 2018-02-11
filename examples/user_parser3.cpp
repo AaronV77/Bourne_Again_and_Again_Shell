@@ -3,7 +3,9 @@
 #include <vector>
 
 std::vector<std::string> LoadVector();
-std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, std::string incoming_input);
+void First_Loop(std::vector<std::string> incoming_commands, std::vector<std::string>ThursdayCommands, std::string incoming_input);
+void Normal_Loop(std::vector<std::string>incoming_commands, std::vector<std::string>ThursdayCommands);
+void Operator_Loop(std::vector<std::string>incoming_commands);
 
 int main() {
     std::string incoming_input = "";
@@ -18,11 +20,8 @@ int main() {
         if (incoming_input == "exit")
             return 0;
 
-        incoming_commands = First_Loop(incoming_commands, incoming_input);
-        for (int a = 0; a < incoming_commands.size(); ++a)
-            std::cout << a << ": " << incoming_commands[a] << " Size: " << incoming_commands[a].size() << std::endl;
-        
-        incoming_commands.clear();
+        First_Loop(incoming_commands, ThursdayCommands, incoming_input);
+
     }
 
     return 0;
@@ -69,7 +68,7 @@ std::vector<std::string> LoadVector() {
     return myVector;
 }
 
-std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, std::string incoming_input) {
+void First_Loop(std::vector<std::string> incoming_commands, std::vector<std::string>ThursdayCommands, std::string incoming_input) {
     std::string token = "";
     std::string special_symbol_container = "";
     bool error_flag = false;
@@ -334,13 +333,354 @@ std::vector<std::string> First_Loop(std::vector<std::string> incoming_commands, 
     
     if (error_flag == false) {
         if (which_command_parser == 0) {
-            // Do the normal loop.
+            Normal_Loop(incoming_commands, ThursdayCommands);
         } else {
-            // Do the loop for the operators.
+            Operator_Loop(incoming_commands);
         }
     } else {
         incoming_commands.clear();
     }
 
-    return incoming_commands;
+    return;
+}
+
+void Normal_Loop(std::vector<std::string>incoming_commands, std::vector<std::string>ThursdayCommands) {
+
+    std::vector<std::string> sending_commands;
+    bool thursday_command_flag = false;
+    int command_size = 0;
+
+    for (int a = 0; a < incoming_commands.size(); ++a) {
+
+        command_size = incoming_commands.size();
+
+		for (int b = 0; b < ThursdayCommands.size(); b++) {
+            if (ThursdayCommands[b] == incoming_commands[a]){
+                thursday_command_flag = true;
+            }
+		}
+
+        if ((incoming_commands[a][command_size - 1] == ';') || (incoming_commands.size() == (a - 1))) {
+            if (incoming_commands[a][command_size - 1] == ';')
+                incoming_commands[a].erase(incoming_commands[a].begin()+(incoming_commands[a].size() - 1), incoming_commands[a].end());
+            
+            sending_commands.push_back(incoming_commands[a]);
+            if (thursday_command_flag == true) {
+                std::cout << "We have found one of our commands and will call it." << std::endl;
+            } else {
+                std::cout << "We did not find one of our commands and will call exec." << std::endl;
+            }
+            thursday_command_flag = false;
+            sending_commands.clear();
+        } else {
+            sending_commands.push_back(incoming_commands[a]);
+        }
+    }
+    return;    
+}
+
+void Operator_Loop(std::vector<std::string>incoming_commands) {
+
+    std::string standard_error_file = "";
+    std::string standard_input_file = "";
+    std::string standard_output_file = "";
+
+    bool standard_error_flag = false;
+    bool standard_out_flag = false;
+    bool standard_in_flag = false;
+    bool pipe_flag = false;
+    bool pipe_control_flag = false;
+    bool skip_argument_flag = false;
+    bool end_of_section = false;
+
+    bool adding_to_standard_out_file = false;
+    bool adding_to_standard_error_file = false;
+    
+    int the_size = 0;
+
+    std::vector<std::string> the_operators;
+    std::vector<std::string> commands;
+
+    // Rule #1: You cannot have standard out before standard in.
+    // Rule #2: You can have standard out and stnadard error after a pipe but not standard in.
+    // Rule #3: You can only have one standard out and standard in each input section.
+
+    for (int f = 0; f < incoming_commands.size(); f++) {
+        the_size = incoming_commands[f].size();
+        std::cout << "Looking at: " << incoming_commands[f] << std::endl;
+        if (incoming_commands[f] == "|") {
+            standard_in_flag = true;
+            standard_out_flag = false;
+            standard_error_flag = false;
+            skip_argument_flag = true;
+            if (the_operators.size() == 0) {
+                if (pipe_flag == false) {
+                    std::cout << "----The commands going into pipe (No Operators).----" << std::endl;
+                    for (int h = 0; h < commands.size(); h++)
+                        std::cout << h << ": " << commands[h] << std::endl;
+                    
+                    std::cout << "The standard output file is: temp_output.txt " << std::endl;
+                    standard_output_file = "temp_output.txt";
+                } else {
+                    std::cout << "----The commands going into pipe (Pipe was found previously).----" << std::endl;
+                    for (int h = 0; h < commands.size(); h++) 
+                        std::cout << h << ": " << commands[h] << std::endl;
+                    
+                    std::cout << "The incoming path with data from the last pipe: " << standard_input_file << std::endl;
+                    std::cout << "The standard output file is: temp_output.txt " << std::endl;
+                    standard_output_file = "temp_output.txt";
+                }
+            } else {
+                for (int g = 0; g < the_operators.size(); g++) {
+                    if (pipe_control_flag == false) {
+                        if (the_operators[g] == "in") {
+                            pipe_control_flag = true;
+                            std::cout << "----The standard input commands before a pipe operator.----" << std::endl;
+                            for (int h = 0; h < commands.size(); h++) 
+                                std::cout << h << ": " << commands[h] << std::endl;
+                            
+                            std::cout << "The standard input file is: " << standard_input_file << std::endl;
+
+                            if (standard_output_file != "") {
+                                if (adding_to_standard_out_file == false) {
+                                    std::cout << "The standard output file is: " << standard_output_file << std::endl;
+                                } else {
+                                    std::cout << "We are adding to the standard output file, and it is: " << standard_output_file << std::endl;
+                                }
+                            } else {
+                                std::cout << "The standard output file is: temp_output.txt " << std::endl;
+                                standard_output_file = "temp_output.txt";
+                            }
+
+                            if (standard_error_file != "") {
+                                if (adding_to_standard_error_file == false) { 
+                                    std::cout << "The standard error file is: " << standard_error_file << std::endl;
+                                } else {
+                                    std::cout << "We are adding to the standard error file, and it is: " << standard_error_file << std::endl;
+                                }
+                            }
+
+                        } else if (the_operators[g] == "out") {
+                            pipe_control_flag = true;
+                            if (pipe_flag == false) {
+                                std::cout << "----The standard output commands before a pipe operator.----" << std::endl;
+                                for (int i = 0; i < commands.size(); i++) 
+                                    std::cout << i << ": " << commands[i] << std::endl;
+                                
+                                if (adding_to_standard_out_file == false) {
+                                    std::cout << "The standard output file is: " << standard_output_file << std::endl;
+                                } else {
+                                    std::cout << "We are adding to the standard output file, and it is: " << standard_output_file << std::endl;
+                                }
+
+                                if (standard_error_file != "") {
+                                    if (adding_to_standard_error_file == false) { 
+                                        std::cout << "The standard error file is: " << standard_error_file << std::endl;
+                                    } else {
+                                        std::cout << "We are adding to the standard error file, and it is: " << standard_error_file << std::endl;
+                                    }
+                                }
+                            } else {
+                                std::cout << "----The standard output commands for after finding a pipe operator.----" << std::endl;
+                                for (int i = 0; i < commands.size(); i++) 
+                                    std::cout << i << ": " << commands[i] << std::endl;
+
+                                std::cout << "The incoming file for data is: " << standard_input_file << std::endl;
+                                if (adding_to_standard_out_file == false) {
+                                    std::cout << "The standard output file is: " << standard_output_file << std::endl;
+                                } else {
+                                    std::cout << "We are adding to the standard output file, and it is: " << standard_output_file << std::endl;
+                                }
+
+                                if (standard_error_file != "") {
+                                    if (adding_to_standard_error_file == false) { 
+                                        std::cout << "The standard error file is: " << standard_error_file << std::endl;
+                                    } else {
+                                        std::cout << "We are adding to the standard error file, and it is: " << standard_error_file << std::endl;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            standard_input_file = standard_output_file;
+            pipe_control_flag = false;
+            adding_to_standard_error_file = false;
+            adding_to_standard_out_file = false;
+            pipe_flag = true;
+            commands.clear();
+            the_operators.clear();
+        }
+        if (incoming_commands[f] == ">" || incoming_commands[f] == "1>" || incoming_commands[f] == ">>" || incoming_commands[f] == "1>>" ) {
+            if (standard_out_flag == false) {
+                the_operators.push_back("out");
+                if (pipe_flag == true) {
+                    standard_input_file = standard_output_file;
+                }
+                if (incoming_commands[f] == ">>" || incoming_commands[f] == "1>>") {
+                    adding_to_standard_out_file = true;
+                }
+                standard_out_flag = true;
+                standard_in_flag = true;
+                skip_argument_flag = true;
+                f++;
+                the_size = incoming_commands[f].size();
+                if (incoming_commands[f][the_size - 1] == ';') {
+                    incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
+                    end_of_section = true;
+                }
+                standard_output_file = incoming_commands[f];
+            } else {
+                std::cout << "There was one to many standard out operators." << std::endl;
+            }
+        }
+        if (incoming_commands[f] == "2>" || incoming_commands[f] == "2>>") {
+            if (incoming_commands[f] == "2>>") {
+                adding_to_standard_error_file = true;
+            }
+            the_operators.push_back("error");
+            skip_argument_flag = true;
+            f++;
+            the_size = incoming_commands[f].size();
+            if (incoming_commands[f][the_size - 1] == ';') {
+                incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
+                end_of_section = true;
+            }
+            standard_error_file = incoming_commands[f];
+        }
+        
+        if (incoming_commands[f] == "0<" || incoming_commands[f] == "<") {
+            if (standard_in_flag == false) {
+                the_operators.push_back("in");
+                standard_in_flag = true;
+                skip_argument_flag = true;
+                f++;
+                the_size = incoming_commands[f].size();
+                if (incoming_commands[f][the_size - 1] == ';') {
+                    incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
+                    end_of_section = true;
+                }
+                standard_input_file = incoming_commands[f];
+            } else {
+                std::cout << "There was one to many standard in operators." << std::endl;
+            }
+        }
+
+        if (end_of_section == true || incoming_commands[f][the_size - 1] == ';' || (incoming_commands.size() - 1) == f) {
+            if (the_operators.size() == 0) {
+                std::cout << "Saving: " <<  incoming_commands[f] << std::endl;
+                skip_argument_flag = true;
+                commands.push_back(incoming_commands[f]);
+                if (pipe_flag == false) {
+                    std::cout << "----The basic commands----" << std::endl;
+                    for (int h = 0; h < commands.size(); h++) 
+                        std::cout << h << ": " << commands[h] << std::endl;
+                } else {
+                    std::cout << "----The commands coming after a pipe.----" << std::endl;
+                    for (int h = 0; h < commands.size(); h++) 
+                        std::cout << h << ": " << commands[h] << std::endl;
+                    
+                    std::cout << "The incoming path with data from the last pipe: " << standard_input_file << std::endl;
+                    std::cout << "----The output is going to the screen.----" << std::endl;
+                }
+            } else {
+                for (int j = 0; j < the_operators.size(); j++) {
+                    if (pipe_control_flag == false) {
+                        if (the_operators[j] == "in") {
+                            pipe_control_flag = true;
+                            std::cout << "----The standard input commands----" << std::endl;
+                            for (int k = 0; k < commands.size(); k++) 
+                                std::cout << k << ": " << commands[k] << std::endl;
+                            
+                            std::cout << "The standard input file is: " << standard_input_file << std::endl;
+
+                            if (standard_output_file != "") {
+                                if (adding_to_standard_out_file == false) {
+                                    std::cout << "The standard output file is: " << standard_output_file << std::endl;
+                                } else {
+                                    std::cout << "We are adding to the standard output file, and it is: " << standard_output_file << std::endl;
+                                }
+                            } else {
+                                std::cout << "The standard output file is: temp_output.txt " << std::endl;
+                                standard_output_file = "temp_output.txt";
+                            }
+
+                            if (standard_error_file != "") {
+                                if (adding_to_standard_error_file == false) { 
+                                    std::cout << "The standard error file is: " << standard_error_file << std::endl;
+                                } else {
+                                    std::cout << "We are adding to the standard error file, and it is: " << standard_error_file << std::endl;
+                                }
+                            }
+
+                        } else if (the_operators[j] == "out") {
+                            pipe_control_flag = true;
+                            if (pipe_flag == false) {
+                                std::cout << "----The standard output commands----" << std::endl;
+                                for (int l = 0; l < commands.size(); l++) 
+                                    std::cout << l << ": " << commands[l] << std::endl;
+
+                                if (adding_to_standard_out_file == false) {
+                                    std::cout << "The standard output file is: " << standard_output_file << std::endl;
+                                } else {
+                                    std::cout << "We are adding to the standard output file, and it is: " << standard_output_file << std::endl;
+                                }
+
+                                if (standard_error_file != "") {
+                                    if (adding_to_standard_error_file == false) { 
+                                        std::cout << "The standard error file is: " << standard_error_file << std::endl;
+                                    } else {
+                                        std::cout << "We are adding to the standard error file, and it is: " << standard_error_file << std::endl;
+                                    }
+                                }
+                            } else {
+                                std::cout << "----The standard output commands----" << std::endl;
+                                for (int i = 0; i < commands.size(); i++) 
+                                    std::cout << i << ": " << commands[i] << std::endl;
+                                
+                                std::cout << "----The incoming file for data is: " << standard_input_file << std::endl;
+                                
+                                if (adding_to_standard_out_file == false) {
+                                    std::cout << "The standard output file is: " << standard_output_file << std::endl;
+                                } else {
+                                    std::cout << "We are adding to the standard output file, and it is: " << standard_output_file << std::endl;
+                                }
+
+                                if (standard_error_file != "") {
+                                    if (adding_to_standard_error_file == false) { 
+                                        std::cout << "The standard error file is: " << standard_error_file << std::endl;
+                                    } else {
+                                        std::cout << "We are adding to the standard error file, and it is: " << standard_error_file << std::endl;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            standard_error_file = "";
+            standard_input_file = "";
+            standard_output_file = "";
+
+            standard_error_flag = false;
+            standard_out_flag = false;
+            standard_in_flag = false;
+            pipe_flag = false;
+            adding_to_standard_error_file = false;
+            adding_to_standard_out_file = false;
+            pipe_control_flag = false;
+            end_of_section = false;
+            the_operators.clear();
+            commands.clear();
+        }
+
+        if (skip_argument_flag == false) {
+            std::cout << "Saving: " << incoming_commands[f] << std::endl;
+            commands.push_back(incoming_commands[f]);
+        } else {
+            skip_argument_flag = false;
+        }
+    }
+    return;
 }
