@@ -29,7 +29,8 @@ int main() {
 
     std::ofstream output_data;
     std::vector<std::string> ThursdayCommands = LoadVector();
-    std::vector<std::string> path_vector = LoadPath(path_vector, path);
+    std::vector<std::string> path_vector;
+    LoadPath(path_vector, path);
     std::vector<std::string> incoming_commands;
 
     while(1) {
@@ -102,6 +103,8 @@ std::vector<std::string> LoadPath(std::vector<std::string> path_vector, std::str
     std::istringstream iss (incoming_path);
     while(std::getline(iss,input, ':'))
         path_vector.push_back(input);
+
+    return path_vector;
 }
 
 int Check_Input_Loop(std::vector<std::string> incoming_commands, std::vector<std::string> ThursdayCommands, std::vector<std::string> path_vector, std::string incoming_input) {
@@ -380,7 +383,7 @@ int Check_Input_Loop(std::vector<std::string> incoming_commands, std::vector<std
         if (which_command_parser == 0) {
             Normal_Loop(incoming_commands, ThursdayCommands);
         } else {
-            status = Operator_Loop(path_vector, incoming_commands);
+            status = Operator_Loop(incoming_commands, path_vector);
         }
     } else {
         incoming_commands.clear();
@@ -569,6 +572,7 @@ int Operator_Loop(std::vector<std::string> incoming_commands, std::vector<std::s
             commands.clear();
             the_operators.clear();
         }
+
         if (incoming_commands[f] == ">" || incoming_commands[f] == "1>" || incoming_commands[f] == ">>" || incoming_commands[f] == "1>>" ) {
             if (standard_out_flag == false) {
                 the_operators.push_back("out");
@@ -604,6 +608,7 @@ int Operator_Loop(std::vector<std::string> incoming_commands, std::vector<std::s
                 std::cout << "There was one to many standard out operators." << std::endl;
             }
         }
+
         if (incoming_commands[f] == "2>" || incoming_commands[f] == "2>>") {
             if (incoming_commands[f] == "2>>") {
                 adding_to_standard_error_file = true;
@@ -629,6 +634,7 @@ int Operator_Loop(std::vector<std::string> incoming_commands, std::vector<std::s
             }
             standard_error_file = incoming_commands[f];
         }
+
         if (incoming_commands[f] == "0<" || incoming_commands[f] == "<") {
             if (standard_in_flag == false) {
                 the_operators.push_back("in");
