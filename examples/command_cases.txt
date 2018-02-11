@@ -1,0 +1,2 @@
+./a.out < input.txt | head -3 | tail -1 > output.txt
+usage > output.txt

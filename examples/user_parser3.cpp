@@ -1,16 +1,35 @@
+
+#include <fcntl.h>
+#include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <stdio.h>
+#include <string>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #include <vector>
 
 std::vector<std::string> LoadVector();
-void First_Loop(std::vector<std::string> incoming_commands, std::vector<std::string>ThursdayCommands, std::string incoming_input);
-void Normal_Loop(std::vector<std::string>incoming_commands, std::vector<std::string>ThursdayCommands);
-void Operator_Loop(std::vector<std::string>incoming_commands);
+std::vector<std::string> LoadPath(std::vector<std::string> path_vector, std::string incoming_path);
+int Check_Input_Loop(std::vector<std::string> incoming_commands, std::vector<std::string> ThursdayCommands, std::vector<std::string> path_vector, std::string incoming_input);
+void Normal_Loop(std::vector<std::string>incoming_commands, std::vector<std::string> ThursdayCommands);
+int Operator_Loop(std::vector<std::string> incoming_commands, std::vector<std::string> path_vector);
+void Exec_Redirection(std::vector<std::string> path_vector, std::string standard_in_file, bool standard_out_append, std::string standard_out_file, bool standard_error_append, std::string standard_error_file, std::vector<std::string> commands);
+std::string FileChecker(std::vector<std::string> path_vector, std::string argument, int signal);
 
 int main() {
     std::string incoming_input = "";
+    std::string file_name = "command_cases.txt";
+    std::string path = "/home/valorosoa/anaconda3/bin:/home/valorosoa/bin:/home/valorosoa/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin";
+    int status = 0;
 
+    std::ofstream output_data;
     std::vector<std::string> ThursdayCommands = LoadVector();
+    std::vector<std::string> path_vector = LoadPath(path_vector, path);
     std::vector<std::string> incoming_commands;
 
     while(1) {
@@ -20,8 +39,16 @@ int main() {
         if (incoming_input == "exit")
             return 0;
 
-        First_Loop(incoming_commands, ThursdayCommands, incoming_input);
+        status = Check_Input_Loop(incoming_commands, ThursdayCommands, path_vector, incoming_input);
 
+        if (status == 0) {
+            output_data.open(file_name.c_str(), std::ios_base::app | std::ios_base::out);
+	        if (output_data.is_open()) {
+                output_data << incoming_input << std::endl;
+                output_data.close();
+            }
+
+        }
     }
 
     return 0;
@@ -68,7 +95,16 @@ std::vector<std::string> LoadVector() {
     return myVector;
 }
 
-void First_Loop(std::vector<std::string> incoming_commands, std::vector<std::string>ThursdayCommands, std::string incoming_input) {
+std::vector<std::string> LoadPath(std::vector<std::string> path_vector, std::string incoming_path) {
+
+    std::string input = "";
+    
+    std::istringstream iss (incoming_path);
+    while(std::getline(iss,input, ':'))
+        path_vector.push_back(input);
+}
+
+int Check_Input_Loop(std::vector<std::string> incoming_commands, std::vector<std::string> ThursdayCommands, std::vector<std::string> path_vector, std::string incoming_input) {
     std::string token = "";
     std::string special_symbol_container = "";
     bool error_flag = false;
@@ -253,9 +289,13 @@ void First_Loop(std::vector<std::string> incoming_commands, std::vector<std::str
                     }
                     if (token.size() > 0) {
                         if (next_operator_find_flag == true) {
-                            std::cout << "There are to many operators near by error-2." << std::endl;
-                            error_flag = true;
-                            break;
+                            if (operator_found_flag == true) {
+                                std::cout << "There are to many operators near by error-2." << std::endl;
+                                error_flag = true;
+                                break;
+                            } else {
+                                next_operator_find_flag = false;
+                            }
                         }
                         if (operator_found_flag == true) {
                             if (token != ">" || token != ">>" || token != "1>" || token != "1>>" || token != "2>" || token != "2>>" || token != "<" || token != "0<" || token != "|") {
@@ -306,9 +346,13 @@ void First_Loop(std::vector<std::string> incoming_commands, std::vector<std::str
                     }
                     if (token.size() > 0) {
                         if (next_operator_find_flag == true) {
-                            std::cout << "There are to many operators near by error-3." << std::endl;
-                            error_flag = true;
-                            break;
+                            if (operator_found_flag == true) {
+                                std::cout << "There are to many operators near by error-2." << std::endl;
+                                error_flag = true;
+                                break;
+                            } else {
+                                next_operator_find_flag = false;
+                            }
                         }
                         if (operator_found_flag == true) {
                             if (token != ">" || token != ">>" || token != "1>" || token != "1>>" || token != "2>" || token != "2>>" || token != "<" || token != "0<" || token != "|") {
@@ -331,20 +375,22 @@ void First_Loop(std::vector<std::string> incoming_commands, std::vector<std::str
         }
     }
     
+    int status = 0;
     if (error_flag == false) {
         if (which_command_parser == 0) {
             Normal_Loop(incoming_commands, ThursdayCommands);
         } else {
-            Operator_Loop(incoming_commands);
+            status = Operator_Loop(path_vector, incoming_commands);
         }
     } else {
         incoming_commands.clear();
+        status = 1;
     }
 
-    return;
+    return status;
 }
 
-void Normal_Loop(std::vector<std::string>incoming_commands, std::vector<std::string>ThursdayCommands) {
+void Normal_Loop(std::vector<std::string> incoming_commands, std::vector<std::string> ThursdayCommands) {
 
     std::vector<std::string> sending_commands;
     bool thursday_command_flag = false;
@@ -357,6 +403,7 @@ void Normal_Loop(std::vector<std::string>incoming_commands, std::vector<std::str
 		for (int b = 0; b < ThursdayCommands.size(); b++) {
             if (ThursdayCommands[b] == incoming_commands[a]){
                 thursday_command_flag = true;
+                std::cout << "Were here" << std::endl;
             }
 		}
 
@@ -379,7 +426,7 @@ void Normal_Loop(std::vector<std::string>incoming_commands, std::vector<std::str
     return;    
 }
 
-void Operator_Loop(std::vector<std::string>incoming_commands) {
+int Operator_Loop(std::vector<std::string> incoming_commands, std::vector<std::string> path_vector) {
 
     std::string standard_error_file = "";
     std::string standard_input_file = "";
@@ -388,6 +435,7 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
     bool standard_error_flag = false;
     bool standard_out_flag = false;
     bool standard_in_flag = false;
+
     bool pipe_flag = false;
     bool pipe_control_flag = false;
     bool skip_argument_flag = false;
@@ -397,6 +445,7 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
     bool adding_to_standard_error_file = false;
     
     int the_size = 0;
+    int temp_Size = 0;
 
     std::vector<std::string> the_operators;
     std::vector<std::string> commands;
@@ -407,6 +456,7 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
 
     for (int f = 0; f < incoming_commands.size(); f++) {
         the_size = incoming_commands[f].size();
+        temp_Size = 0;
         std::cout << "Looking at: " << incoming_commands[f] << std::endl;
         if (incoming_commands[f] == "|") {
             standard_in_flag = true;
@@ -421,6 +471,7 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
                     
                     std::cout << "The standard output file is: temp_output.txt " << std::endl;
                     standard_output_file = "temp_output.txt";
+                    Exec_Redirection(path_vector, "", false, standard_output_file, false, "", commands);
                 } else {
                     std::cout << "----The commands going into pipe (Pipe was found previously).----" << std::endl;
                     for (int h = 0; h < commands.size(); h++) 
@@ -429,6 +480,7 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
                     std::cout << "The incoming path with data from the last pipe: " << standard_input_file << std::endl;
                     std::cout << "The standard output file is: temp_output.txt " << std::endl;
                     standard_output_file = "temp_output.txt";
+                    Exec_Redirection(path_vector, standard_input_file, false, standard_output_file, false, "", commands);
                 }
             } else {
                 for (int g = 0; g < the_operators.size(); g++) {
@@ -460,6 +512,8 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
                                 }
                             }
 
+                            Exec_Redirection(path_vector, standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+
                         } else if (the_operators[g] == "out") {
                             pipe_control_flag = true;
                             if (pipe_flag == false) {
@@ -480,6 +534,9 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
                                         std::cout << "We are adding to the standard error file, and it is: " << standard_error_file << std::endl;
                                     }
                                 }
+
+                                Exec_Redirection(path_vector, "", adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+
                             } else {
                                 std::cout << "----The standard output commands for after finding a pipe operator.----" << std::endl;
                                 for (int i = 0; i < commands.size(); i++) 
@@ -524,13 +581,25 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
                 standard_out_flag = true;
                 standard_in_flag = true;
                 skip_argument_flag = true;
+                
+                temp_Size = f;
+                temp_Size += 3;
+                if (temp_Size <= incoming_commands.size()) {
+                    if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
+                        std::cout << "There are one to many arguments / commands after the standard out operator." << std::endl;
+                        incoming_commands.clear();
+                        return 1;
+                    }
+                }
                 f++;
+
                 the_size = incoming_commands[f].size();
                 if (incoming_commands[f][the_size - 1] == ';') {
                     incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
                     end_of_section = true;
                 }
                 standard_output_file = incoming_commands[f];
+
             } else {
                 std::cout << "There was one to many standard out operators." << std::endl;
             }
@@ -541,7 +610,18 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
             }
             the_operators.push_back("error");
             skip_argument_flag = true;
+
+            temp_Size = f;
+            temp_Size += 3;
+            if (temp_Size <= incoming_commands.size()) {
+                if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
+                    std::cout << "There are one to many arguments / commands after the standard out operator." << std::endl;
+                    incoming_commands.clear();
+                    return 1;
+                }
+            }
             f++;
+
             the_size = incoming_commands[f].size();
             if (incoming_commands[f][the_size - 1] == ';') {
                 incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
@@ -549,13 +629,23 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
             }
             standard_error_file = incoming_commands[f];
         }
-        
         if (incoming_commands[f] == "0<" || incoming_commands[f] == "<") {
             if (standard_in_flag == false) {
                 the_operators.push_back("in");
                 standard_in_flag = true;
                 skip_argument_flag = true;
+
+                temp_Size = f;
+                temp_Size += 3;
+                if (temp_Size <= incoming_commands.size()) {
+                    if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
+                        std::cout << "There are one to many arguments / commands after the standard out operator." << std::endl;
+                        incoming_commands.clear();
+                        return 1;
+                    }
+                }
                 f++;
+
                 the_size = incoming_commands[f].size();
                 if (incoming_commands[f][the_size - 1] == ';') {
                     incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
@@ -576,6 +666,9 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
                     std::cout << "----The basic commands----" << std::endl;
                     for (int h = 0; h < commands.size(); h++) 
                         std::cout << h << ": " << commands[h] << std::endl;
+                    
+                    Exec_Redirection(path_vector, "", false, "", false, "", commands);
+
                 } else {
                     std::cout << "----The commands coming after a pipe.----" << std::endl;
                     for (int h = 0; h < commands.size(); h++) 
@@ -583,6 +676,8 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
                     
                     std::cout << "The incoming path with data from the last pipe: " << standard_input_file << std::endl;
                     std::cout << "----The output is going to the screen.----" << std::endl;
+
+                    Exec_Redirection(path_vector, standard_input_file, false, "", false, "", commands);
                 }
             } else {
                 for (int j = 0; j < the_operators.size(); j++) {
@@ -614,6 +709,8 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
                                 }
                             }
 
+                            Exec_Redirection(path_vector, standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+
                         } else if (the_operators[j] == "out") {
                             pipe_control_flag = true;
                             if (pipe_flag == false) {
@@ -634,6 +731,9 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
                                         std::cout << "We are adding to the standard error file, and it is: " << standard_error_file << std::endl;
                                     }
                                 }
+
+                                Exec_Redirection(path_vector, standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+
                             } else {
                                 std::cout << "----The standard output commands----" << std::endl;
                                 for (int i = 0; i < commands.size(); i++) 
@@ -654,6 +754,9 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
                                         std::cout << "We are adding to the standard error file, and it is: " << standard_error_file << std::endl;
                                     }
                                 }
+
+                                Exec_Redirection(path_vector, standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+
                             }
                         }
                     }
@@ -682,5 +785,88 @@ void Operator_Loop(std::vector<std::string>incoming_commands) {
             skip_argument_flag = false;
         }
     }
+    return 0;
+
+}
+
+void Exec_Redirection(std::vector<std::string> path_vector, std::string standard_in_file, bool standard_out_append, std::string standard_out_file, bool standard_error_append, std::string standard_error_file, std::vector<std::string> commands) {
+
+	int i = 0; 
+    std::string file_path = ""; 
+    size_t arrSize = 100;
+    pid_t pid;
+	
+    FILE *fp;
+    FILE *fp2;
+    FILE *fp3;
+
+	char ** myArray = new char * [arrSize];														// Used to allocat an array of char pointers.
+	for (i = 0; i < commands.size(); i++) {										                // Loop through the incoming arguments.
+		myArray[i] = new char [arrSize];														// Allcocate memory for each element in the array.
+		strcpy(myArray[i], strdup(commands[i].c_str()));								        // Copy the incoming argument to the element in the array.
+	}
+	myArray[i++] = NULL;																		// Null terminate the array for the exec command.
+	
+	file_path = FileChecker(path_vector, commands[0], 0);
+    char * pointer_file_path;
+    strcpy(pointer_file_path, strdup(file_path.c_str()));
+
+    pid = fork();
+    if (pid == 0) {
+        if (standard_in_file == "")
+		    fp = freopen(standard_in_file.c_str(), "r", stdin);
+        if (standard_out_file == "")
+		    fp2 = freopen(standard_out_file.c_str(), "w", stdout);
+        if (standard_error_file == "")
+            fp3 = freopen(standard_error_file.c_str(), "w", stderr);
+		if (execv(pointer_file_path, myArray) == -1) {
+			perror("Weee: ");
+			// cout << "There was a problem with stdin function." << endl;
+		}
+        if (standard_in_file == "")
+		    fclose(fp);
+
+        if (standard_out_file == "")
+            fclose(fp2);
+
+        if (standard_error_file == "")
+            fclose(fp3);
+
+    } else {
+		waitpid(pid, 0, WUNTRACED);
+	}
+
+	delete [] myArray;
+    delete pointer_file_path;
+    pointer_file_path = NULL;
+	myArray = NULL;
+
     return;
+}
+
+std::string FileChecker(std::vector<std::string> path_vector, std::string argument, int signal) {
+
+	std::string incomingArgument = "";	
+	
+	if (signal == 0) {																// If the user wants to check in the binaries. 		
+		for (int i = 0; i < path_vector.size(); i++) {								// Loop through the path vector containing all the different locations commands and binaries.
+			incomingArgument = path_vector[i];										// Add one of the predefined locations to the pointer.
+			incomingArgument += "/";												// Add a back slash.
+			incomingArgument += argument;											// Add the command to the pointer to complete the path.
+			if (access(incomingArgument.c_str(), F_OK) == 0)						// Use a c function to check if the path is an actual location.
+				return incomingArgument;											// Return the working path.
+		}
+	} else if (signal == 1) {														// If the user wants to see if the file exists.
+		struct stat fileCheck;														// Open up the struct to the file.
+		lstat(argument.c_str(), &fileCheck);											// Stat will points the struct variable to the file.
+		if ((fileCheck.st_mode & S_IFMT) == S_IFDIR) {								// If the file is a directory.
+			return argument;
+		} else if ((fileCheck.st_mode & S_IFMT) == S_IFLNK) {						// If the file is a symbolic link.
+			return argument;
+		} else if ((fileCheck.st_mode & S_IFMT) == S_IFREG) {						// If the file is a regular file.
+			return argument;
+		}
+	}
+
+	return argument;																// If there was no path found then just return the incoming command.
 }
