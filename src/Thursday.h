@@ -30,7 +30,7 @@ class Thursday {
 public:
 	Thursday();
 	~Thursday();
-	void Basic_Command_Parse_Loop(std::vector<std::string>incoming_commands);
+	void Basic_Command_Parse_Loop(std::vector<std::string>incoming_commands, char * envp[]);
 	int Check_Input_Loop(std::string incoming_input, char * envp[]);
 	void ColorChange(std::string sentence, int signal);
 	void ColorSwitch(bool signal);
@@ -42,13 +42,13 @@ public:
 	void DirectoryChange(std::string desiredPath, bool debugPrintSwitch);
 	void DirectoryDelete(std::string dirname);
 	void DisplayDirectories(std::string lsArgument, std::string pathName); 
-	void Exec_Redirection(std::string standard_in_file, bool standard_out_append, std::string standard_out_file, bool standard_error_append, std::string standard_error_file, std::vector<std::string> commands);
+	void Exec_Redirection(std::string standard_in_file, bool standard_out_append, std::string standard_out_file, bool standard_error_append, std::string standard_error_file, std::vector<std::string> commands, char * envp[]);
 	void EnvironmentUtilites(int Number, std::string variable, std::string variableValue);
 	int ExecuteFile(std::string incomingCommand, std::vector<std::string> arguments);
 	std::string FileChecker(std::string argument, int signal);	
 	std::vector<std::string> FileLoader(std::vector<std::string> incomingVector, std::string fileName, int signal);
 	void Help(std::string argument);
-	int Operator_Command_Parse_Loop(std::vector<std::string> incoming_commands);
+	int Operator_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]);
 	void PromptDisplay();
 	void Search(std::string argument);
 	void SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]);

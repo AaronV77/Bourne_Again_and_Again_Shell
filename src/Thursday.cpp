@@ -1385,7 +1385,6 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
     bool curly_brace_char_flag = false;
     bool skip_this_char = false;
     bool operator_found_flag = false;
-    bool waitpid_flag = false;
     int which_command_parser = 0;
     int argument_position = 0;
 	std::vector<std::string> incoming_commands;
@@ -1526,7 +1525,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
             } else if (incoming_input[a] == '&') {
                 if (ampersand_flag == false) {
                     ampersand_flag = true;
-                    waitpid_flag = true;
+					which_command_parser = 1;
                 } else {
 					ColorChange("\t\tThere was an ampersand error-1.", 2);
                     error_flag = true;
@@ -1647,9 +1646,9 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
     int status = 0;
     if (error_flag == false) {
         if (which_command_parser == 0) {
-            Basic_Command_Parse_Loop(incoming_commands);
+            Basic_Command_Parse_Loop(incoming_commands, envp);
         } else {
-            status = Operator_Command_Parse_Loop(incoming_commands);
+            status = Operator_Command_Parse_Loop(incoming_commands, envp);
         }
     } else {
         incoming_commands.clear();
@@ -1659,7 +1658,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
     return status;
 }
 
-void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_commands) {
+void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]) {
 
     std::vector<std::string> sending_commands;
     bool thursday_command_flag = false;
@@ -1686,10 +1685,10 @@ void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_comman
                 incoming_commands[a].erase(incoming_commands[a].begin()+(incoming_commands[a].size() - 1), incoming_commands[a].end());
             
             sending_commands.push_back(incoming_commands[a]);
-				if (thursday_command_flag == true)
-					SearchCommands(sending_commands, 0, envp)
-				else
-					SearchCommands(sending_commands, 1, envp)
+			if (thursday_command_flag == true)
+				SearchCommands(sending_commands, 0, envp);
+			else
+				SearchCommands(sending_commands, 1, envp);
             thursday_command_flag = false;
             sending_commands.clear();
         } else {
@@ -1699,7 +1698,7 @@ void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_comman
     return;    
 }
 
-int Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_commands) {
+int Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]) {
 
     std::string standard_error_file = "";
     std::string standard_input_file = "";
@@ -1738,22 +1737,22 @@ int Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_comm
             skip_argument_flag = true;
             if (the_operators.size() == 0) {
                 if (pipe_flag == false)
-                    Exec_Redirection("", false, standard_output_file, false, "", commands);
+                    Exec_Redirection("", false, standard_output_file, false, "", commands, envp);
                 else
-                    Exec_Redirection(standard_input_file, false, standard_output_file, false, "", commands);
+                    Exec_Redirection(standard_input_file, false, standard_output_file, false, "", commands, envp);
                 temp_file_used = true;
             } else {
                 for (int g = 0; g < the_operators.size(); g++) {
                     if (pipe_control_flag == false) {
                         if (the_operators[g] == "in") {
                             pipe_control_flag = true;
-                            Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+                            Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
                         } else if (the_operators[g] == "out") {
                             pipe_control_flag = true;
                             if (pipe_flag == false) {
-                                Exec_Redirection("", adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+                                Exec_Redirection("", adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
                             } else {
-								Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+								Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
                             }
                         }
                     }
@@ -1857,21 +1856,21 @@ int Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_comm
                 skip_argument_flag = true;
                 commands.push_back(incoming_commands[f]);
                 if (pipe_flag == false)
-                    Exec_Redirection("", false, "", false, "", commands);
+                    Exec_Redirection("", false, "", false, "", commands, envp);
                 else
-                    Exec_Redirection(standard_input_file, false, "", false, "", commands);
+                    Exec_Redirection(standard_input_file, false, "", false, "", commands, envp);
             } else {
                 for (int j = 0; j < the_operators.size(); j++) {
                     if (pipe_control_flag == false) {
                         if (the_operators[j] == "in") {
                             pipe_control_flag = true;
-                            Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+                            Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
                         } else if (the_operators[j] == "out") {
                             pipe_control_flag = true;
                             if (pipe_flag == false)
-                                Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+                                Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
                             else
-                                Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+                                Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
                         }
                     }
                 }
@@ -1905,7 +1904,7 @@ int Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_comm
 
 }
 
-void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_append, std::string standard_out_file, bool standard_error_append, std::string standard_error_file, std::vector<std::string> commands) {
+void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_append, std::string standard_out_file, bool standard_error_append, std::string standard_error_file, std::vector<std::string> commands, char * envp[]) {
 
 	int i = 0; 
     std::string file_path = ""; 
@@ -1945,7 +1944,7 @@ void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_
                 fp3 = freopen(standard_error_file.c_str(), "a", stderr);
             }
         }
-		if (execv(pointer_file_path, myArray) == -1) {
+		if (execve(pointer_file_path, myArray, envp) == -1) {
 			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);
 		}
         if (standard_in_file == "")
