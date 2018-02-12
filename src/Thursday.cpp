@@ -1369,6 +1369,8 @@ void Thursday::SetupAndCloseSystem(int argc, char * envp[]) {
 	return;
 }
 
+
+
 int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
     
 	std::string token = "";
@@ -1435,7 +1437,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                         skip_this_char = true;
                         special_symbol_container += incoming_input[a];
                     } else {
-                        std::cout << "There is a parentheses char error." << std::endl;
+						ColorChange("\t\tThere is a parentheses char error-1.", 2);
                         error_flag = true;
                         break;
                     }
@@ -1447,7 +1449,8 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                         incoming_commands.push_back(special_symbol_container);
                         special_symbol_container = "";
                     } else {
-                        std::cout << "There is a parentheses char error." << std::endl;
+                        std::cout << "" << std::endl;
+						ColorChange("\t\tThere is a parentheses char error-2.", 2);
                         error_flag = true;
                         break;
                     }
@@ -1462,7 +1465,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                         skip_this_char = true;
                         special_symbol_container += incoming_input[a];
                     } else {
-                        std::cout << "There is a bracket char error." << std::endl;
+						ColorChange("\t\tThere is a bracket char error-1.", 2);
                         error_flag = true;
                         break;
                     }
@@ -1474,7 +1477,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                         incoming_commands.push_back(special_symbol_container);
                         special_symbol_container = "";
                     } else {
-                        std::cout << "There is a bracket char error." << std::endl;
+						ColorChange("\t\tThere is a bracket char error-2.", 2);
                         error_flag = true;
                         break;
                     }
@@ -1489,7 +1492,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                         skip_this_char = true;
                         special_symbol_container += incoming_input[a];
                     } else {
-                        std::cout << "There is a curly brace char error." << std::endl;
+						ColorChange("\t\tThere is a curly brace char error-1.", 2);
                         error_flag = true;
                         break;
                     }
@@ -1501,7 +1504,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                         incoming_commands.push_back(special_symbol_container);
                         special_symbol_container = "";
                     } else {
-                        std::cout << "There is a curly brace char error." << std::endl;
+						ColorChange("\t\tThere is a curly brace char error-2.", 2);
                         error_flag = true;
                         break;
                     }
@@ -1515,7 +1518,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                     which_command_parser = 1;
                 } else {
                     if (incoming_input[a] != '>') {
-                        std::cout << "There are to many operators near by error-1." << std::endl;
+						ColorChange("\t\tThere are to many operators near by error-1.", 2);
                         error_flag = true;
                         break;
                     }
@@ -1525,7 +1528,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                     ampersand_flag = true;
                     waitpid_flag = true;
                 } else {
-                    std::cout << "There was an ampersand error-1." << std::endl;
+					ColorChange("\t\tThere was an ampersand error-1.", 2);
                     error_flag = true;
                     break;
                 }
@@ -1547,7 +1550,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                 if (single_quote_flag == false && double_quote_flag == false && curly_brace_char_flag == false && parentheses_char_flag == false && bracket_char_flag == false) {
                     if (ampersand_flag == true) {
                         if (argument_position != 0) {
-                            std::cout << "There was an ampersand error-2." << std::endl;
+							ColorChange("\t\tThere was an ampersand error-2.", 2);
                             error_flag = true;
                             break;
                         } else {
@@ -1557,7 +1560,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                     if (token.size() > 0) {
                         if (next_operator_find_flag == true) {
                             if (operator_found_flag == true) {
-                                std::cout << "There are to many operators near by error-2." << std::endl;
+								ColorChange("\t\tThere are to many operators near by error-2.", 2);
                                 error_flag = true;
                                 break;
                             } else {
@@ -1570,7 +1573,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                                 ampersand_flag = false;
                                 next_operator_find_flag = true;
                             } else {
-                                std::cout << "There was an incorrect operator found error-1." << std::endl;
+								ColorChange("\t\tThere was an incorrect operator found error-1.", 2);
                                 error_flag = true;
                                 break;
                             }
@@ -1583,28 +1586,28 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
             } else {
                 if (single_quote_flag == true || double_quote_flag == true) {
                     if (single_quote_flag == true) {
-                        std::cout << "There was a single quote error with this section of input" << std::endl;
+						ColorChange("\t\tThere was a single quote error with this section of input.", 2);
                     } else {
-                        std:: cout << "There was a double quote error with this secton of input." << std::endl;
+						ColorChange("\t\tThere was a double quote error with this secton of input.", 2);
                     }
                     error_flag = true;
                     break;
                 } else if (parentheses_char_flag == true) {
-                    std::cout << "There was a parentheses error with this seciton of input." << std::endl;
+					ColorChange("\t\tThere was a parentheses error with this seciton of input.", 2);
                     error_flag = true;
                     break;
                 } else if (bracket_char_flag == true) {
-                    std::cout << "There was a bracket error with this seciton of input." << std::endl;
+					ColorChange("\t\tThere was a bracket error with this seciton of input.", 2);
                     error_flag = true;
                     break;
                 } else if (curly_brace_char_flag == true) {
-                    std::cout << "There was a curly brace error with this seciton of input." << std::endl;
+					ColorChange("\t\tThere was a curly brace error with this seciton of input.", 2);
                     error_flag = true;
                     break;
                 } else {
                     if (ampersand_flag == true) {
                         if (argument_position != 0) {
-                            std::cout << "There was an ampersand error-3." << std::endl;
+							ColorChange("\t\tThere was an ampersand error-3.", 2);
                             error_flag = true;
                             break;
                         } else {
@@ -1614,7 +1617,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                     if (token.size() > 0) {
                         if (next_operator_find_flag == true) {
                             if (operator_found_flag == true) {
-                                std::cout << "There are to many operators near by error-2." << std::endl;
+								ColorChange("\t\tThere are to many operators near by error-2.", 2);
                                 error_flag = true;
                                 break;
                             } else {
@@ -1623,7 +1626,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                         }
                         if (operator_found_flag == true) {
                             if (token != ">" || token != ">>" || token != "1>" || token != "1>>" || token != "2>" || token != "2>>" || token != "<" || token != "0<" || token != "|") {
-                                std::cout << "There was an incorrect operator found error-2." << std::endl;
+								ColorChange("\t\tThere was an incorrect operator found error-2.", 2);
                                 error_flag = true;
                                 break;
                             } else {
@@ -1666,9 +1669,16 @@ void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_comman
 
         command_size = incoming_commands.size();
 
-		for (int b = 0; b < ThursdayCommands.size(); b++) {
-            if (ThursdayCommands[b] == incoming_commands[a])
-                thursday_command_flag = true;
+		if (incoming_commands[a] == "enable") {
+			ColorChange("\t\tThursday's commands have been enable.", 3);
+			myCommandSwitch = false;
+		} 
+
+		if (myCommandSwitch == false) {
+			for (int b = 0; b < ThursdayCommands.size(); b++) {
+				if (ThursdayCommands[b] == incoming_commands[a])
+					thursday_command_flag = true;
+			}
 		}
 
         if ((incoming_commands[a][command_size - 1] == ';') || (incoming_commands.size() == (a + 1))) {
@@ -1676,10 +1686,10 @@ void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_comman
                 incoming_commands[a].erase(incoming_commands[a].begin()+(incoming_commands[a].size() - 1), incoming_commands[a].end());
             
             sending_commands.push_back(incoming_commands[a]);
-            if (thursday_command_flag == true)
-				SearchCommands(sending_commands, 0, envp)
-        	else
-				SearchCommands(sending_commands, 1, envp)
+				if (thursday_command_flag == true)
+					SearchCommands(sending_commands, 0, envp)
+				else
+					SearchCommands(sending_commands, 1, envp)
             thursday_command_flag = false;
             sending_commands.clear();
         } else {
@@ -1772,7 +1782,7 @@ int Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_comm
                 temp_Size += 3;
                 if (temp_Size <= incoming_commands.size()) {
                     if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
-                        std::cout << "There are one to many arguments / commands after the standard out operator." << std::endl;
+						ColorChange("\t\tThere are one to many arguments / commands after the standard out operator.", 2);
                         incoming_commands.clear();
                         return 1;
                     }
@@ -1785,7 +1795,7 @@ int Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_comm
                 }
                 standard_output_file = incoming_commands[f];
             } else {
-                std::cout << "There was one to many standard out operators." << std::endl;
+				ColorChange("\t\tThere was one to many standard out operators.", 2);
                 incoming_commands.clear();
                 return 1;                  
             }
@@ -1800,7 +1810,7 @@ int Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_comm
             temp_Size += 3;
             if (temp_Size <= incoming_commands.size()) {
                 if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
-                    std::cout << "There are one to many arguments / commands after the standard out operator." << std::endl;
+					ColorChange("\t\tThere are one to many arguments / commands after the standard out operator.", 2);
                     incoming_commands.clear();
                     return 1;
                 }
@@ -1823,7 +1833,7 @@ int Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_comm
                 temp_Size += 3;
                 if (temp_Size <= incoming_commands.size()) {
                     if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
-                        std::cout << "There are one to many arguments / commands after the standard out operator." << std::endl;
+						ColorChange("\t\tThere are one to many arguments / commands after the standard in operator.", 2);
                         incoming_commands.clear();
                         return 1;
                     }
@@ -1836,7 +1846,7 @@ int Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_comm
                 }
                 standard_input_file = incoming_commands[f];
             } else {
-                std::cout << "There was one to many standard in operators or was found after a pipe operator." << std::endl;
+				ColorChange("\t\tThere was one to many standard in operators or was found after a pipe operator.", 2);
                 incoming_commands.clear();
                 return 1;                
             }
@@ -1906,13 +1916,6 @@ void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_
     FILE *fp2;
     FILE *fp3;
 
-    std::cout << "Commands Vector Size: " << commands.size() << std::endl;
-    std::cout << "Standard In File: " << standard_in_file << std::endl;
-    std::cout << "Standard Out File: " << standard_out_file << std::endl;
-    std::cout << "Standard Error File: " << standard_error_file << std::endl;
-    std::cout << "Standard Out Append Status: " << standard_out_append << std::endl;
-    std::cout << "Standard Error Append Status: " << standard_error_append << std::endl;
-
 	char ** myArray = new char * [arrSize];														// Used to allocat an array of char pointers.
 	for (i = 0; i < commands.size(); i++) {										                // Loop through the incoming arguments.
 		myArray[i] = new char [arrSize];														// Allcocate memory for each element in the array.
@@ -1943,8 +1946,7 @@ void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_
             }
         }
 		if (execv(pointer_file_path, myArray) == -1) {
-			perror("Weee: ");
-			// cout << "There was a problem with stdin function." << endl;
+			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);
 		}
         if (standard_in_file == "")
 		    fclose(fp);
