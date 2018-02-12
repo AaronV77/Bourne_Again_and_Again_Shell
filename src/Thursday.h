@@ -8,7 +8,6 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <stack>
 #include <stdio.h>
 #include <string>
 #include <string.h>
@@ -38,7 +37,6 @@ public:
 	void CopyAndMoveFiles(std::string itemsBeingMoved, std::string destinationPath, bool functionSwitch);
 	std::string Cryptography(int number, int key, std::string message);
 	void DebugSwitch(bool signal);
-	void DepthFirstSearch(std::string path, std::string searchWord, bool showDirectories);
 	void DirectoryChange(std::string desiredPath, bool debugPrintSwitch);
 	void DirectoryDelete(std::string dirname);
 	void DisplayDirectories(std::string lsArgument, std::string pathName); 
@@ -50,6 +48,7 @@ public:
 	void Help(std::string argument);
 	int Operator_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]);
 	void PromptDisplay();
+	void Recursive_Directory_Search(std::string path, std::string searchWord, bool showDirectories);
 	void Search(std::string argument);
 	void SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]);
 	void SetupAndCloseSystem(int argc, char **);
@@ -65,8 +64,7 @@ private:
 	int uid;		
 	
 	bool colorSwitch;	
-	bool debugSwitch;	
-	bool errorSwitch;
+	bool debugSwitch;
 	bool myCommandSwitch;
 	bool waitSwitch;
 
@@ -90,13 +88,11 @@ private:
 	std::string currentPath;
 	std::string currentPrompt;
 	std::string dictionaryDestination;
-	std::string findingHome;
 	std::string homeDestination;
 	std::string hostName;
 	std::string informationDestination;
 	std::string previousPath;
 	
-	std::stack<std::string> stringStack;
     std::vector<std::string> Environment;
     std::vector<std::string> PathVector;
     std::vector<std::string> ThursdayCommands;

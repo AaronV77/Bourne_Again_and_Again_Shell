@@ -10,7 +10,6 @@ Thursday::Thursday() {
 	ColorSwitch(false);								// Turn off the color.
 
 	debugSwitch = false;							// Switch for turning on and off the debug statments.	
-	errorSwitch = false;							// Used for the DFS method and seeing if there are errors. 
 	waitSwitch = false;								// Used during our execution method, and is for when we are waiting for the child process to finish or not.
 	
 	BoolVar = 1;									// Used for the color of the system.
@@ -283,83 +282,6 @@ void Thursday::DebugSwitch(bool signal) {
 
 }
 
-void Thursday::DepthFirstSearch(std::string path, std::string searchWord, bool showDirectories) {  
-	/*-------------------------------------------------------------------
-	Note: This method is mainly used for find and whereis commands. This 
-	* method also ues the directory change, stack push / pop, and the
-	* display directories methods. This method was last updated on 9/24/2017.
-	--------------------------------------------------------------------*/ 
-    if (debugSwitch == true) 
-		ColorChange("\t\tMission - You are in the DepthFirstSearch method.", 3);
-	/*--------------------------------------------------------------------*/ 
-	std::vector<std::string> paths;
-	std::string input = "";
-	std::string thePath = currentPath;																	// Save the current path that we are currently at.
-	std::string addedPath = "";																			// Used to create a temporary current path.
-	
-	bool found = false;
-	int counter = 0;
-	struct stat s;																						// Create a variable to open the directory.
-    DIR * dir;																							// Open the directory with the ".".
-	dirent * entry;																						// Saves the opening to the directory.
-
-    stringStack.push(path); 																			// Put the starting path into the stack.
-    while(!stringStack.empty()) {																		// Loop until the current position in the stack is negative.
-		input = stringStack.top();																		// Pop off the last element in the stack.
-		stringStack.pop();
-		
-		if (showDirectories == true) 																	// If the incoming number is 0 then the user wants all the commands to be printed out.
-			std::cout << '\t' << '\t' << " Directory: " << input << std::endl;
-		
-		DirectoryChange(input, false);																	// Use the poped path from the stack and change the directory that the system is looking at.
-		 
-		if (errorSwitch == false) {																		// Check to make sure that the global error switch was not triggered.
-			dir = opendir(".");
-			if (NULL != dir) {																			// Check to see if the directory is NULL.
-				while ((entry = readdir(dir))) {															// Loop through the directory.
-					addedPath = currentPath;															// Add our current path to the addedPath variable.
-					if (currentPath != "/")																// Check to see that the current path does not already equal a backslash.
-						addedPath += "/";																// Add our back slash to add another directory to it.
-					addedPath += entry->d_name;															// Add the file / directory / or anything else that we are looking at in the directory to the path.
-					if (entry->d_name == searchWord) { 													// Check to see if what we are looking at matches what the user is searching for.
-						if (showDirectories == false) { 												// The commands find and whereis will be a 1, and dirs will be a 0.
-							std::cout << "\t\t" << addedPath << std::endl;								// Print the absolute path of where the file the user is looking for.
-							findingHome = addedPath;
-						}
-						found = true;																	// Set the found variable that the system has been able to find at least one location of the file that is being searched for.
-					} 
-					if (strcmp(entry->d_name,  ".") && strcmp(entry->d_name,  "..")) {					// Check to see if the system is looking at . and .. so that we don't store them.	
-						if (lstat(addedPath.c_str(), &s) == 0) {										// Retrieves information on the directory that we are looking at.
-							if (s.st_mode & S_IFLNK) {													// Check the mask type to see if the directory is a symbolic link.
-								//~ cout << "Random2 is a Symbolic link" << endl;						// If so do not do anything.
-							} else {
-								if (s.st_mode & S_IFDIR) {												// If the path is a directory.
-									stringStack.push(addedPath);										// Push the path into the stack.
-									paths.push_back(addedPath);
-								}
-							}
-						}
-					}
-				}  
-				if (closedir(dir) == -1)																// make sure that we can close the directory that we are looking at.
-					ColorChange("\t\tLS File Closing Failure: ", 2);									// Print an error if we cannot close the directory.
-			}		
-		} else {
-			errorSwitch = false;																		// Reset our error switch.
-		}
-	}
-    if (found == false) {																				// If the system not able to find the users requested directory.
-		if (showDirectories != 0)		 																// For the wheris and find command, and not for the dirs command.
-			ColorChange("\t\tThe file could not be found in the starting directory.", 3);
-	}
-	/*--------------------------------------------------------------------*/ 
-	DirectoryChange(thePath, 0);																		// Go back to the directory that we came from.
-    if (debugSwitch == true) 
-		ColorChange("\t\tMission - You are leaving the DepthFirstSearch method.", 3);
-
-    return;
-}
-
 void Thursday::DirectoryChange(std::string desiredPath, bool debugPrintSwitch) {
 	/*-------------------------------------------------------------------
 	Note: This method will move the system in and out of directories, that
@@ -383,7 +305,6 @@ void Thursday::DirectoryChange(std::string desiredPath, bool debugPrintSwitch) {
 		} else {
 			if (chdir(desiredPath.c_str()) == -1) {											// Make the directory change.
 				currentPath = getcwd(path, MAX_SIZE);										// If there was a problem then we want our actual path that the system is in.
-				errorSwitch = true;															// Set our error switch if we have a permission issue so that the dfs algorithm doesn't re-look at the directory again and get stuck in a loop.
 			} else {
 				currentPath = getcwd(path, MAX_SIZE);										// If there wasnt a problem then we want our actual path that the system is in.	
 				previousPath = savedPath;
@@ -472,9 +393,9 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		dir = opendir(pathName.c_str());																									// Else we will open up the path name.
 	
 	if (lsArgument == "all") {																												// If the ls argument is all.
-		DepthFirstSearch("/", "", true);																									// We want to print all the directories in the system.
+		Recursive_Directory_Search("/", "", true);																							// We want to print all the directories in the system.
 	} else if (lsArgument == "" || lsArgument == "-l") {																					// Else if the ls argument is -l or empty.
-		while ((entry = readdir(dir))) {																										// Loop through the directory.
+		while ((entry = readdir(dir))) {																									// Loop through the directory.
 			if(pathName.size() > 0)	{																										// If there is an incoming path.
 				tempFile = pathName + '/' + entry->d_name;																					// If there is an incoming path then we want the whole path of the file we are looking at.																									
 				lstat(tempFile.c_str(), &fileStruct);																						// Get information on the file that we are looking at.
@@ -1136,12 +1057,12 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 							ColorChange("\t\tYour starting point argument is not a path.", 2);
 						} else {
 							i++;
-							DepthFirstSearch(random, incomingInput[i], false);
+							Recursive_Directory_Search(random, incomingInput[i], false);
 						}
 					} else if (size == 2) {
 						i++;
 						random = "/";
-						DepthFirstSearch(random, incomingInput[i], false);
+						Recursive_Directory_Search(random, incomingInput[i], false);
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
@@ -1370,6 +1291,46 @@ void Thursday::SetupAndCloseSystem(int argc, char * envp[]) {
 }
 
 
+
+void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]) {
+
+    std::vector<std::string> sending_commands;
+    bool thursday_command_flag = false;
+    int command_size = 0;
+
+    for (int a = 0; a < incoming_commands.size(); ++a) {
+
+        command_size = incoming_commands.size();
+
+		if (incoming_commands[a] == "enable") {
+			ColorChange("\t\tThursday's commands have been enable.", 3);
+			myCommandSwitch = false;
+		} 
+
+		if (myCommandSwitch == false) {
+			for (int b = 0; b < ThursdayCommands.size(); b++) {
+				if (ThursdayCommands[b] == incoming_commands[a])
+					thursday_command_flag = true;
+			}
+		}
+
+        if ((incoming_commands[a][command_size - 1] == ';') || (incoming_commands.size() == (a + 1))) {
+            if (incoming_commands[a][command_size - 1] == ';')
+                incoming_commands[a].erase(incoming_commands[a].begin()+(incoming_commands[a].size() - 1), incoming_commands[a].end());
+            
+            sending_commands.push_back(incoming_commands[a]);
+			if (thursday_command_flag == true)
+				SearchCommands(sending_commands, 0, envp);
+			else
+				SearchCommands(sending_commands, 1, envp);
+            thursday_command_flag = false;
+            sending_commands.clear();
+        } else {
+            sending_commands.push_back(incoming_commands[a]);
+        }
+    }
+    return;    
+}
 
 int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
     
@@ -1658,44 +1619,68 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
     return status;
 }
 
-void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]) {
+void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_append, std::string standard_out_file, bool standard_error_append, std::string standard_error_file, std::vector<std::string> commands, char * envp[]) {
 
-    std::vector<std::string> sending_commands;
-    bool thursday_command_flag = false;
-    int command_size = 0;
+	int i = 0; 
+    std::string file_path = ""; 
+    size_t arrSize = 100;
+    pid_t pid;
+	
+    FILE *fp;
+    FILE *fp2;
+    FILE *fp3;
 
-    for (int a = 0; a < incoming_commands.size(); ++a) {
+	char ** myArray = new char * [arrSize];														// Used to allocat an array of char pointers.
+	for (i = 0; i < commands.size(); i++) {										                // Loop through the incoming arguments.
+		myArray[i] = new char [arrSize];														// Allcocate memory for each element in the array.
+		strcpy(myArray[i], strdup(commands[i].c_str()));								        // Copy the incoming argument to the element in the array.
+	}
+	myArray[i++] = NULL;																		// Null terminate the array for the exec command.
 
-        command_size = incoming_commands.size();
+	file_path = FileChecker(commands[0], 0);
+    char * pointer_file_path = (char*)malloc(50);
+    strcpy(pointer_file_path, strdup(file_path.c_str()));
 
-		if (incoming_commands[a] == "enable") {
-			ColorChange("\t\tThursday's commands have been enable.", 3);
-			myCommandSwitch = false;
-		} 
-
-		if (myCommandSwitch == false) {
-			for (int b = 0; b < ThursdayCommands.size(); b++) {
-				if (ThursdayCommands[b] == incoming_commands[a])
-					thursday_command_flag = true;
-			}
-		}
-
-        if ((incoming_commands[a][command_size - 1] == ';') || (incoming_commands.size() == (a + 1))) {
-            if (incoming_commands[a][command_size - 1] == ';')
-                incoming_commands[a].erase(incoming_commands[a].begin()+(incoming_commands[a].size() - 1), incoming_commands[a].end());
-            
-            sending_commands.push_back(incoming_commands[a]);
-			if (thursday_command_flag == true)
-				SearchCommands(sending_commands, 0, envp);
-			else
-				SearchCommands(sending_commands, 1, envp);
-            thursday_command_flag = false;
-            sending_commands.clear();
-        } else {
-            sending_commands.push_back(incoming_commands[a]);
+    pid = fork();
+    if (pid == 0) {
+        if (standard_in_file != "")
+		    fp = freopen(standard_in_file.c_str(), "r", stdin);
+        if (standard_out_file != "") {
+		    if (standard_out_append == false) {
+                fp2 = freopen(standard_out_file.c_str(), "w", stdout);
+            } else {
+                fp2 = freopen(standard_out_file.c_str(), "a", stdout);
+            }
         }
-    }
-    return;    
+        if (standard_error_file != "") {
+		    if (standard_error_append == false) {
+                fp3 = freopen(standard_error_file.c_str(), "w", stderr);
+            } else {
+                fp3 = freopen(standard_error_file.c_str(), "a", stderr);
+            }
+        }
+		if (execve(pointer_file_path, myArray, envp) == -1) {
+			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);
+		}
+        if (standard_in_file == "")
+		    fclose(fp);
+
+        if (standard_out_file == "")
+            fclose(fp2);
+
+        if (standard_error_file == "")
+            fclose(fp3);
+
+    } else {
+		waitpid(pid, 0, WUNTRACED);
+	}
+
+	delete [] myArray;
+    delete pointer_file_path;
+    pointer_file_path = NULL;
+	myArray = NULL;
+
+    return;
 }
 
 int Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]) {
@@ -1904,66 +1889,53 @@ int Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_comm
 
 }
 
-void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_append, std::string standard_out_file, bool standard_error_append, std::string standard_error_file, std::vector<std::string> commands, char * envp[]) {
+void Thursday::Recursive_Directory_Search(std::string path, std::string searchWord, bool showDirectories) {  
+	/*-------------------------------------------------------------------
+	Note: This method is mainly used for find and whereis commands. This 
+	* method also ues the directory change, stack push / pop, and the
+	* display directories methods. This method was last updated on 9/24/2017.
+	--------------------------------------------------------------------*/ 
+    if (debugSwitch == true) 
+		ColorChange("\t\tMission - You are in the DepthFirstSearch method.", 3);
+	/*--------------------------------------------------------------------*/ 
+	bool item_found = false;
+    std::string new_path = "";
+    struct stat fileStruct;	
+	DIR * dir;
+	dirent * entry;
 
-	int i = 0; 
-    std::string file_path = ""; 
-    size_t arrSize = 100;
-    pid_t pid;
-	
-    FILE *fp;
-    FILE *fp2;
-    FILE *fp3;
-
-	char ** myArray = new char * [arrSize];														// Used to allocat an array of char pointers.
-	for (i = 0; i < commands.size(); i++) {										                // Loop through the incoming arguments.
-		myArray[i] = new char [arrSize];														// Allcocate memory for each element in the array.
-		strcpy(myArray[i], strdup(commands[i].c_str()));								        // Copy the incoming argument to the element in the array.
-	}
-	myArray[i++] = NULL;																		// Null terminate the array for the exec command.
-
-	file_path = FileChecker(commands[0], 0);
-    char * pointer_file_path = (char*)malloc(50);
-    strcpy(pointer_file_path, strdup(file_path.c_str()));
-
-    pid = fork();
-    if (pid == 0) {
-        if (standard_in_file != "")
-		    fp = freopen(standard_in_file.c_str(), "r", stdin);
-        if (standard_out_file != "") {
-		    if (standard_out_append == false) {
-                fp2 = freopen(standard_out_file.c_str(), "w", stdout);
-            } else {
-                fp2 = freopen(standard_out_file.c_str(), "a", stdout);
+	if ((dir = opendir(path.c_str())) != NULL) {
+        while ((entry = readdir(dir))) {
+            new_path = path + entry->d_name;
+            if (entry->d_name == searchWord) {
+                if (showDirectories == false) {
+                    std::cout << "\t\t" << new_path << std::endl;
+                }
+                item_found = true;
+            } 
+            if (strcmp(entry->d_name,  ".") && strcmp(entry->d_name,  "..")) {	
+                if (lstat(new_path.c_str(), &fileStruct) == 0) {
+                    if (fileStruct.st_mode & S_IFLNK) {
+                    } else if (fileStruct.st_mode & S_IFDIR) {
+                        new_path += "/";
+                        if (showDirectories == true)
+                            std::cout << "\t\tDirectory: " << new_path << std::endl;
+                        Recursive_Directory_Search(new_path, searchWord, showDirectories);
+                    }
+                }
             }
         }
-        if (standard_error_file != "") {
-		    if (standard_error_append == false) {
-                fp3 = freopen(standard_error_file.c_str(), "w", stderr);
-            } else {
-                fp3 = freopen(standard_error_file.c_str(), "a", stderr);
-            }
-        }
-		if (execve(pointer_file_path, myArray, envp) == -1) {
-			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);
-		}
-        if (standard_in_file == "")
-		    fclose(fp);
+        if (closedir(dir) == -1)
+            ColorChange("\t\tFile Closing Failure in the method Find.", 2);
+    }
 
-        if (standard_out_file == "")
-            fclose(fp2);
-
-        if (standard_error_file == "")
-            fclose(fp3);
-
-    } else {
-		waitpid(pid, 0, WUNTRACED);
+    if (item_found == false) {
+		if (showDirectories != 0)
+			ColorChange("\t\tThe file could not be found in the starting directory.", 3);
 	}
-
-	delete [] myArray;
-    delete pointer_file_path;
-    pointer_file_path = NULL;
-	myArray = NULL;
+	/*--------------------------------------------------------------------*/ 
+    if (debugSwitch == true) 
+		ColorChange("\t\tMission - You are leaving the DepthFirstSearch method.", 3);
 
     return;
 }

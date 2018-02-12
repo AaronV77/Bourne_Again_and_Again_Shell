@@ -38,7 +38,7 @@ string new_find(string path) {
                         // Do nothing
                     } else if (fileStruct.st_mode & S_IFDIR) {
                         // cout << "Check5" << endl;
-                        // cout << path << entry->d_name << endl;
+                        cout << path << entry->d_name << endl;
                         new_path += "/";
                         new_find(new_path);
                     }
