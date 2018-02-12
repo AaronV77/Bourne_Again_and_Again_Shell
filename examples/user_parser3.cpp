@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string>
 #include <string.h>
@@ -30,7 +31,7 @@ int main() {
     std::ofstream output_data;
     std::vector<std::string> ThursdayCommands = LoadVector();
     std::vector<std::string> path_vector;
-    LoadPath(path_vector, path);
+    path_vector = LoadPath(path_vector, path);
     std::vector<std::string> incoming_commands;
 
     while(1) {
@@ -406,14 +407,15 @@ void Normal_Loop(std::vector<std::string> incoming_commands, std::vector<std::st
 		for (int b = 0; b < ThursdayCommands.size(); b++) {
             if (ThursdayCommands[b] == incoming_commands[a]){
                 thursday_command_flag = true;
-                std::cout << "Were here" << std::endl;
             }
 		}
 
-        if ((incoming_commands[a][command_size - 1] == ';') || (incoming_commands.size() == (a - 1))) {
+        if ((incoming_commands[a][command_size - 1] == ';') || (incoming_commands.size() == (a + 1))) {
+            std::cout << "Were here" << std::endl;
             if (incoming_commands[a][command_size - 1] == ';')
                 incoming_commands[a].erase(incoming_commands[a].begin()+(incoming_commands[a].size() - 1), incoming_commands[a].end());
             
+            std::cout << "Were here" << std::endl;
             sending_commands.push_back(incoming_commands[a]);
             if (thursday_command_flag == true) {
                 std::cout << "We have found one of our commands and will call it." << std::endl;
@@ -446,7 +448,8 @@ int Operator_Loop(std::vector<std::string> incoming_commands, std::vector<std::s
 
     bool adding_to_standard_out_file = false;
     bool adding_to_standard_error_file = false;
-    
+    bool temp_file_used = false;
+
     int the_size = 0;
     int temp_Size = 0;
 
@@ -485,6 +488,7 @@ int Operator_Loop(std::vector<std::string> incoming_commands, std::vector<std::s
                     standard_output_file = "temp_output.txt";
                     Exec_Redirection(path_vector, standard_input_file, false, standard_output_file, false, "", commands);
                 }
+                temp_file_used = true;
             } else {
                 for (int g = 0; g < the_operators.size(); g++) {
                     if (pipe_control_flag == false) {
@@ -505,6 +509,7 @@ int Operator_Loop(std::vector<std::string> incoming_commands, std::vector<std::s
                             } else {
                                 std::cout << "The standard output file is: temp_output.txt " << std::endl;
                                 standard_output_file = "temp_output.txt";
+                                temp_file_used = true;
                             }
 
                             if (standard_error_file != "") {
@@ -606,6 +611,8 @@ int Operator_Loop(std::vector<std::string> incoming_commands, std::vector<std::s
 
             } else {
                 std::cout << "There was one to many standard out operators." << std::endl;
+                incoming_commands.clear();
+                return 1;                  
             }
         }
 
@@ -659,7 +666,9 @@ int Operator_Loop(std::vector<std::string> incoming_commands, std::vector<std::s
                 }
                 standard_input_file = incoming_commands[f];
             } else {
-                std::cout << "There was one to many standard in operators." << std::endl;
+                std::cout << "There was one to many standard in operators or was found after a pipe operator." << std::endl;
+                incoming_commands.clear();
+                return 1;                
             }
         }
 
@@ -705,6 +714,7 @@ int Operator_Loop(std::vector<std::string> incoming_commands, std::vector<std::s
                             } else {
                                 std::cout << "The standard output file is: temp_output.txt " << std::endl;
                                 standard_output_file = "temp_output.txt";
+                                temp_file_used = true;
                             }
 
                             if (standard_error_file != "") {
@@ -791,6 +801,11 @@ int Operator_Loop(std::vector<std::string> incoming_commands, std::vector<std::s
             skip_argument_flag = false;
         }
     }
+
+    if (temp_file_used == true) {
+        remove("temp_output.txt");
+    }
+
     return 0;
 
 }
@@ -806,25 +821,43 @@ void Exec_Redirection(std::vector<std::string> path_vector, std::string standard
     FILE *fp2;
     FILE *fp3;
 
+    std::cout << "Path Vector Size: " << path_vector.size() << std::endl;
+    std::cout << "Commands Vector Size: " << commands.size() << std::endl;
+    std::cout << "Standard In File: " << standard_in_file << std::endl;
+    std::cout << "Standard Out File: " << standard_out_file << std::endl;
+    std::cout << "Standard Error File: " << standard_error_file << std::endl;
+    std::cout << "Standard Out Append Status: " << standard_out_append << std::endl;
+    std::cout << "Standard Error Append Status: " << standard_error_append << std::endl;
+
 	char ** myArray = new char * [arrSize];														// Used to allocat an array of char pointers.
 	for (i = 0; i < commands.size(); i++) {										                // Loop through the incoming arguments.
 		myArray[i] = new char [arrSize];														// Allcocate memory for each element in the array.
 		strcpy(myArray[i], strdup(commands[i].c_str()));								        // Copy the incoming argument to the element in the array.
 	}
 	myArray[i++] = NULL;																		// Null terminate the array for the exec command.
-	
+
 	file_path = FileChecker(path_vector, commands[0], 0);
-    char * pointer_file_path;
+    char * pointer_file_path = (char*)malloc(50);
     strcpy(pointer_file_path, strdup(file_path.c_str()));
 
     pid = fork();
     if (pid == 0) {
-        if (standard_in_file == "")
+        if (standard_in_file != "")
 		    fp = freopen(standard_in_file.c_str(), "r", stdin);
-        if (standard_out_file == "")
-		    fp2 = freopen(standard_out_file.c_str(), "w", stdout);
-        if (standard_error_file == "")
-            fp3 = freopen(standard_error_file.c_str(), "w", stderr);
+        if (standard_out_file != "") {
+		    if (standard_out_append == false) {
+                fp2 = freopen(standard_out_file.c_str(), "w", stdout);
+            } else {
+                fp2 = freopen(standard_out_file.c_str(), "a", stdout);
+            }
+        }
+        if (standard_error_file != "") {
+		    if (standard_error_append == false) {
+                fp3 = freopen(standard_error_file.c_str(), "w", stderr);
+            } else {
+                fp3 = freopen(standard_error_file.c_str(), "a", stderr);
+            }
+        }
 		if (execv(pointer_file_path, myArray) == -1) {
 			perror("Weee: ");
 			// cout << "There was a problem with stdin function." << endl;

@@ -45,116 +45,6 @@ Thursday::~Thursday() {
 	PathVector.clear();	
 }
 
-void Thursday::ArgumentChecker(std::vector<std::string> tokens, std::vector<std::string> quotes, char * envp[]) {
-	/*-------------------------------------------------------------------
-	Note: This method takes in two vectors and the environment. This method
-	* was done in the way for a reason. The first four if statments are just
-	* basic checks to see what we are looking at. If there is a semicolon found
-	* then we have to execute those commands, and reset. If there is not one
-	* we just keep adding until we run out of things to process. I don't care
-	* about what comes after the first argument, because if there is no semicolon
-	* then the whole string is not going to make any sense at all.
-	* This method was last updated on 11/8/2017.
-	--------------------------------------------------------------------*/
-    if (debugSwitch == true) 
-		ColorChange("\t\tMission - You are in the ArgumentChecker method.", 3);
-	/*--------------------------------------------------------------------*/ 
-	int argumentPosition = 0;																// Used to keep track on the position on the input stream.
-	int currentQuote = 0;																	// Used to align up to the incoming quotes in the stream.
-	int operatorType = 0;																	// Used to tell what type of operator we found.
-	bool commandSwitch = false;																// Used to see if I found one of my personal commands.
-	bool notMineSwitch = false;																// Used to see if we found the execution of something.
-	bool quoteSwitch = false;																// Used when we are inputing a quote for the SearchCommands Vector.
-	bool semiColonSwitch = false;															// Used to know when you found the semicolon.
-	std::size_t stringFind;																	// Used to locate string in other strings.
-	std::vector<std::string> commandAndArguments;											// Used to send either a whole input stream or a chunck to the SearchCommands.
-	
-	for (int i = 0; i < tokens.size(); i++) {												// Loop through the tokens.
-
-		if (tokens[i] == ">") {
-			notMineSwitch = true;															// If we have found an operator, then what we have in our vector is not for my application to handle. I don't process operators so lets just give it to exec.
-			operatorType = 2;
-		}
-		if (tokens[i] == "<") {
-			notMineSwitch = true;															// If we have found an operator, then what we have in our vector is not for my application to handle. I don't process operators so lets just give it to exec.
-			operatorType = 3;
-		}
-		if (tokens[i] == "|") {
-			notMineSwitch = true;															// If we have found an operator, then what we have in our vector is not for my application to handle. I don't process operators so lets just give it to exec.
-			operatorType = 4;
-		}
-
-		stringFind = tokens[i].find(';');													// See if the argument that we are looking at has a semicolon. A semicolon represents an end of a command.
-		if (stringFind != std::string::npos) {												// If there is a semicolon.
-			tokens[i].erase(tokens[i].begin()+(tokens[i].size() - 1), tokens[i].end());		// Delete if off the end of our token.		
-			semiColonSwitch = true;
-		}
-		
-		
-		for (int a = 0; a < ThursdayCommands.size(); a++) {									// Loop through my vector of acceptable commands that the application can use.
-			if (myCommandSwitch == false) {
-				if (ThursdayCommands[a] == tokens[i])										// Check to see if the token matches one of our commands in the ThrusdayCommands vector.
-					commandSwitch = true;													// If it does then we set our switch to true.													
-			} else {
-				if (tokens[i] == "enable") {
-					myCommandSwitch = false;
-					ColorChange("\t\tThursday's commands have been enable.", 3);
-				}
-			}
-		}
-		
-		if (quotes.size() > 0) {															// Lets do a simple check to make sure that there are even quotes in the input string.
-			if (utili::isNumber(tokens[i]) == 1) {											// Looking for a number to insert a quote if there is one. Check to see if it is a number.
-				int number = std::stoi(tokens[i]);											// Save the number of the token.
-				if (number == currentQuote) {												// See if the number aligns up to our currentQuote iterator. If not then the number is for something else.
-					commandAndArguments.push_back(quotes[currentQuote]);					// If the number is aligned with our iterator then lets store the quote into our vector.
-					currentQuote++;															// Increment our iterator of how many quotes we have found.
-					quoteSwitch = true;														// Turn on our quote switch.
-				}
-			}
-		}
-
-		if (semiColonSwitch == true && ((tokens.size() - 1) != i)) {						// If the semiColon was found earlier in the process, and make sure that we are not looking at element in the vector. If so then we just want to move on and let the next check run the command.
-			commandAndArguments.push_back(tokens[i]);										// Add it to our vector.
-			if (notMineSwitch == true && commandSwitch == false) {							// Had to put this hear for commands that don't have a semicolon.
-				SearchCommands(commandAndArguments, operatorType, envp);					// Send it to our SearchCommands method for exec.
-			} else if (notMineSwitch == false && commandSwitch == false) {
-				SearchCommands(commandAndArguments, 1, envp);								// Send it to our SearchCommands method for processing.
-			} else {
-				SearchCommands(commandAndArguments, 0, envp);								// Send it to our SearchCommands method for processing.
-			}
-			commandSwitch = false;															// Reset our switch. This is used to tell if the stuff in the vector is the applications commands or random commands.
-			notMineSwitch = false;															// Reset our switch. This is used to tell if someone is trying to execute script or code.
-			semiColonSwitch = false;														// Reset our switch. This is used to find the semicolon.
-			argumentPosition = 0;															// I'm using thins to keep track of our position in the vector.
-			if (commandAndArguments.size() > 0) 											// Reset the vector if the vector is not empty.
-				commandAndArguments.clear();												// Clear the contents of the vector correctly.
-			
-		} else {
-			if (quoteSwitch == false) {														// If the quote switch is on then we don't want to check against our application commands.
-				commandAndArguments.push_back(tokens[i]);									// Add the token to the vector regardless if it is ours or not.	
-			} else {
-				quoteSwitch = false;														// Reset our quote switch.
-			}
-		}
-		argumentPosition++;																	// Keep track of our current position. 
-	}
-
-	if (notMineSwitch == true && commandSwitch == false) {									// Had to put this hear for commands that don't have a semicolon.
-		SearchCommands(commandAndArguments, operatorType, envp);							// Send it to our SearchCommands method for exec.
-	} else if (notMineSwitch == false && commandSwitch == false) {	
-		SearchCommands(commandAndArguments, 1, envp);										// Send it to our SearchCommands method for processing.
-	} else {
-		SearchCommands(commandAndArguments, 0, envp);										// Send it to our SearchCommands method for processing.
-	}
-	
-	/*--------------------------------------------------------------------*/
-    if (debugSwitch == true) 
-		ColorChange("\t\tMission - You are leaving the ArgumentChecker method.", 3);
-	
-	return;	
-}
-
 void Thursday::ColorChange(std::string sentence, int signal) {
 	/*-------------------------------------------------------------------
 	Note: This method applies any color that I want for the system. It uses
@@ -933,66 +823,6 @@ std::vector<std::string> Thursday::FileLoader(std::vector<std::string> incomingV
 	return incomingVector;																	// Return the vector that is filed with our file contents.
 }
 
-void Thursday::GetArguments(std::string theCommands, char* envp[]) {
-	/*-------------------------------------------------------------------
-	Note: This method just takes the incoming string and breaks it up. This 
-	* method was last modified on 11/6/2017.
-	--------------------------------------------------------------------*/
-    if (debugSwitch == true) 
-		ColorChange("\t\tMission - You are in the GetArguments method.", 3);
-	/*--------------------------------------------------------------------*/ 
-	int quoteCounter = 0;
-	bool foundQuote = false;
-	std::string theQuote = "";
-	std::string input = "";													// The temporary holder for the token.
-	std::vector<std::string> tokens;										// Create a vector to store the tokens.
-	std::vector<std::string> quotes;
-	
-	for (int i = 0; i < theCommands.size(); i++) {							// Loop through the string.
-		if (theCommands[i] == '"') {										// Check for the start or end of a quote.
-			if (foundQuote == false) {										// If we haven't found the the start of a quote already.
-				foundQuote = true;											// Set the switch to true.
-				theQuote += theCommands[i];									// Store the element.
-			} else {
-				theQuote += theCommands[i];									// Store the element.
-				quotes.push_back(theQuote);									// Store the quote in the vector.
-				theQuote = "";												// Reset the quote.
-				tokens.push_back(std::to_string(quoteCounter));				// Convert the number of the # of quotes we have found in the tokens vector.
-				quoteCounter++;												// Increment our quote iterator.
-				foundQuote = false;											// Set our switch to false.
-			}
-		} else if (theCommands[i] == 32 && foundQuote == false) {			// If we are looking at a space and we are not in the middle of a quote. 
-			if (input.size() > 0) {
-				tokens.push_back(input);									// Store the input.					
-				input = "";													// Reset the input.
-			}
-		} else if (theCommands[i] == ';' && foundQuote == false) {
-			if (input.size() > 0) {
-				input += theCommands[i];
-				tokens.push_back(input);									// Store the input.					
-				input = "";													// Reset the input.
-			}
-		} else {
-			if (foundQuote == false) {										// If we are not in a quote.
-				input += theCommands[i];									// Add the element to the input.
-			} else {
-				theQuote += theCommands[i];									// Else add it to the quote.
-			}
-		}
-	}
-
-	if (input.size() > 0)
-		tokens.push_back(input);
-	
-	ArgumentChecker(tokens, quotes, envp);									// Send the incoming vectors and environment to Argument Checker.
-	
-	/*--------------------------------------------------------------------*/
-    if (debugSwitch == true) 
-		ColorChange("\t\tMission - You are leaving the GetArguments method.", 3);
-		
-	return;					
-}
-
 void Thursday::Help(std::string argument) {
 	/*------------------------------------------------------------------
 	Note: This method takes in an argument from the user. The argument is
@@ -1498,27 +1328,6 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 		}
 	} else if (signal == 1) {																// If the incoming vector of commands is not associated with this application.
 		ExecuteFile(incomingInput[i], incomingInput); 										// Send the first argument and then send the rest of the vector.
-	} else if (signal == 2) {
-		// STD OUT
-		if ( incomingInput.size() >= 3) {
-
-		} else {
-			ColorChange("\t\tThere are not enough items for standard out.", 3);
-		}
-	} else if (signal == 3) {
-		// STD IN
-		if ( incomingInput.size() >= 3) {
-			
-		} else {
-			ColorChange("\t\tThere are not enough items for standard in.", 3);
-		}		
-	} else if (signal == 4) {
-		// PIPE
-		if ( incomingInput.size() >= 3) {
-
-		} else {
-			ColorChange("\t\tThere are not enough items for pipping+.", 3);
-		}
 	}
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
@@ -1560,56 +1369,600 @@ void Thursday::SetupAndCloseSystem(int argc, char * envp[]) {
 	return;
 }
 
-void StandardIn(char * path2, char * args2[], char * InputFile, char * envp[]) {	
-    pid_t pid;	
-    int fd = 0;
-	int stdin_copy = dup(0);
+int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
+    
+	std::string token = "";
+    std::string special_symbol_container = "";
+    bool error_flag = false;
+    bool ampersand_flag = false;
+    bool next_operator_find_flag = false;
+    bool single_quote_flag = false;
+    bool double_quote_flag = false;
+    bool bracket_char_flag = false;
+    bool parentheses_char_flag = false;
+    bool curly_brace_char_flag = false;
+    bool skip_this_char = false;
+    bool operator_found_flag = false;
+    bool waitpid_flag = false;
+    int which_command_parser = 0;
+    int argument_position = 0;
+	std::vector<std::string> incoming_commands;
+
+    // This loop just gets rid of all spaces and tokens the incoming input.
+    // This loop also makes sure there is a correct number of quotes (single and double).
+    // This loop is also make sure that there are not more than one operator next to each other without a space and with a space.
+    // I do this by setting a flag when an operator is found, and set another operator when a space is found.
+    // If the next character after that space is another opeator then there is an error else there is not.
+    // Then shoves them into a vector and returns the vector.
+
+    for (int a = 0; a < incoming_input.size(); ++a) {
+
+        if (parentheses_char_flag == false && curly_brace_char_flag == false && bracket_char_flag == false && double_quote_flag == false) {
+            if (incoming_input[a] == 39) {
+                if (single_quote_flag == false) {
+                    single_quote_flag = true;
+                    skip_this_char = true;
+                    special_symbol_container += incoming_input[a];
+                } else {
+                    single_quote_flag = false;
+                    skip_this_char = true;
+                    special_symbol_container += incoming_input[a];
+                    incoming_commands.push_back(special_symbol_container);
+                    special_symbol_container = "";
+                }
+            }
+        }
+        if (single_quote_flag == false && parentheses_char_flag == false && curly_brace_char_flag == false && bracket_char_flag == false) {
+            if (incoming_input[a] == '"') {
+                if (double_quote_flag == false) {
+                    double_quote_flag = true;
+                    skip_this_char = true;
+                    special_symbol_container += incoming_input[a];
+                } else {
+                    double_quote_flag = false;
+                    skip_this_char = true;
+                    special_symbol_container += incoming_input[a];
+                    incoming_commands.push_back(special_symbol_container);
+                    special_symbol_container = "";
+                }
+            }
+        }
+        if (single_quote_flag == false && double_quote_flag == false && curly_brace_char_flag == false && bracket_char_flag == false) {
+           if (incoming_input[a] == '(' || incoming_input[a] == ')') {
+                if (incoming_input[a] == '(') {
+                    if (parentheses_char_flag == false) {
+                        parentheses_char_flag = true;
+                        skip_this_char = true;
+                        special_symbol_container += incoming_input[a];
+                    } else {
+                        std::cout << "There is a parentheses char error." << std::endl;
+                        error_flag = true;
+                        break;
+                    }
+                } else if (incoming_input[a] == ')') {
+                    if (parentheses_char_flag == true) {
+                        parentheses_char_flag = false;
+                        skip_this_char = true;
+                        special_symbol_container += incoming_input[a];
+                        incoming_commands.push_back(special_symbol_container);
+                        special_symbol_container = "";
+                    } else {
+                        std::cout << "There is a parentheses char error." << std::endl;
+                        error_flag = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (single_quote_flag == false && double_quote_flag == false && parentheses_char_flag ==false && curly_brace_char_flag == false) {
+            if (incoming_input[a] == '[' || incoming_input[a] == ']') {
+                if (incoming_input[a] == '[') {
+                    if (bracket_char_flag == false) {
+                        bracket_char_flag = true;
+                        skip_this_char = true;
+                        special_symbol_container += incoming_input[a];
+                    } else {
+                        std::cout << "There is a bracket char error." << std::endl;
+                        error_flag = true;
+                        break;
+                    }
+                } else if (incoming_input[a] == ']') {
+                    if (bracket_char_flag == true) {
+                        bracket_char_flag = false;
+                        skip_this_char = true;
+                        special_symbol_container += incoming_input[a];
+                        incoming_commands.push_back(special_symbol_container);
+                        special_symbol_container = "";
+                    } else {
+                        std::cout << "There is a bracket char error." << std::endl;
+                        error_flag = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (single_quote_flag == false && double_quote_flag == false && parentheses_char_flag == false && bracket_char_flag == false) {
+            if (incoming_input[a] == '{' || incoming_input[a] == '}') {
+                if (incoming_input[a] == '{') {
+                    if (curly_brace_char_flag == false) {
+                        curly_brace_char_flag = true;
+                        skip_this_char = true;
+                        special_symbol_container += incoming_input[a];
+                    } else {
+                        std::cout << "There is a curly brace char error." << std::endl;
+                        error_flag = true;
+                        break;
+                    }
+                } else if (incoming_input[a] == '}') {
+                    if (curly_brace_char_flag == true) {
+                        curly_brace_char_flag = false;
+                        skip_this_char = true;
+                        special_symbol_container += incoming_input[a];
+                        incoming_commands.push_back(special_symbol_container);
+                        special_symbol_container = "";
+                    } else {
+                        std::cout << "There is a curly brace char error." << std::endl;
+                        error_flag = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (single_quote_flag == false && double_quote_flag == false && parentheses_char_flag == false && bracket_char_flag == false && curly_brace_char_flag == false) {
+            if (incoming_input[a] == '>' || incoming_input[a] == '<' || incoming_input[a] == '|') {
+                if (operator_found_flag == false) {
+                    operator_found_flag = true;
+                    which_command_parser = 1;
+                } else {
+                    if (incoming_input[a] != '>') {
+                        std::cout << "There are to many operators near by error-1." << std::endl;
+                        error_flag = true;
+                        break;
+                    }
+                }
+            } else if (incoming_input[a] == '&') {
+                if (ampersand_flag == false) {
+                    ampersand_flag = true;
+                    waitpid_flag = true;
+                } else {
+                    std::cout << "There was an ampersand error-1." << std::endl;
+                    error_flag = true;
+                    break;
+                }
+            }
+        }
+        if (skip_this_char == false) {
+            if (single_quote_flag == true || double_quote_flag == true || curly_brace_char_flag == true || bracket_char_flag == true || parentheses_char_flag == true) {
+                special_symbol_container += incoming_input[a];
+            } else {
+                if (incoming_input[a] != 32)
+                    token += incoming_input[a];
+            }
+        } else {
+            skip_this_char = false;
+        }
+
+        if (incoming_input[a] == 32 || incoming_input[a] == ';' || ((incoming_input.size() -1) == a) ) {
+            if (incoming_input[a] == 32) {
+                if (single_quote_flag == false && double_quote_flag == false && curly_brace_char_flag == false && parentheses_char_flag == false && bracket_char_flag == false) {
+                    if (ampersand_flag == true) {
+                        if (argument_position != 0) {
+                            std::cout << "There was an ampersand error-2." << std::endl;
+                            error_flag = true;
+                            break;
+                        } else {
+                            ampersand_flag = false;
+                        }
+                    }
+                    if (token.size() > 0) {
+                        if (next_operator_find_flag == true) {
+                            if (operator_found_flag == true) {
+                                std::cout << "There are to many operators near by error-2." << std::endl;
+                                error_flag = true;
+                                break;
+                            } else {
+                                next_operator_find_flag = false;
+                            }
+                        }
+                        if (operator_found_flag == true) {
+                            if (token != ">" || token != ">>" || token != "1>" || token != "1>>" || token != "2>" || token != "2>>" || token != "<" || token != "0<" || token != "|") {
+                                operator_found_flag = false;
+                                ampersand_flag = false;
+                                next_operator_find_flag = true;
+                            } else {
+                                std::cout << "There was an incorrect operator found error-1." << std::endl;
+                                error_flag = true;
+                                break;
+                            }
+                        }
+                        incoming_commands.push_back(token);
+                        argument_position++;
+                    }
+                    token = "";
+                } 
+            } else {
+                if (single_quote_flag == true || double_quote_flag == true) {
+                    if (single_quote_flag == true) {
+                        std::cout << "There was a single quote error with this section of input" << std::endl;
+                    } else {
+                        std:: cout << "There was a double quote error with this secton of input." << std::endl;
+                    }
+                    error_flag = true;
+                    break;
+                } else if (parentheses_char_flag == true) {
+                    std::cout << "There was a parentheses error with this seciton of input." << std::endl;
+                    error_flag = true;
+                    break;
+                } else if (bracket_char_flag == true) {
+                    std::cout << "There was a bracket error with this seciton of input." << std::endl;
+                    error_flag = true;
+                    break;
+                } else if (curly_brace_char_flag == true) {
+                    std::cout << "There was a curly brace error with this seciton of input." << std::endl;
+                    error_flag = true;
+                    break;
+                } else {
+                    if (ampersand_flag == true) {
+                        if (argument_position != 0) {
+                            std::cout << "There was an ampersand error-3." << std::endl;
+                            error_flag = true;
+                            break;
+                        } else {
+                            ampersand_flag = false;
+                        }
+                    }
+                    if (token.size() > 0) {
+                        if (next_operator_find_flag == true) {
+                            if (operator_found_flag == true) {
+                                std::cout << "There are to many operators near by error-2." << std::endl;
+                                error_flag = true;
+                                break;
+                            } else {
+                                next_operator_find_flag = false;
+                            }
+                        }
+                        if (operator_found_flag == true) {
+                            if (token != ">" || token != ">>" || token != "1>" || token != "1>>" || token != "2>" || token != "2>>" || token != "<" || token != "0<" || token != "|") {
+                                std::cout << "There was an incorrect operator found error-2." << std::endl;
+                                error_flag = true;
+                                break;
+                            } else {
+                                operator_found_flag = false;
+                                ampersand_flag = false;
+                                next_operator_find_flag = true;
+                            }
+                        }
+                        incoming_commands.push_back(token);
+                        argument_position++;
+                    }
+                    token = "";
+                }
+            }
+        }
+    }
+    
+    int status = 0;
+    if (error_flag == false) {
+        if (which_command_parser == 0) {
+            Basic_Command_Parse_Loop(incoming_commands);
+        } else {
+            status = Operator_Command_Parse_Loop(incoming_commands);
+        }
+    } else {
+        incoming_commands.clear();
+        status = 1;
+    }
+
+    return status;
+}
+
+void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_commands) {
+
+    std::vector<std::string> sending_commands;
+    bool thursday_command_flag = false;
+    int command_size = 0;
+
+    for (int a = 0; a < incoming_commands.size(); ++a) {
+
+        command_size = incoming_commands.size();
+
+		for (int b = 0; b < ThursdayCommands.size(); b++) {
+            if (ThursdayCommands[b] == incoming_commands[a])
+                thursday_command_flag = true;
+		}
+
+        if ((incoming_commands[a][command_size - 1] == ';') || (incoming_commands.size() == (a + 1))) {
+            if (incoming_commands[a][command_size - 1] == ';')
+                incoming_commands[a].erase(incoming_commands[a].begin()+(incoming_commands[a].size() - 1), incoming_commands[a].end());
+            
+            sending_commands.push_back(incoming_commands[a]);
+            if (thursday_command_flag == true)
+				SearchCommands(sending_commands, 0, envp)
+        	else
+				SearchCommands(sending_commands, 1, envp)
+            thursday_command_flag = false;
+            sending_commands.clear();
+        } else {
+            sending_commands.push_back(incoming_commands[a]);
+        }
+    }
+    return;    
+}
+
+int Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_commands) {
+
+    std::string standard_error_file = "";
+    std::string standard_input_file = "";
+    std::string standard_output_file = "";
+
+    bool standard_error_flag = false;
+    bool standard_out_flag = false;
+    bool standard_in_flag = false;
+
+    bool pipe_flag = false;
+    bool pipe_control_flag = false;
+    bool skip_argument_flag = false;
+    bool end_of_section = false;
+
+    bool adding_to_standard_out_file = false;
+    bool adding_to_standard_error_file = false;
+    bool temp_file_used = false;
+
+    int the_size = 0;
+    int temp_Size = 0;
+
+    std::vector<std::string> the_operators;
+    std::vector<std::string> commands;
+
+    // Rule #1: You cannot have standard out before standard in.
+    // Rule #2: You can have standard out and stnadard error after a pipe but not standard in.
+    // Rule #3: You can only have one standard out and standard in each input section.
+
+    for (int f = 0; f < incoming_commands.size(); f++) {
+        the_size = incoming_commands[f].size();
+        temp_Size = 0;
+        if (incoming_commands[f] == "|") {
+            standard_in_flag = true;
+            standard_out_flag = false;
+            standard_error_flag = false;
+            skip_argument_flag = true;
+            if (the_operators.size() == 0) {
+                if (pipe_flag == false)
+                    Exec_Redirection("", false, standard_output_file, false, "", commands);
+                else
+                    Exec_Redirection(standard_input_file, false, standard_output_file, false, "", commands);
+                temp_file_used = true;
+            } else {
+                for (int g = 0; g < the_operators.size(); g++) {
+                    if (pipe_control_flag == false) {
+                        if (the_operators[g] == "in") {
+                            pipe_control_flag = true;
+                            Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+                        } else if (the_operators[g] == "out") {
+                            pipe_control_flag = true;
+                            if (pipe_flag == false) {
+                                Exec_Redirection("", adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+                            } else {
+								Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+                            }
+                        }
+                    }
+                }
+            }
+            standard_input_file = standard_output_file;
+            pipe_control_flag = false;
+            adding_to_standard_error_file = false;
+            adding_to_standard_out_file = false;
+            pipe_flag = true;
+            commands.clear();
+            the_operators.clear();
+        }
+
+        if (incoming_commands[f] == ">" || incoming_commands[f] == "1>" || incoming_commands[f] == ">>" || incoming_commands[f] == "1>>" ) {
+            if (standard_out_flag == false) {
+                the_operators.push_back("out");
+                if (pipe_flag == true)
+                    standard_input_file = standard_output_file;
+                if (incoming_commands[f] == ">>" || incoming_commands[f] == "1>>")
+                    adding_to_standard_out_file = true;
+                standard_out_flag = true;
+                standard_in_flag = true;
+                skip_argument_flag = true;
+                temp_Size = f;
+                temp_Size += 3;
+                if (temp_Size <= incoming_commands.size()) {
+                    if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
+                        std::cout << "There are one to many arguments / commands after the standard out operator." << std::endl;
+                        incoming_commands.clear();
+                        return 1;
+                    }
+                }
+                f++;
+                the_size = incoming_commands[f].size();
+                if (incoming_commands[f][the_size - 1] == ';') {
+                    incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
+                    end_of_section = true;
+                }
+                standard_output_file = incoming_commands[f];
+            } else {
+                std::cout << "There was one to many standard out operators." << std::endl;
+                incoming_commands.clear();
+                return 1;                  
+            }
+        }
+
+        if (incoming_commands[f] == "2>" || incoming_commands[f] == "2>>") {
+            if (incoming_commands[f] == "2>>")
+                adding_to_standard_error_file = true;
+            the_operators.push_back("error");
+            skip_argument_flag = true;
+            temp_Size = f;
+            temp_Size += 3;
+            if (temp_Size <= incoming_commands.size()) {
+                if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
+                    std::cout << "There are one to many arguments / commands after the standard out operator." << std::endl;
+                    incoming_commands.clear();
+                    return 1;
+                }
+            }
+            f++;
+            the_size = incoming_commands[f].size();
+            if (incoming_commands[f][the_size - 1] == ';') {
+                incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
+                end_of_section = true;
+            }
+            standard_error_file = incoming_commands[f];
+        }
+
+        if (incoming_commands[f] == "0<" || incoming_commands[f] == "<") {
+            if (standard_in_flag == false) {
+                the_operators.push_back("in");
+                standard_in_flag = true;
+                skip_argument_flag = true;
+                temp_Size = f;
+                temp_Size += 3;
+                if (temp_Size <= incoming_commands.size()) {
+                    if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
+                        std::cout << "There are one to many arguments / commands after the standard out operator." << std::endl;
+                        incoming_commands.clear();
+                        return 1;
+                    }
+                }
+                f++;
+                the_size = incoming_commands[f].size();
+                if (incoming_commands[f][the_size - 1] == ';') {
+                    incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
+                    end_of_section = true;
+                }
+                standard_input_file = incoming_commands[f];
+            } else {
+                std::cout << "There was one to many standard in operators or was found after a pipe operator." << std::endl;
+                incoming_commands.clear();
+                return 1;                
+            }
+        }
+
+        if (end_of_section == true || incoming_commands[f][the_size - 1] == ';' || (incoming_commands.size() - 1) == f) {
+            if (the_operators.size() == 0) {
+                skip_argument_flag = true;
+                commands.push_back(incoming_commands[f]);
+                if (pipe_flag == false)
+                    Exec_Redirection("", false, "", false, "", commands);
+                else
+                    Exec_Redirection(standard_input_file, false, "", false, "", commands);
+            } else {
+                for (int j = 0; j < the_operators.size(); j++) {
+                    if (pipe_control_flag == false) {
+                        if (the_operators[j] == "in") {
+                            pipe_control_flag = true;
+                            Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+                        } else if (the_operators[j] == "out") {
+                            pipe_control_flag = true;
+                            if (pipe_flag == false)
+                                Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+                            else
+                                Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
+                        }
+                    }
+                }
+            }
+            standard_error_file = "";
+            standard_input_file = "";
+            standard_output_file = "";
+            standard_error_flag = false;
+            standard_out_flag = false;
+            standard_in_flag = false;
+			skip_argument_flag = false;
+            pipe_flag = false;
+            adding_to_standard_error_file = false;
+            adding_to_standard_out_file = false;
+            pipe_control_flag = false;
+            end_of_section = false;
+            the_operators.clear();
+            commands.clear();
+        }
+
+        if (skip_argument_flag == false)
+            commands.push_back(incoming_commands[f]);
+    	else
+            skip_argument_flag = false;
+    }
+
+    if (temp_file_used == true)
+        remove("temp_output.txt");
+
+    return 0;
+
+}
+
+void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_append, std::string standard_out_file, bool standard_error_append, std::string standard_error_file, std::vector<std::string> commands) {
+
+	int i = 0; 
+    std::string file_path = ""; 
+    size_t arrSize = 100;
+    pid_t pid;
+	
+    FILE *fp;
+    FILE *fp2;
+    FILE *fp3;
+
+    std::cout << "Commands Vector Size: " << commands.size() << std::endl;
+    std::cout << "Standard In File: " << standard_in_file << std::endl;
+    std::cout << "Standard Out File: " << standard_out_file << std::endl;
+    std::cout << "Standard Error File: " << standard_error_file << std::endl;
+    std::cout << "Standard Out Append Status: " << standard_out_append << std::endl;
+    std::cout << "Standard Error Append Status: " << standard_error_append << std::endl;
+
+	char ** myArray = new char * [arrSize];														// Used to allocat an array of char pointers.
+	for (i = 0; i < commands.size(); i++) {										                // Loop through the incoming arguments.
+		myArray[i] = new char [arrSize];														// Allcocate memory for each element in the array.
+		strcpy(myArray[i], strdup(commands[i].c_str()));								        // Copy the incoming argument to the element in the array.
+	}
+	myArray[i++] = NULL;																		// Null terminate the array for the exec command.
+
+	file_path = FileChecker(commands[0], 0);
+    char * pointer_file_path = (char*)malloc(50);
+    strcpy(pointer_file_path, strdup(file_path.c_str()));
 
     pid = fork();
     if (pid == 0) {
-        close(0);
-        fd = open(InputFile, O_RDONLY);	
-		if (execve(path2, args2, envp) == -1) {
-			std::cout << "There was a problem with stdin function." << std::endl;
+        if (standard_in_file != "")
+		    fp = freopen(standard_in_file.c_str(), "r", stdin);
+        if (standard_out_file != "") {
+		    if (standard_out_append == false) {
+                fp2 = freopen(standard_out_file.c_str(), "w", stdout);
+            } else {
+                fp2 = freopen(standard_out_file.c_str(), "a", stdout);
+            }
+        }
+        if (standard_error_file != "") {
+		    if (standard_error_append == false) {
+                fp3 = freopen(standard_error_file.c_str(), "w", stderr);
+            } else {
+                fp3 = freopen(standard_error_file.c_str(), "a", stderr);
+            }
+        }
+		if (execv(pointer_file_path, myArray) == -1) {
+			perror("Weee: ");
+			// cout << "There was a problem with stdin function." << endl;
 		}
+        if (standard_in_file == "")
+		    fclose(fp);
+
+        if (standard_out_file == "")
+            fclose(fp2);
+
+        if (standard_error_file == "")
+            fclose(fp3);
+
     } else {
 		waitpid(pid, 0, WUNTRACED);
 	}
-    close(fd);
-	dup2(stdin_copy, 0);
-	close(stdin_copy);
+
+	delete [] myArray;
+    delete pointer_file_path;
+    pointer_file_path = NULL;
+	myArray = NULL;
 
     return;
-}
-
-void StandardOut(char * path3, char * args3[], char * OutputFile, char * envp[]) { 
-    pid_t pid, tmp;
-	int fd2 = 0;
-    int stdout_copy = dup(1);
-
-	pid = fork();
-	if (pid == 0) {
-		close(1);
-		fd2 = open(OutputFile, O_RDWR|O_CREAT|O_APPEND, 0600);
-		if (execve(path3, args3, envp) == -1) {
-			std::cout << "There was a problem with stdout function." << std::endl;		
-		}
-	} else {
-		waitpid(pid, 0, WUNTRACED);
-	}
-	close(fd2);
-	dup2(stdout_copy, 1);
-	close(stdout_copy);
-
-	return;
-}
-
-void Pipe(char * path4, char * args4[], char * path5, char * args5[], char * envp[]) {
-	
-	char * tempFile = (char*)"pipe.txt";
-	StandardOut(path4, args4, tempFile, envp);
-	StandardIn(path5, args5, tempFile, envp);
-
-
-	return;
 }

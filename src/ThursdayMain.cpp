@@ -75,7 +75,7 @@ int main (int argc, char * argv[], char *envp[]) {
 			}
 		} else if (characterNumber == 10) {																	//When an enter key was pressed.
 			if (theCommands != "") {																			//Make sure that the char pointer is not empty / NULL.
-				home.GetArguments(theCommands, envp);															//Send the commands in the incomingInput vector to the search commands method.
+				home.Check_Input_Loop(theCommands, envp);														//Send the commands in the incomingInput vector to the search commands method.
 				incomingCommands.push_back(theCommands);														//Store the old commands in this vector.				
 				tabPressed = false;
 			}
