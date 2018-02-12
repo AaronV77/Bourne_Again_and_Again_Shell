@@ -778,7 +778,7 @@ void Thursday::Help(std::string argument) {
 		definition = utili::remove_special_characters(definition);								// Search for special characters from the word definition.
 		//--------------------------------------------------------------
 		if (word == argument) {																	// If the word matches the command that the user is searching for.
-			std::cout << "\n\t\t" << type << " " << word << " " << definition << std::endl;
+			std::cout << "\t\t" << type << " " << word << " " << definition << std::endl;
 			mySwitch = true;																	// If we found the command the user was searching for then set our switch to true.
 		}
 	}

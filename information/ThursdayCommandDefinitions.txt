@@ -1,32 +1,32 @@
 back#- This command will return you to the previous path that you were at. Takes no other arguments.#
-bash#- This command will launch an instance of bash. Takes no other commands with it. Takes no other arguments.#
-cd#- This command will move the user throughout the file hiearchy. Takes one argument, that should be a path.#
-color#- This command will either turn the color on and off or change the color. Takes one and no arguments. The first option will change the color when a number is given 0 - 15, and the second option will turn the color on and off.#
-commands#- This command will display all the special commands that this application can take. Takes no other arguments.#
-compress#- This command will compress a directory for the user. Takes one argument, and is the file that you want to compresss.#
-cp#- This command will copy any directory or file to a loation that the user wants. Takes a file or directory, a path, and if the user wants to a -m argument if the user wants to move to that directory as well.#
-date#- This command will display the current date. Takes no other argument.#
-decompress#- This command will decompress a directory for the user. Takes one argument, and is the file you want to decompress.# 
-debug#- This command will turn on all of the debug statements within the program. Takes no other commands with it.#
-decrypt#- This command will take a message and decrypt it using a key.Takes two arguments, the first is the key and the last is the string you want to decrypt.#
-encrypt#- This command will take a message and encrypt it using a key.Takes two arguments, the first is the key and the last is the string you want to encrypt.#
-exit#- Thiss command will close out the program.#
-find#- This command will take a starting point to look for a file. Takes either one or two arguments. The first option is just the file, and will search the whole directory. The second option is the file and a starting point in the filesystem.#
-getenv#- This command will retrieve a system global variable.Takes one argument, the variable that you are looking for.#
+bash#- This command will launch an instance of bash. Takes no other commands or arguments with it.#
+cd#- This command will move the user throughout the file hierarchy. Takes one argument and should be a path or directory.#
+color#- The command when ran by itself will turn the color on or off. If you give the command a number between 0 - 15 will change the color of the output on the terminal.#
+commands#- This command will display all the special commands that Thursday can take. Takes no other arguments.#
+compress#- This command will compress a directory / folder for the user. Takes one argument and is the file / directory that you want to compress.#
+cp#- This command will copy any folder or file to the location that the user wants to put the contents in. This command takes can take up to three arguments, the first two are required, the third is optional. The first argument is the file / folder that you want to copy, the second is the destination of where to put that file / folder to. Lastly the third argument is the -m argument, which will move the user into that directory.#
+date#- This command will display the current date. Takes no other arguments.#
+decompress#- This command will decompress a file for the user. Takes one argument, and is the file you want to decompress.#
+debug#- This command will turn on or off all of the debug statements within the program. Takes no other commands with it.#
+decrypt#- This command will take a message and decrypt it using a key. Takes two arguments, the first is the key and the second is the string you want to decrypt.#
+encrypt#- This command will take a message and encrypt it using a key. Takes two arguments, the first is the key and the second is the string you want to encrypt.#
+exit#- This command will close out the program.#
+find#- This command will take a file or folder and search through the file system. If you don't give this command a starting point then it will start at the root directory. Either give the find command a starting point and then a file / folder you are looking for, or just the file / folder you are looking for.#
+getenv#- This command will retrieve a system global variable. Takes one argument and it being the variable that you are looking for.#
 hd#- This command will display the home directory of the user. Takes no other commands with it. Takes no other arguments.#
-help#- This commad will display a command that the user is looking for a description of. Takes only one argument, and the command you are looking for.# 
-info#- This command will display all the information of the program process. Takes no other commands with it. Takes no other argument.#
-ls#- This command will display the contents of a directory. Takes one argument it can either be -l or all, -l will give you extra information about the files, and all will #
-mv#- This command will move any directory or file to a loation that the user wants. Takes a file or director, a path, and if the user wants to a -m argument if the user wants to move to that directory as well.#
-pid#- This command will output the process ID number. Takes no other commands with it.#
-ppid#- This command will output the parent process ID number. Takes no other commands with it.#
-printenv#- This command will print all the bash global variables. Takes no other commands with it.#
-prompt#- This command will change the commannd prompt. Takes one argument and is a number between 1 - 5. The first four options will change the users prompt, the last opiton will set the custom prompt.#
-rm#- This command will remove any file or directory without having to have arguments. Takes one argument wither it be a directory or a file.#
+help#- This command will take a command name that the user is looking for more information on. This command only takes one argument and it is the command that you are looking for more information on.#
+info#- This command will display all the information of the program process. Takes no other arguments.#
+ls#- This command will display the contents of a directory. Takes one argument and it can either be -l or all. The first option -l will give you extra information about the files, and all will display all the directories in the current file system.#
+mv#- This command will move any folder or file to the location that the user wants to put the contents in. This command takes can take up to three arguments, the first two are required, the third is optional. The first argument is the file / folder that you want to copy, the second is the destination of where to put that file / folder to. Lastly the third argument is the -m argument, which will move the user into that directory.#
+pid#- This command will output the process ID number. Takes no other arguments.#
+ppid#- This command will output the parent process ID number. Takes no other arguments.#
+printenv#- This command will print all the bash global variables. Takes no other arguments.#
+prompt#- This command will change the command prompt. Takes one argument and it is a number between 0 - 5. The first four options (0 -4) will change the users prompt, the last option (5) will set the custom prompt.#
+rm#- This command will remove any file or directory without any extra arguments. Takes one argument, either a folder or file.#
 search#- This command will search the dictionary for a meaning of the given word. Takes one argument and is the word you are searching for.#
-setenv#- This command will set an environment variable to the bash global system. Takes two arguemnts, the first being the name of the global variable and then the value. The system will not allow you to have two fo the same global variable name.#
-time#- This command will display the current time. Takes no other argument.#
-uid#- This command will display the user ID number. Takes no other commands with it.#
-usage#- This command will print out the basic details of Thursday. Takes no other commands with it.#
-unset#- This command will erase the variable and its value in the bash global system. Takes one argument it is the global variable that you want to unset.#
-wd#- This command displays the current working directory. Takes no other commands with it.#
+setenv#- This command will set an environment variable to the bash global system. Takes two arguments, the first being the name of the variable and the second being the value for the variable. The system will not allow you to have two of the same global variable name.#
+time#- This command will display the current time. Takes no other arguments.#
+uid#- This command will display the user ID number. Takes no other arguments.#
+usage#- This command will print out the basic details of Thursday. Takes no other arguments.#
+unset#- This command will erase an environment variable and its value. Takes one argument and it is the variable that you want to unset.#
+wd#- This command displays the current working directory. Takes no other arguments.#
