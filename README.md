@@ -1,14 +1,22 @@
 # Thursday
 
-This project started in Linux Programming class my Junior year of undergraduate. I was fascinated with Bash and wanted to create my own Linux shell. I used this project to help drive my eagerness to learn more about Linux operating system and what is happening on the backend. I have spent time on and off over the last two years to get this program to where it is now. I’m also using this opportunity to learn more about versioning and how to use GitHub. This application can be modified to be a independent shell, but I choose for right now to have Thursday run on top of other shells like a normal program until further modifications are finished. 
+This project started in a Linux Programming class my Junior year of college. I was fascinated with Bash and wanted to create my own Linux shell. I used this project to direct my willingness to learn more about how both Bash and the underlying operating system works. At the time I did not know how to read the Bash C language code, so I did what I could in C++ and went from there. Yes I know that they are similiar but have you seen a professional C developer code (It's NUTS!). Now I am not saying I copied the code in anyway, I took the features I knew and implemented them the way I thought they would have been implemented.
+
+Over the next few years I spent months on adding features to make this application more usuable in everyday life, and to make my job easier while having to work in the terminal! The goal for Thursday is to make it a full fledge shell out of it. You are probably asking yourself I thought it was a shell? And you are right, but Thursday works and acts like a real shell. The program currently works on top of Bash, I ran into issues trying to have the program run stand alone off of Bash. Hey its a learning process! But in the mean time I will figure that out and how to use all these GitHub features.
+
+If you have made it this far into the description than a round of appluase for you, and by now you are wondering why you are still reading this and why you should use Thursday as a Shell? Well you should use Thursday as a shell and help contribute to the project because I want this shell to take all the best features from every shell into one and make everyone's life easier! Also I want to create proper doucmentation so that beginners have some starting point for learnign about Linux shells. Hopefully that it will encourage them to learn more about low level applications and program!
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. If you get stuck within the system then execute the usage command.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. Make sure that the system is compatable with your environment, if it doesn't then please post an issue and I will correct it accordinly. For any other questions or concerns, consult the Wiki in GitHub. I have put up documents for the application there and hopefully that will answer your questions, if not send me a message!
 
 ## Warnings
 
-I have only tested the system on the latest release of Mac which is “High Sierra”, Centos 7, and Ubuntu 16.10. There are bugs on the Mac side because of my lack of testing, and still some on Linux.  Lastly the commands that I have created within the system override the Linux versions. For example, the command "find" in Thursday will not take the same arguments as the comand "find" in a normal Linux Terminal. Here is a list of Thursday's commands:
+I have only tested the system on the latest release of Mac which is “High Sierra”, Centos 7, and Ubuntu 16.04. 
+
+Lastly the commands that I have created within the system override the Linux versions. For example, the command "find" in Thursday will not take the same arguments as the comand "find" in a normal Linux Terminal. If you need help using the commands then execute the "commands" command in Thursday and it will help you figure out what each command needs inorder to run. Not all the command are different from the Linux versions, some are needed so that the system has an idea of where the user is going and wants to do.
+
+Here is a list of Thursday's commands:
 
 back
 bash
@@ -43,42 +51,32 @@ unsetenv
 usage
 wd
 
-Not all the command are different from the Linux versions, some are needed so that the system has an idea of where the user is going and wants to do.
-
 ## Prerequisites
 
-The only thing that you should need to get this project off the ground and into your computer is c++ 11 and higher. Below are what commands you need to run.
+The only thing that you should need to get this project off the ground and into your computer is c++ 11 (wouldn't hurt to the latest), and the latest version of gcc. Below are what commands you need to run.
 
 -	Ubuntu: 
 o	Type: sudo apt-get install build-essential 
 o	Type: sudo apt-get install g++
+o	Type: sudo apt-get install gcc-4.9 g++-4.9
 
 -	Red Hat: 
 o	Type: yum install gcc-c++ kernel-devel make
 o	Type: yum groupinstall “Development Tools”
+o	The gcc compiler should be up to date on CentOS 7, if not use google.
 
 -	Mac:
 o	Make sure that your XCode installation is up-to-date. 
+o	Hopefully that in your XCode installation it will update the gcc compiler, if not use google.
 
 ## Installing
 
-To install the system, just run the setup.sh script in the base directory of Thursday. This should get you going and running. From there go into the build directory that is created from the script and execute the Thurs file.
+To install the system, just run the setup.sh script in the base directory of Thursday. This should get you going and running. From there go into the build directory that is created from the script and execute the Thurs file. For more information please consult the wiki.
 
 
 ## Updating
 
-To update the system just run the update script and it should update your system to the new repository.
-
-## Testing
-
-There are no tests within the system, but if Thursday is not running on your machine correctly then at the exection of ./Thurs, do this instead, (./Thurs debug=on).
-
-
-# Upcoming New Features!! - 1/14/2018
-
-I have found the eagerness to work on this project again and feel like the shell is not where it should be, so you know what that is going to change in the new refactor! I am getting tired of having to test everything by hand but also lazy to the point of not wanting to have to program test for every command, but this is changing... I will make the testing package easy to use so that any level programmer can see when things are not working correctly and so on. A minor revisions will be a whole new test display system so that Thursday's output looks great for the given screen size of you terminal window. Another minor revision will be documents! Since I have been working with Python a lot I want to create a document suit with Sphinx and make working with this project easier.  
-
-These are just some of the thingss that I plan on doing, the refactor will consist of some other layouts of code that I will be changing. Lastly I will learn about licenses and the hopefully put the project under one. Expect these changes to be done by April!
+To update the system just run the update script and it should update your system to the new repository. For more information please consult the wiki.
 
 
 # Author: Aaron A. Valoroso
