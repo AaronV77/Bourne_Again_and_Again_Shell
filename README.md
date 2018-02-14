@@ -63,6 +63,7 @@ The only thing that you should need to get this project off the ground and into 
 -	Red Hat: 
 - Type: yum install gcc-c++ kernel-devel make
 - Type: yum groupinstall “Development Tools”
+- Type: yum install gcc-c++
 
 -	Mac:
 o	Make sure that your XCode installation is up-to-date. 
