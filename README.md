@@ -55,19 +55,19 @@ wd
 
 The only thing that you should need to get this project off the ground and into your computer is c++ 11 (wouldn't hurt to the latest), and the latest version of gcc. Below are what commands you need to run.
 
--	Ubuntu: 
+### Ubuntu: 
 - Type: sudo apt-get install build-essential 
 - Type: sudo apt-get install g++
 - Type: sudo apt-get install gcc-4.9 g++-4.9
 
--	Red Hat: 
+### Red Hat: 
 - Type: yum install gcc-c++ kernel-devel make
 - Type: yum groupinstall “Development Tools”
 - Type: yum install gcc-c++
 
--	Mac:
-o	Make sure that your XCode installation is up-to-date. 
-o	Hopefully that in your XCode installation it will update the gcc compiler, if not use google.
+###	Mac:
+- Make sure that your XCode installation is up-to-date. 
+- Hopefully that in your XCode installation it will update the gcc compiler, if not use google.
 
 ## Installing
 
