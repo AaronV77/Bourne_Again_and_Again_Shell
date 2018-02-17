@@ -10,9 +10,9 @@ Thursday::Thursday() {
 	the other paths for the other directories that Thursday loads information
 	from. This method was last updated on 2/15/2018.
 	--------------------------------------------------------------------*/
-	colorSwitch = true;
 	debugSwitch = false;
 	waitSwitch = false;
+	ColorSwitch(true);
 	colorOption = 5;
 	promptNumber = 2;
 	gid = getgid();
@@ -25,7 +25,7 @@ Thursday::Thursday() {
 	hostName = path;
 	homeDestination = getcwd(path, MAX_SIZE);
 	homeDestination += "/..";
-	DirectoryChange(homeDestination, 0);
+	DirectoryChange(homeDestination);
 	homeDestination = currentPath;
 	dictionaryDestination = currentPath;
 	informationDestination = currentPath;
@@ -86,6 +86,7 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 			std::cout << sentence << std::endl;
 		}
 	}
+
 	return;
 }
 
@@ -94,7 +95,9 @@ void Thursday::ColorSwitch(bool signal) {
 	Note: This method sets all the color values and resets all the values
 	when the color is turned off. This method was last updated on 2/15/2018.
 	--------------------------------------------------------------------*/
-	
+    if (debugSwitch == true) 
+		ColorChange("\t\tMission - You are in the ColorSwitch method.", 3);
+	/*--------------------------------------------------------------------*/ 
 	if (signal == true) {
 		colorSwitch = true;
 		colorDEF = "\033[39m";
@@ -132,13 +135,19 @@ void Thursday::ColorSwitch(bool signal) {
 		colorGray = "";
 		colorBlack = "";
 	}
+	/*--------------------------------------------------------------------*/ 
+    if (debugSwitch == true) 
+		ColorChange("\t\tMission - You are leaving the ColorSwitch method.", 3);
+
 }
 
 void Thursday::CompressAndDecompress(int Number, std::string argument) {
 	/*-------------------------------------------------------------------
-	Note: This method will use the tgz binaries within the system to 
-	* compress and decompress directories. This method was last updated
-	* on 11/6/2017.
+	Note: This method will compress and decompress files that only have the
+	tgz extensions . How this is done is by getting all the required arguments
+	to give to exec to either uncompress or decompress. If it does not have
+	the tgz extensions  then I just ignore and move on. This method was last
+	updated on 2/17/2018.
 	--------------------------------------------------------------------*/
     if (debugSwitch == true) 
 		ColorChange("\t\tMission - You are in the CompressAndDecompress method.", 3);
@@ -163,9 +172,7 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
 			argument.erase(argument.begin()+(argument.size() - 4), argument.end());			// We want to delete the .tgz extention so that we can save the file without the extension.
 			arguments.push_back(argument);													// Lastly we store the name we want to save the decompressed file too.
 		} else {
-			fileName += ".tgz";																// If the argument doesn't have the extension, then add it.
-			arguments.push_back(fileName);													// Store the filename next.
-			arguments.push_back(argument);													// Lastly store the argument. 
+			ColorChange("\t\tSorry can only decompress a file if it has the tgz extentsion.", 2);
 		}
 	}
 	ExecuteFile("tar", arguments);															// Send arguments and path over to be executed.
@@ -178,20 +185,24 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
 
 void Thursday::CopyAndMoveFiles(std::string itemsBeingMoved, std::string destinationPath, bool functionSwitch) {
 	/*-------------------------------------------------------------------
-	Note: This method will use the tgz binaries within the system to 
-	* compress and decompress directories. This method was last updated
-	* on 11/6/2017.
+	Note: This method is for the mv and cp commands. How this method 
+	works is by checking to see if the user is trying to move a symbolic
+	link or a directory. I use the lstat function call to get this done.
+	If the incoming boolean variable is false we will do the cp command,
+	else we will do the mv command. The cp commands needs the -R option if 
+	we are trying to copy a directory to a new location, and the mv does 
+	not need it. This method was last updated on 2/17/2018.
 	--------------------------------------------------------------------*/
     if (debugSwitch == true) 
 		ColorChange("\t\tMission - You are in the CopyAndMoveFiles method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	std::vector<std::string> arguments;														// To store all the arguments that will be sent to the Execution method.
+	std::vector<std::string> arguments;
 	std::string whichCommand = "";
 	std::string path = "";
 	bool itIsADirectory = false;
 
-	struct stat fileCheck;																// Open up the struct to the file.
-	lstat(itemsBeingMoved.c_str(), &fileCheck);											// Stat will points the struct variable to the file.
+	struct stat fileCheck;
+	lstat(itemsBeingMoved.c_str(), &fileCheck);
 	
 	if ((fileCheck.st_mode & S_IFMT) == S_IFLNK) {
 		ColorChange("\t\tSorry but that is a symbolic link and I can't move that.", 2);
@@ -201,7 +212,7 @@ void Thursday::CopyAndMoveFiles(std::string itemsBeingMoved, std::string destina
 	}
 
 	if (functionSwitch == false) {
-	 	path = FileChecker("cp", 0);													// Get the location of the binary for tgz.
+	 	path = FileChecker("cp", 0);
 		whichCommand = "cp";
 		arguments.push_back(path);
 		if (itIsADirectory == true)
@@ -209,16 +220,14 @@ void Thursday::CopyAndMoveFiles(std::string itemsBeingMoved, std::string destina
 		arguments.push_back(itemsBeingMoved);
 		arguments.push_back(destinationPath);
 	} else {
-		path = FileChecker("mv", 0);													// Get the location of the binary for tgz.
+		path = FileChecker("mv", 0);
 		whichCommand = "mv";
 		arguments.push_back(path);		
 		whichCommand = "mv";
 		arguments.push_back(itemsBeingMoved);
 		arguments.push_back(destinationPath);
 	}
-
 	ExecuteFile(whichCommand, arguments);
-
 	/*--------------------------------------------------------------------*/ 
 	if (debugSwitch == true) 
 		ColorChange("\t\tMission - You are leaving the CopyAndMoveFiles method.", 3);
@@ -228,8 +237,16 @@ void Thursday::CopyAndMoveFiles(std::string itemsBeingMoved, std::string destina
 
 std::string Thursday::Cryptography(int number, int key, std::string message) {
 	/*-------------------------------------------------------------------
-	Note: This method will either encrypt, decrypt, or uppercase the 
-	* incoming message. This method was last updated on 11/6/2017.
+	Note: This method will either encrypt, or decrypt a message that is 
+	given by the user. Now this is just a basic encryption for a given 
+	message. How this method works is by looping through the incoming 
+	string, convert the letter to a number, check to see if it is not a 
+	space, if we are encrypting then we add the key to the number. If 
+	the number exceeds the top end of 126 we take the remainder and 
+	change it to the evquivalent of the low end. The same is for the
+	decrpytion. Lastly this method can only decrpyt and encrypt 
+	messages using the same type of algorithm. This method was last updated 
+	on 2/17/2018.
 	--------------------------------------------------------------------*/	
     if (debugSwitch == true) 
 		ColorChange("\t\tMission - You are in the Cryptography method.", 3);
@@ -237,27 +254,21 @@ std::string Thursday::Cryptography(int number, int key, std::string message) {
 	int input = 0;
 	std::string output = "";
 
-	if (number == 1) {													// If user wants the message to be encrypted.
-		for (int i = 0; i < message.size(); i++) {						// Loop through the number of characters of the given message.
-			input = message[i];											// Set the nth element of the message to a number.
-			if (input != 32) {											// If the character doesn't equal a space.
-				input += key;											// Add the incoming key to the char number.
-				if (input > 126)										// If the overall number is over 126 then reset back to 33.
-					input -= 93;										// Subtract 93 from the key.
-			}	
-			output += input;											// Convert the number back to a char pointer and store it into the output array.	
+	for (int i = 0; i < message.size(); i++) {
+		input = message[i];
+		if (input != 32) {
+			if (number == 1) {
+				input += key;
+				if (input > 126)
+					input -= 93;
+			} else if (number == 2) {
+				input -= key;
+				if (input < 33)
+					input += 93;
+			}
 		}	
-	} else if (number == 2) {											// If the user wants the message to be decrypted.
-		for (int i = 0; i < message.size(); i++) {						// Loop through the number of characters of the given message.
-			input = message[i];											// Set the nth element of the message to a number.
-			if (input != 32) {											// If the character doesn't equal a space.
-				input -= key;											// Add the incoming key to the char number.
-				if (input < 33) 										// If the character is less than 33.
-					input += 93;										// Add 93 to the input.
-			}	
-			output += input;											// Convert the number back to a char pointer and store it into the output array.
-		}	
-	}
+		output += input;	
+	}	
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == true) 
 		ColorChange("\t\tMission - You are leaving the Cryptography method.", 3);
@@ -268,50 +279,47 @@ std::string Thursday::Cryptography(int number, int key, std::string message) {
 void Thursday::DebugSwitch(bool signal) {
 	/*-------------------------------------------------------------------
 	Note: This method just turns the debug statments on and off. This method
-	* was last updated on 11/6/2017.
-	--------------------------------------------------------------------*/	
+	was last updated on 11/6/2017.
+	--------------------------------------------------------------------*/
+	if (debugSwitch == true) 
+		ColorChange("\t\tMission - You are in the DebugSwitch method.", 3);
+	/*--------------------------------------------------------------------*/ 	
 	if (signal == true) {
 		debugSwitch = true;
 	} else if (signal == false) {
 		debugSwitch = false;
 	}
-
+	/*--------------------------------------------------------------------*/
+    if (debugSwitch == true) 
+		ColorChange("\t\tMission - You are leaving the DebugSwitch method.", 3);	
 }
 
-void Thursday::DirectoryChange(std::string desiredPath, bool debugPrintSwitch) {
+void Thursday::DirectoryChange(std::string desiredPath) {
 	/*-------------------------------------------------------------------
-	Note: This method will move the system in and out of directories, that
-	* is if the pathi is correct. The method takes in the path that the user
-	* wants to move into and if debug statments should be printed out.
-	* This method was last updated on 9/24/2017. 
+	Note: This method will move the system in and out of directories. How
+	this method works is by checking to make sure that we are not already 
+	in the same directory and that the incoming directory change is not empty.
+	If it is either one of these errors then we print out some errors, else
+	we try to change the to the desired directory. If there is an error 
+	with the directory change then we print out and error and don't update
+	anything. If there was not an error, then we save the current path that 
+	we were just in for the back command, and update the new current path.
+	This method was last updated on 2/17/2018.
 	--------------------------------------------------------------------*/ 
-    if (debugSwitch == 1) 
+    if (debugSwitch == true) 
 		ColorChange("\t\tMission - You are in the DirectoryChange method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	std::string savedPath = currentPath;
-	if (currentPath != desiredPath && desiredPath.size() > 0) {								// Check to see if the current path is not the same with desired path that the system wants to move into.
-		if (debugPrintSwitch == true) {														// If I want there to be error statments or not.
-			if (chdir(desiredPath.c_str()) == -1) {											// Make the directory change.
-				ColorChange("\t\tThere was an issue moving to that directory", 2);				// Output an error if there was a problem making the directory jump.
-				currentPath = getcwd(path, MAX_SIZE);										// If there was a problem then we want our actual path that the system is in.
-			} else {
-				currentPath = getcwd(path, MAX_SIZE);										// If there wasnt a problem then we want our actual path that the system is in.	Not just the directory that they may have wanted.
-				previousPath = savedPath;
-			}		
+	if (currentPath != desiredPath && desiredPath.size() > 0) {
+		if (chdir(desiredPath.c_str()) == -1) {
+			ColorChange("\t\tThere was an issue moving to that directory", 2);
 		} else {
-			if (chdir(desiredPath.c_str()) == -1) {											// Make the directory change.
-				currentPath = getcwd(path, MAX_SIZE);										// If there was a problem then we want our actual path that the system is in.
-			} else {
-				currentPath = getcwd(path, MAX_SIZE);										// If there wasnt a problem then we want our actual path that the system is in.	
-				previousPath = savedPath;
-			}
-		}
+			previousPath = currentPath;
+			currentPath = getcwd(path, MAX_SIZE);
+		}		
 	} else {
-		if (debugPrintSwitch == true) {														// If I want the system to output an error message or not.
-			ColorChange("\t\tThere was an issue moving to the desired directory.", 2);
-			std::cout << "\t\t" << "CurrentPath: " << currentPath << std::endl;	
-			std::cout << "\t\t" << "DesiredPath: " << desiredPath << std::endl;	
-		}
+		ColorChange("\t\tThere was an issue moving to the desired directory.", 2);
+		std::cout << "\t\t" << "CurrentPath: " << currentPath << std::endl;	
+		std::cout << "\t\t" << "DesiredPath: " << desiredPath << std::endl;	
 	}
 	/*--------------------------------------------------------------------*/ 
     if (debugSwitch == 1) 
@@ -322,41 +330,40 @@ void Thursday::DirectoryChange(std::string desiredPath, bool debugPrintSwitch) {
 
 void Thursday::DirectoryDelete(std::string dirname) {
 	/*------------------------------------------------------------------
-	Note: This method will recursively delete all the files within a folder
-	* and then delete the folder at the end. This method will also delete
-	* a single file if need be. This method was last updated on 9/24/2017.
+	Note: This method will delete a file or folder. If the folder has items
+	in it, then it will recursively delete them as well. How this method 
+	works is by opening the current directory, then readding all the contents
+	within the directory
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-		ColorChange("\t\tMission - You are in the DirectoryChange method.", 3);
+		ColorChange("\t\tMission - You are in the DirectoryDelete method.", 3);
  	/*--------------------------------------------------------------------*/
-	DIR * dp;																				// Create a variable for opening a directory.
-	struct dirent *ep;																		// Create a variable for accessing specific information on a file.
-	struct stat stFileInfo;																	// Create a variable to open the directory.
-	char abs_filename[FILENAME_MAX];														// Used to store a file name. FILENAME_MAAX is a macro to store the longest file name that the system can handle.
+	std::vector<std::string> directory_contents = utili::directory_contents(dirname);
+	std::string temp_variable = "";
+	struct stat stFileInfo;	
 
-	dp = opendir(dirname.c_str());															// Grabs where the directory is loacted in the stream.
-	if (dp != NULL) {																		// Checks to see if the loaction is NULL.
-		while ((ep = readdir(dp))) {															// Reads where the directory is located.
-			snprintf(abs_filename, FILENAME_MAX, "%s/%s", dirname.c_str(), ep->d_name);		// Have no clue what this does.
-			if (lstat(abs_filename, &stFileInfo) < 0)										// Checks for symbolic links
-				perror ( abs_filename );													// Print out error
-			if(S_ISDIR(stFileInfo.st_mode)) {												// Checks to see if what we are looking at is another directory
-				if(strcmp(ep->d_name, ".") && strcmp(ep->d_name, ".."))						// Checks to see if we are looking at . or .. in the directory
-					DirectoryDelete(abs_filename);											// If not then see if it is a directory and delete.
-			} else {		
-				printf("\t\tFile: %s\n",abs_filename);										// Print out the file that is getting deleted.
-				remove(abs_filename);														// Remove file from directory.
+	if (directory_contents.size() > 0) {
+		for (int i = 0; i < directory_contents.size(); ++i) {
+			temp_variable = dirname + '/' + directory_contents[i];
+			if (lstat(temp_variable.c_str(), &stFileInfo) < 0) {
+				perror(temp_variable.c_str());
+			} else {
+				if(S_ISDIR(stFileInfo.st_mode)) {
+					if (directory_contents[i] == "." || directory_contents[i] == "..")
+						DirectoryDelete(temp_variable);
+				} else {	
+					std::cout << "\t\tFile being deleted: " << directory_contents[i] << std::endl;
+					remove(temp_variable.c_str());
+				}
 			}
 		}
-		closedir(dp);																		// Once done looping, close the stream of directories.
+		remove(dirname.c_str());
 	} else {
-		ColorChange("\t\tCouldn't open the directory", 3);									// Print out a statement if the directory was NULL.
+		remove(dirname.c_str());
 	}
  	/*--------------------------------------------------------------------*/
- 	remove(dirname.c_str());																// Remove the directory from the hiearchy. 
-
 	if (debugSwitch == 1)
-		ColorChange("\t\tMission - You are leaving the DirectoryChange method.", 3);
+		ColorChange("\t\tMission - You are leaving the DirectoryDelete method.", 3);
 
 	return;
 }
@@ -388,7 +395,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 	else 
 		dir = opendir(pathName.c_str());																									// Else we will open up the path name.
 	
-	if (lsArgument == "all") {																												// If the ls argument is all.
+	if (lsArgument == "-all") {																												// If the ls argument is all.
 		Recursive_Directory_Search("/", "", true);																							// We want to print all the directories in the system.
 	} else if (lsArgument == "" || lsArgument == "-l") {																					// Else if the ls argument is -l or empty.
 		while ((entry = readdir(dir))) {																									// Loop through the directory.
@@ -398,6 +405,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 			} else {
 				lstat(entry->d_name, &fileStruct);																							// If we are looking at a file in the directory we are currently in.
 			}
+
 			if ((fileStruct.st_mode & S_IFMT) == S_IFLNK) {																					// Check to see if the file is a symbolic link.
 				symbolicFiles.push_back(entry->d_name);																						// Add it to the symbolic link vector.
 			} else if ((fileStruct.st_mode & S_IFMT) == S_IFDIR) {																			// Check to see if the file is a directory.
@@ -406,7 +414,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 				executableFiles.push_back(entry->d_name);																					// Add it to the executable link vector.
 			} else if ((fileStruct.st_mode & S_IFMT) == S_IFREG) {																			// Check to see if the file is just a normal file.
 				regularFiles.push_back(entry->d_name);																						// Add it to the regular file vector.
-			}	
+			}
 		}
 			
         if (closedir(dir) == -1)																											// Close the directory.
@@ -414,7 +422,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		
 		if (directories.size()  > regularFiles.size()) {																					// See which one is bigger directories or regular files. These two are always going to out number 
 			if (executableFiles.size() > directories.size()) {																				// Do a check to see if by chance the number of executables has a bigger number than the directories.
-				totalNumberOfFiles = directories.size();																					// Set our iterator to the saved variable.
+				totalNumberOfFiles = executableFiles.size();																				// Set our iterator to the saved variable.
 			} else {
 				totalNumberOfFiles = directories.size();																					// Set our iterator to the saved variable.
 			}		
@@ -919,7 +927,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 		if (characterValue >= 97 && characterValue <= 108) {								//If the command is within A - L (a - l).
 			if (characterValue >= 97 && characterValue <= 102) {							//If the command is within A - F (a - f).
 				if (incomingInput[i] == "back") {
-					DirectoryChange(previousPath, 0);
+					DirectoryChange(previousPath);
 				} else if (incomingInput[i] == "bash") { 
 					arguments.push_back(incomingInput[i]); 
 					ExecuteFile(incomingInput[i], arguments); 
@@ -929,12 +937,12 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 						i++;																//
 						stringFind = incomingInput[i].find('/');							// If there is a / in the path if so just try and change with that directory.																							
 						if (stringFind != std::string::npos) {								// See if there is a / in the element.					
-							DirectoryChange(incomingInput[i], 1);							// Make the directory change if a / was found.
+							DirectoryChange(incomingInput[i]);								// Make the directory change if a / was found.
 						} else {
 							random = currentPath;											// Add the currentPath to a string. I'm doing this because if I am moving from some where in the directory then I don't want to type the whole path.
 							random += "/";													// Add the / to the string.
 							random += incomingInput[i];										// Add the directory that the user wants to go into.
-							DirectoryChange(random, 1);										// Make the directory change.
+							DirectoryChange(random);										// Make the directory change.
 						}
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect.", 2);
@@ -990,7 +998,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 							if (size == 4) {
 								i++;
 								if (incomingInput[i] == "-m")
-									DirectoryChange(cpPath, true);
+									DirectoryChange(cpPath);
 							}
 						}
 					} else {
@@ -1095,7 +1103,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 						DisplayDirectories("","");
 					} else if (size == 2) {
 						i++;
-						if (incomingInput[i] == "-l" || incomingInput[i] == "all") {
+						if (incomingInput[i] == "-l" || incomingInput[i] == "-all") {
 							lsArgumentSwitch = true;
 							lsArgument = incomingInput[i];
 						}
@@ -1159,7 +1167,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 							if (size == 4) {
 								i++;
 								if (incomingInput[i] == "-m")
-									DirectoryChange(mvPath, true);
+									DirectoryChange(mvPath);
 							}
 						}
 					} else {

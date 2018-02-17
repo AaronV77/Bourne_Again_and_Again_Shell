@@ -37,7 +37,7 @@ public:
 	void CopyAndMoveFiles(std::string itemsBeingMoved, std::string destinationPath, bool functionSwitch);
 	std::string Cryptography(int number, int key, std::string message);
 	void DebugSwitch(bool signal);
-	void DirectoryChange(std::string desiredPath, bool debugPrintSwitch);
+	void DirectoryChange(std::string desiredPath);
 	void DirectoryDelete(std::string dirname);
 	void DisplayDirectories(std::string lsArgument, std::string pathName); 
 	void Exec_Redirection(std::string standard_in_file, bool standard_out_append, std::string standard_out_file, bool standard_error_append, std::string standard_error_file, std::vector<std::string> commands, char * envp[]);
