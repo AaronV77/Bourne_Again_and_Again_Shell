@@ -57,7 +57,10 @@ std::vector<std::string> utili::directory_contents(std::string directoryPath) {
 	std::vector<std::string> contents;
 	DIR * dir;
 	dirent * entry;	
-	dir = opendir(directoryPath.c_str());
+	if (directoryPath.size() > 0)
+		dir = opendir(directoryPath.c_str());
+	else 
+		dir = opendir(".");
 
 	if (dir == NULL)  
 		return contents;

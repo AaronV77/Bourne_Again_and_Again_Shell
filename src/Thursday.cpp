@@ -332,8 +332,14 @@ void Thursday::DirectoryDelete(std::string dirname) {
 	/*------------------------------------------------------------------
 	Note: This method will delete a file or folder. If the folder has items
 	in it, then it will recursively delete them as well. How this method 
-	works is by opening the current directory, then readding all the contents
-	within the directory
+	works is by getting all the contents of the current directory, check 
+	to see if the vector is empty, if so delete the folder, else loop
+	through the contents. If there was an error get the information on a file 
+	then print an error, else check to see if we are looking at a directory.
+	If we are looking at a directory and not the "." and ".." folders, then
+	we go into the directory, else if it is not a directory we delete the 
+	file. Once done looping we delete the folder, and back track if we are
+	recursively deleting. This method was last updated on 2/17/2018.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
 		ColorChange("\t\tMission - You are in the DirectoryDelete method.", 3);
@@ -345,24 +351,20 @@ void Thursday::DirectoryDelete(std::string dirname) {
 	if (directory_contents.size() > 0) {
 		for (int i = 0; i < directory_contents.size(); ++i) {
  			temp_variable = dirname + '/' + directory_contents[i];
-			 std::cout << "TEMP: " << temp_variable << std::endl;
 			if (lstat(temp_variable.c_str(), &stFileInfo) < 0) {
 				perror(temp_variable.c_str());
-				std::cout << "HERE" << std::endl;
 			} else {
 				if(S_ISDIR(stFileInfo.st_mode)) {
-					if (directory_contents[i] != "." && directory_contents[i] != "..") {
-						std::cout << "Found a director: " << directory_contents[i] << std::endl;
+					if (directory_contents[i] != "." && directory_contents[i] != "..")
 						DirectoryDelete(temp_variable);
-					}
 				} else {	
-					std::cout << "\t\tFile being deleted: " << directory_contents[i] << std::endl;
+					remove(temp_variable.c_str());
 				}
 			}
 		}
-		std::cout << "\t\tDirectory being deleted: " << dirname << std::endl;
+		remove(dirname.c_str());
 	} else {
-/* 		remove(dirname.c_str()); */
+		remove(dirname.c_str());
 	}
  	/*--------------------------------------------------------------------*/
 	if (debugSwitch == 1)
@@ -380,15 +382,47 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 	if (debugSwitch == 1)
 		ColorChange("\t\tMission - You are in the DisplayDirectories method.", 3);
 	/*--------------------------------------------------------------------*/ 
+	struct stat fileStruct;	
+	std::string temp_path;
+	std::vector<std::string> directory_contents = utili::directory_contents(pathName);
+	
+	if (lsArgument == "-all") {
+		Recursive_Directory_Search("/", "", true);	
+	} else if (lsArgument == "" || lsArgument == "-l") {
+		for (int a = 0; a < directory_contents.size(); ++a) {
+			if(pathName.size() > 0)	{
+				temp_file = pathName + '/' + entry->d_name;	
+				lstat(temp_file.c_str(), &fileStruct);
+			} else {
+				lstat(directory_contents[i], &fileStruct);
+			}
+
+			if ((fileStruct.st_mode & S_IFMT) == S_IFLNK) {
+				symbolicFiles.push_back(entry->d_name);
+			} else if ((fileStruct.st_mode & S_IFMT) == S_IFDIR) {
+				directories.push_back(entry->d_name);
+			} else if (! access(entry->d_name, X_OK) && ((fileStruct.st_mode & S_IFMT) == S_IFREG)) {
+				executableFiles.push_back(entry->d_name);
+			} else if ((fileStruct.st_mode & S_IFMT) == S_IFREG) {
+				regularFiles.push_back(entry->d_name);
+			}
+		}
+	}
+
+
+
+
+
+
 	std::size_t stringFind;																													// Used to find strings within strings.
-	struct stat fileStruct;																													// Used to access information about a file.
+																												// Used to access information about a file.
 	DIR * dir;																																// Used to open a directory and see what files are in it.
 	dirent * entry;																															// Used to access the contents of a directroy using the previous variable.
 	int columns = utili::screen_size();
 	int indent = 0;
 	int totalNumberOfFiles = 0;
-	std::string tempFile = "";
-	std::vector<std::string> directories;																									// Used to store the directories.
+	std::string tempFile = "";	
+	std::vector<std::string> directories;
 	std::vector<std::string> regularFiles;																									// Used to store the regular files.
 	std::vector<std::string> executableFiles;																								// Used to store the executables.
 	std::vector<std::string> symbolicFiles;																									// Used to stroe the symbolic links.
@@ -398,8 +432,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 	else 
 		dir = opendir(pathName.c_str());																									// Else we will open up the path name.
 	
-	if (lsArgument == "-all") {																												// If the ls argument is all.
-		Recursive_Directory_Search("/", "", true);																							// We want to print all the directories in the system.
+																						// We want to print all the directories in the system.
 	} else if (lsArgument == "" || lsArgument == "-l") {																					// Else if the ls argument is -l or empty.
 		while ((entry = readdir(dir))) {																									// Loop through the directory.
 			if(pathName.size() > 0)	{																										// If there is an incoming path.
