@@ -55,7 +55,6 @@ public:
 
 private:
 
-	int BoolVar;
 	int colorOption;
 	int gid;
 	int pid;

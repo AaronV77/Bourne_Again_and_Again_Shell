@@ -4,40 +4,39 @@ char Thursday::path[MAX_SIZE];
 
 Thursday::Thursday() {
 	/*-------------------------------------------------------------------
-	Note: The constructor is just used to setup all the variables and load the
-	* users into the system.
+	Note: The constructor is just setting up all the variables and getting
+	the basic information of the current process. So we load all the basic
+	identifiers and get the current path that the shell is in, and create 
+	the other paths for the other directories that Thursday loads information
+	from. This method was last updated on 2/15/2018.
 	--------------------------------------------------------------------*/
-	ColorSwitch(false);								// Turn off the color.
-
-	debugSwitch = false;							// Switch for turning on and off the debug statments.	
-	waitSwitch = false;								// Used during our execution method, and is for when we are waiting for the child process to finish or not.
-	
-	BoolVar = 1;									// Used for the color of the system.
-	colorOption = 5;								// Color switch for turning on and off the colors for the program.
-	promptNumber = 2;								// For displaying the prompt and which one to display.	
-	gid = getgid();									// Gets the group id for the process and saves it to an int variable.
-	pid = getpid();									// Gets the process id for the process and saves it to an int variable.
-	ppid = getppid();								// Gets the parent process id for the process and saves it to an int variable.
-	uid = getuid();									// Gets the user id for the process and saves it to an int variable.
-
+	colorSwitch = true;
+	debugSwitch = false;
+	waitSwitch = false;
+	colorOption = 5;
+	promptNumber = 2;
+	gid = getgid();
+	pid = getpid();
+	ppid = getppid();
+	uid = getuid();
 	currentPrompt = "No custom Prompt has been set: ";
-	previousPath = ""; 								// Used in the constructor for find where our base directory is.					
-    gethostname(path, sizeof(path));				// Uses a C function to get the computers hostname.
-	hostName = path;								// Copies the name from the char array "path" to the hostname.
-	homeDestination = getcwd(path, MAX_SIZE);		//Uses a C function to get the current path and set it to the current path pointer.
-	homeDestination += "/..";						//Move back a directory.
-	DirectoryChange(homeDestination, 0);			//Call a Library mehtod to move the system back a directory.
-	homeDestination = currentPath;					//Set the base path for the following paths.
+	previousPath = "";				
+	gethostname(path, sizeof(path));
+	hostName = path;
+	homeDestination = getcwd(path, MAX_SIZE);
+	homeDestination += "/..";
+	DirectoryChange(homeDestination, 0);
+	homeDestination = currentPath;
 	dictionaryDestination = currentPath;
 	informationDestination = currentPath;
-	dictionaryDestination += "/Dictionary-1.2";		//This is used to get to the Dictionary directory.
-	informationDestination += "/information";		//This is used to get to all the information need for the system.
-
+	dictionaryDestination += "/Dictionary-1.2";
+	informationDestination += "/information";
 }
 
 Thursday::~Thursday() {
 	/*------------------------------------------------------------------
-	Note: The deconstructor sets each pointer to NULL and then frees them.
+	Note: Clean up the vectors and thats it. This method was last updated
+	updated on 2/15/2018.
 	--------------------------------------------------------------------*/	
 	ThursdayCommands.clear();
 	Environment.clear();
@@ -46,13 +45,13 @@ Thursday::~Thursday() {
 
 void Thursday::ColorChange(std::string sentence, int signal) {
 	/*-------------------------------------------------------------------
-	Note: This method applies any color that I want for the system. It uses
-	* a color namespace to apply a number to a string to change the color of
-	* the output. There is a bool statment called BoolVar that will turn
-	* off the color. This method was last updated on 11/6/2017.
+	Note: This method controls what color to pick for the output. Error 
+	statments get a red color, and warnings get a yellow color. If the 
+	color is turned off then I print normally, or print with a newline. 
+	This method was last updated on 2/15/2018.
 	--------------------------------------------------------------------*/
-	if (colorSwitch == true) {																// If the user wants the application to pring in color.
-		if (signal == 1) {																	// This block is for the users prompt color.
+	if (colorSwitch == true) {
+		if (signal == 1) {
 			switch(colorOption) {
 				case 1: std::cout << colorLightRed << sentence << colorDEF; break;
 				case 2: std::cout << colorRed << sentence << colorDEF; break;
@@ -73,29 +72,29 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 					std::cout << sentence;
 					break;
 			}
-		} else if ( signal == 2 ) {															// For printing the error statments from the system.
+		} else if ( signal == 2 ) {
 			std::cout << colorRed << sentence << colorDEF << std::endl;
 			return;
-		} else if ( signal == 3 ) {															// For printing the warning statments from the system.
+		} else if ( signal == 3 ) {
 			std::cout << colorYellow << sentence << colorDEF << std::endl;
 			return;
 		}
 	} else {
-		if (signal == 1) {																	// If no color is needed then just print the prompt normal.
+		if (signal == 1) {
 			std::cout << sentence;
 		} else {
-			std::cout << sentence << std::endl;													// Else print everything normal.
+			std::cout << sentence << std::endl;
 		}
 	}
-		
 	return;
 }
 
 void Thursday::ColorSwitch(bool signal) {
 	/*-------------------------------------------------------------------
-	Note: This method just turns the color on and off easily for the main.
-	* This method was last updated on 11/6/2017.
+	Note: This method sets all the color values and resets all the values
+	when the color is turned off. This method was last updated on 2/15/2018.
 	--------------------------------------------------------------------*/
+	
 	if (signal == true) {
 		colorSwitch = true;
 		colorDEF = "\033[39m";
@@ -133,7 +132,6 @@ void Thursday::ColorSwitch(bool signal) {
 		colorGray = "";
 		colorBlack = "";
 	}
-	
 }
 
 void Thursday::CompressAndDecompress(int Number, std::string argument) {
@@ -170,9 +168,7 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
 			arguments.push_back(argument);													// Lastly store the argument. 
 		}
 	}
-	
 	ExecuteFile("tar", arguments);															// Send arguments and path over to be executed.
-	
 	/*--------------------------------------------------------------------*/ 
     if (debugSwitch == true) 
 		ColorChange("\t\tMission - You are leaving the CompressAndDecompress method.", 3);
