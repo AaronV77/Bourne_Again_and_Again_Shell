@@ -344,22 +344,25 @@ void Thursday::DirectoryDelete(std::string dirname) {
 
 	if (directory_contents.size() > 0) {
 		for (int i = 0; i < directory_contents.size(); ++i) {
-			temp_variable = dirname + '/' + directory_contents[i];
+ 			temp_variable = dirname + '/' + directory_contents[i];
+			 std::cout << "TEMP: " << temp_variable << std::endl;
 			if (lstat(temp_variable.c_str(), &stFileInfo) < 0) {
 				perror(temp_variable.c_str());
+				std::cout << "HERE" << std::endl;
 			} else {
 				if(S_ISDIR(stFileInfo.st_mode)) {
-					if (directory_contents[i] == "." || directory_contents[i] == "..")
+					if (directory_contents[i] != "." && directory_contents[i] != "..") {
+						std::cout << "Found a director: " << directory_contents[i] << std::endl;
 						DirectoryDelete(temp_variable);
+					}
 				} else {	
 					std::cout << "\t\tFile being deleted: " << directory_contents[i] << std::endl;
-					remove(temp_variable.c_str());
 				}
 			}
 		}
-		remove(dirname.c_str());
+		std::cout << "\t\tDirectory being deleted: " << dirname << std::endl;
 	} else {
-		remove(dirname.c_str());
+/* 		remove(dirname.c_str()); */
 	}
  	/*--------------------------------------------------------------------*/
 	if (debugSwitch == 1)
