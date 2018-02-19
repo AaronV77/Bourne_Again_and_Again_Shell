@@ -52,9 +52,14 @@ std::string utili::date(int number) {
 	return output;
 }
 
-std::vector<std::string> utili::directory_contents(std::string directoryPath) {
-
-	std::vector<std::string> contents;
+std::vector<std::string> utili::directory_contents(std::string directoryPath, std::vector<std::string> contents) {
+	/*------------------------------------------------------------------
+	Note: This method takes in a string / path and looks into that directory
+	of which the path is associated to.It then grabs all the files within that
+	directory and puts them into a vector. How this method works is by opening
+	the directory up and reading each entry in the directory, and then puts 
+	it into the vector. This method was last updated on 2/18/2018.
+	--------------------------------------------------------------------*/	
 	DIR * dir;
 	dirent * entry;	
 	if (directoryPath.size() > 0)
@@ -73,6 +78,12 @@ std::vector<std::string> utili::directory_contents(std::string directoryPath) {
 }
 
 std::string utili::fileInformation(std::string pathName) {
+	/*------------------------------------------------------------------
+	Note: This method takes in a string / path and looks at the file / folder
+	that the path is pointing to and get the information of it. How this 
+	method works is by opening up the file struct, and then building the 
+	string of permissions. This method was last updated on 2/18/2018.
+	--------------------------------------------------------------------*/	
 	struct group *grp;
 	struct passwd *pwd;
 	struct stat fileStruct;
@@ -102,14 +113,20 @@ std::string utili::fileInformation(std::string pathName) {
 	return fileInfo;
 }
 
-std::vector<std::string> utili::get_environment(char * envp[]) {
+std::vector<std::string> utili::get_environment(char * envp[], std::vector<std::string> environment) {
+	/*------------------------------------------------------------------
+	Note: This method takes in the current environment that is given, 
+	and puts the contents into a vector. How this works is by looping 
+	through the given environment arrray, and getting each variable and
+	value. Then stores each part into the array separately. This method
+	was last updated on 2/18/2018.
+	--------------------------------------------------------------------*/		
     int i = 0; 
     bool variableFound = false;
     bool equalSignFound = false;
    	std::string str = "";
     std::string command = "";
     std::string value = "";
-    std::vector<std::string> environment;
 
     while(envp[i] != NULL) {
         str = envp[i];
@@ -131,12 +148,14 @@ std::vector<std::string> utili::get_environment(char * envp[]) {
         value = "";
         i++;
     }
-
 	return environment;
 }
 
 int utili::isNumber(std::string incomingString) {
-	
+	/*------------------------------------------------------------------
+	Note: This method takes an incoming string and checks to see if it
+	is a number. This method was last updated on 2/18/2018.
+	--------------------------------------------------------------------*/		
 	int counter = 0;
 	int size = incomingString.size();
 	
@@ -157,6 +176,18 @@ int utili::isNumber(std::string incomingString) {
 }
 
 void utili::print_content(std::vector<std::string> content) {
+	/*------------------------------------------------------------------
+	Note: This method takes in a vector and prints it to the terminal with
+	adaqute padding on either side of the text. How this method works is by
+	getting the screen size first, then setting a padding on either side of 
+	the text to the indent. Now we will use that iterator later on to make
+	sure that we don't exceed that indent. So then we loop through the vector,
+	tokening up the that part and then looping through each token. I keep track
+	of the size of each token so that when our iterator gets to the size of
+	our indent or exceeds it, we just do a newline. There is also another 
+	feature, of manually adding new lines to the output when "newline" is
+	the token. This method was last updated on 2/18/2018.
+	--------------------------------------------------------------------*/		
 	int columns = screen_size();
 	int indent = ((columns / 10) - 10);
 	int iterator = 0;
@@ -194,6 +225,16 @@ void utili::print_content(std::vector<std::string> content) {
 }
 
 void utili::print_string(std::string incomingString) {
+	/*------------------------------------------------------------------
+	Note: This method takes in a vector and prints it to the terminal with
+	adaqute padding on either side of the text. How this method works is by
+	getting the screen size first, then setting a padding on either side of 
+	the text to the indent. Now we will use that iterator later on to make
+	sure that we don't exceed that indent. So then we loop through the string,
+	tokening up the that part and then I keep track of the size of each token 
+	so that when our iterator gets to the size of our indent or exceeds it, 
+	we just do a newline. This method was last updated on 2/18/2018.
+	--------------------------------------------------------------------*/		
 	int columns = screen_size();
 	int indent = ((columns / 10) - 10);
 	int iterator = 0;
@@ -245,6 +286,12 @@ void utili::print_string(std::string incomingString) {
 }
 
 std::string utili::remove_spaces(std::string incomingString) {
+	/*------------------------------------------------------------------
+	Note: This method takes in the a string and space characters from it.
+	How this method works is by looping through the given string and checking
+	to see if any given character has a value equale to 32. This method 
+	was last updated on 2/18/2018.
+	--------------------------------------------------------------------*/		
 	std::string output = "";
 	for (int i = 0; i < incomingString.size(); ++i) {
 		if (incomingString[i] != 32)
@@ -254,6 +301,13 @@ std::string utili::remove_spaces(std::string incomingString) {
 }
 
 std::string utili::remove_special_characters(std::string incomingString) {
+	/*------------------------------------------------------------------
+	Note: This method takes in the a string and removes all the forign 
+	characters from it. How this method works is by looping through
+	the given string and checking to see if any given character has a value
+	lower than 32. All weird keys are below the value 32, and are not added
+	to the string. This method was last updated on 2/18/2018.
+	--------------------------------------------------------------------*/		
 	std::string output = "";
 	for (int i = 0; i < incomingString.size(); ++i) {
 		if (incomingString[i] >= 32) 
@@ -263,6 +317,12 @@ std::string utili::remove_special_characters(std::string incomingString) {
 }
 
 int utili::screen_size() {
+	/*------------------------------------------------------------------
+	Note: This method gets the screen size of the current terminal window.
+	How this method works is by opening the terminal struct and gets the 
+	information about the window size in columns. This method was last 
+	updated on 2/18/2018.
+	--------------------------------------------------------------------*/		
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 

@@ -35,7 +35,7 @@ Thursday::Thursday() {
 
 Thursday::~Thursday() {
 	/*------------------------------------------------------------------
-	Note: Clean up the vectors and thats it. This method was last updated
+	Note: Clean up the system vectors and that's it. This method was last updated
 	updated on 2/15/2018.
 	--------------------------------------------------------------------*/	
 	ThursdayCommands.clear();
@@ -43,10 +43,359 @@ Thursday::~Thursday() {
 	PathVector.clear();	
 }
 
+void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]) {
+	/*------------------------------------------------------------------
+	Note: This method takes the arguments that were put together from the 
+	Check_Input_Loop and see if any of the arguments belong to Thursdays
+	library of commands. How this method works is by looping through the
+	arguments, check to see any of them are ours, and once we find a 
+	semicolon or the last argument, we send the commands to the next phase
+	in the command parser. There is also a check to see if the Thursday
+	command switch is on or off. If off, then all commands go to the 
+	exec, and if on they get executed on our end. This method was last
+	updated on 2/18/2018.
+	--------------------------------------------------------------------*/	
+    if (debugSwitch == 1)
+        ColorChange("\t\tMission - You are in the Basic_Command_Parse_Loop method.", 3); 
+	 /*--------------------------------------------------------------------*/
+    std::vector<std::string> sending_commands;
+    bool thursday_command_flag = false;
+    int command_size = 0;
+
+    for (int a = 0; a < incoming_commands.size(); ++a) {
+
+        command_size = incoming_commands.size();
+
+		if (incoming_commands[a] == "enable") {
+			ColorChange("\t\tThursday's commands have been enable.", 3);
+			myCommandSwitch = false;
+		} 
+
+		if (myCommandSwitch == false) {
+			for (int b = 0; b < ThursdayCommands.size(); b++) {
+				if (ThursdayCommands[b] == incoming_commands[a])
+					thursday_command_flag = true;
+			}
+		}
+
+        if ((incoming_commands[a][command_size - 1] == ';') || (incoming_commands.size() == (a + 1))) {
+            if (incoming_commands[a][command_size - 1] == ';')
+                incoming_commands[a].erase(incoming_commands[a].begin()+(incoming_commands[a].size() - 1), incoming_commands[a].end());
+            
+            sending_commands.push_back(incoming_commands[a]);
+			if (thursday_command_flag == true)
+				SearchCommands(sending_commands, 0, envp);
+			else
+				SearchCommands(sending_commands, 1, envp);
+            thursday_command_flag = false;
+            sending_commands.clear();
+        } else {
+            sending_commands.push_back(incoming_commands[a]);
+        }
+    }
+   	/*--------------------------------------------------------------------*/	
+    if (debugSwitch == 1) 
+        ColorChange("\t\tMission - You are in the Basic_Command_Parse_Loop method.", 3);
+	
+    return;    
+}
+
+void Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
+    /*------------------------------------------------------------------
+	Note: 
+	--------------------------------------------------------------------*/	
+    if (debugSwitch == 1)
+        ColorChange("\t\tMission - You are in the PromptDisplay method.", 3); 
+	 /*--------------------------------------------------------------------*/
+	std::string token = "";
+    std::string special_symbol_container = "";
+    bool error_flag = false;
+    bool ampersand_flag = false;
+    bool next_operator_find_flag = false;
+    bool single_quote_flag = false;
+    bool double_quote_flag = false;
+    bool bracket_char_flag = false;
+    bool parentheses_char_flag = false;
+    bool curly_brace_char_flag = false;
+    bool skip_this_char = false;
+    bool operator_found_flag = false;
+    int which_command_parser = 0;
+    int argument_position = 0;
+	std::vector<std::string> incoming_commands;
+
+    // This loop just gets rid of all spaces and tokens the incoming input.
+    // This loop also makes sure there is a correct number of quotes (single and double).
+    // This loop is also make sure that there are not more than one operator next to each other without a space and with a space.
+    // I do this by setting a flag when an operator is found, and set another operator when a space is found.
+    // If the next character after that space is another opeator then there is an error else there is not.
+    // Then shoves them into a vector and returns the vector.
+
+    for (int a = 0; a < incoming_input.size(); ++a) {
+
+        if (parentheses_char_flag == false && curly_brace_char_flag == false && bracket_char_flag == false && double_quote_flag == false) {
+            if (incoming_input[a] == 39) {
+                if (single_quote_flag == false) {
+                    single_quote_flag = true;
+                    skip_this_char = true;
+                    special_symbol_container += incoming_input[a];
+                } else {
+                    single_quote_flag = false;
+                    skip_this_char = true;
+                    special_symbol_container += incoming_input[a];
+                    incoming_commands.push_back(special_symbol_container);
+                    special_symbol_container = "";
+                }
+            }
+        }
+        if (single_quote_flag == false && parentheses_char_flag == false && curly_brace_char_flag == false && bracket_char_flag == false) {
+            if (incoming_input[a] == '"') {
+                if (double_quote_flag == false) {
+                    double_quote_flag = true;
+                    skip_this_char = true;
+                    special_symbol_container += incoming_input[a];
+                } else {
+                    double_quote_flag = false;
+                    skip_this_char = true;
+                    special_symbol_container += incoming_input[a];
+                    incoming_commands.push_back(special_symbol_container);
+                    special_symbol_container = "";
+                }
+            }
+        }
+        if (single_quote_flag == false && double_quote_flag == false && curly_brace_char_flag == false && bracket_char_flag == false) {
+           if (incoming_input[a] == '(' || incoming_input[a] == ')') {
+                if (incoming_input[a] == '(') {
+                    if (parentheses_char_flag == false) {
+                        parentheses_char_flag = true;
+                        skip_this_char = true;
+                        special_symbol_container += incoming_input[a];
+                    } else {
+						ColorChange("\t\tThere is a parentheses char error-1.", 2);
+                        error_flag = true;
+                        break;
+                    }
+                } else if (incoming_input[a] == ')') {
+                    if (parentheses_char_flag == true) {
+                        parentheses_char_flag = false;
+                        skip_this_char = true;
+                        special_symbol_container += incoming_input[a];
+                        incoming_commands.push_back(special_symbol_container);
+                        special_symbol_container = "";
+                    } else {
+                        std::cout << "" << std::endl;
+						ColorChange("\t\tThere is a parentheses char error-2.", 2);
+                        error_flag = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (single_quote_flag == false && double_quote_flag == false && parentheses_char_flag ==false && curly_brace_char_flag == false) {
+            if (incoming_input[a] == '[' || incoming_input[a] == ']') {
+                if (incoming_input[a] == '[') {
+                    if (bracket_char_flag == false) {
+                        bracket_char_flag = true;
+                        skip_this_char = true;
+                        special_symbol_container += incoming_input[a];
+                    } else {
+						ColorChange("\t\tThere is a bracket char error-1.", 2);
+                        error_flag = true;
+                        break;
+                    }
+                } else if (incoming_input[a] == ']') {
+                    if (bracket_char_flag == true) {
+                        bracket_char_flag = false;
+                        skip_this_char = true;
+                        special_symbol_container += incoming_input[a];
+                        incoming_commands.push_back(special_symbol_container);
+                        special_symbol_container = "";
+                    } else {
+						ColorChange("\t\tThere is a bracket char error-2.", 2);
+                        error_flag = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (single_quote_flag == false && double_quote_flag == false && parentheses_char_flag == false && bracket_char_flag == false) {
+            if (incoming_input[a] == '{' || incoming_input[a] == '}') {
+                if (incoming_input[a] == '{') {
+                    if (curly_brace_char_flag == false) {
+                        curly_brace_char_flag = true;
+                        skip_this_char = true;
+                        special_symbol_container += incoming_input[a];
+                    } else {
+						ColorChange("\t\tThere is a curly brace char error-1.", 2);
+                        error_flag = true;
+                        break;
+                    }
+                } else if (incoming_input[a] == '}') {
+                    if (curly_brace_char_flag == true) {
+                        curly_brace_char_flag = false;
+                        skip_this_char = true;
+                        special_symbol_container += incoming_input[a];
+                        incoming_commands.push_back(special_symbol_container);
+                        special_symbol_container = "";
+                    } else {
+						ColorChange("\t\tThere is a curly brace char error-2.", 2);
+                        error_flag = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (single_quote_flag == false && double_quote_flag == false && parentheses_char_flag == false && bracket_char_flag == false && curly_brace_char_flag == false) {
+            if (incoming_input[a] == '>' || incoming_input[a] == '<' || incoming_input[a] == '|') {
+                if (operator_found_flag == false) {
+                    operator_found_flag = true;
+                    which_command_parser = 1;
+                } else {
+                    if (incoming_input[a] != '>') {
+						ColorChange("\t\tThere are to many operators near by error-1.", 2);
+                        error_flag = true;
+                        break;
+                    }
+                }
+            } else if (incoming_input[a] == '&') {
+                if (ampersand_flag == false) {
+                    ampersand_flag = true;
+					which_command_parser = 1;
+                } else {
+					ColorChange("\t\tThere was an ampersand error-1.", 2);
+                    error_flag = true;
+                    break;
+                }
+            }
+        }
+        if (skip_this_char == false) {
+            if (single_quote_flag == true || double_quote_flag == true || curly_brace_char_flag == true || bracket_char_flag == true || parentheses_char_flag == true) {
+                special_symbol_container += incoming_input[a];
+            } else {
+                if (incoming_input[a] != 32)
+                    token += incoming_input[a];
+            }
+        } else {
+            skip_this_char = false;
+        }
+
+        if (incoming_input[a] == 32 || incoming_input[a] == ';' || ((incoming_input.size() -1) == a) ) {
+            if (incoming_input[a] == 32) {
+                if (single_quote_flag == false && double_quote_flag == false && curly_brace_char_flag == false && parentheses_char_flag == false && bracket_char_flag == false) {
+                    if (ampersand_flag == true) {
+                        if (argument_position != 0) {
+							ColorChange("\t\tThere was an ampersand error-2.", 2);
+                            error_flag = true;
+                            break;
+                        } else {
+                            ampersand_flag = false;
+                        }
+                    }
+                    if (token.size() > 0) {
+                        if (next_operator_find_flag == true) {
+                            if (operator_found_flag == true) {
+								ColorChange("\t\tThere are to many operators near by error-2.", 2);
+                                error_flag = true;
+                                break;
+                            } else {
+                                next_operator_find_flag = false;
+                            }
+                        }
+                        if (operator_found_flag == true) {
+                            if (token != ">" || token != ">>" || token != "1>" || token != "1>>" || token != "2>" || token != "2>>" || token != "<" || token != "0<" || token != "|") {
+                                operator_found_flag = false;
+                                ampersand_flag = false;
+                                next_operator_find_flag = true;
+                            } else {
+								ColorChange("\t\tThere was an incorrect operator found error-1.", 2);
+                                error_flag = true;
+                                break;
+                            }
+                        }
+                        incoming_commands.push_back(token);
+                        argument_position++;
+                    }
+                    token = "";
+                } 
+            } else {
+                if (single_quote_flag == true || double_quote_flag == true) {
+                    if (single_quote_flag == true) {
+						ColorChange("\t\tThere was a single quote error with this section of input.", 2);
+                    } else {
+						ColorChange("\t\tThere was a double quote error with this secton of input.", 2);
+                    }
+                    error_flag = true;
+                    break;
+                } else if (parentheses_char_flag == true) {
+					ColorChange("\t\tThere was a parentheses error with this seciton of input.", 2);
+                    error_flag = true;
+                    break;
+                } else if (bracket_char_flag == true) {
+					ColorChange("\t\tThere was a bracket error with this seciton of input.", 2);
+                    error_flag = true;
+                    break;
+                } else if (curly_brace_char_flag == true) {
+					ColorChange("\t\tThere was a curly brace error with this seciton of input.", 2);
+                    error_flag = true;
+                    break;
+                } else {
+                    if (ampersand_flag == true) {
+                        if (argument_position != 0) {
+							ColorChange("\t\tThere was an ampersand error-3.", 2);
+                            error_flag = true;
+                            break;
+                        } else {
+                            ampersand_flag = false;
+                        }
+                    }
+                    if (token.size() > 0) {
+                        if (next_operator_find_flag == true) {
+                            if (operator_found_flag == true) {
+								ColorChange("\t\tThere are to many operators near by error-2.", 2);
+                                error_flag = true;
+                                break;
+                            } else {
+                                next_operator_find_flag = false;
+                            }
+                        }
+                        if (operator_found_flag == true) {
+                            if (token != ">" || token != ">>" || token != "1>" || token != "1>>" || token != "2>" || token != "2>>" || token != "<" || token != "0<" || token != "|") {
+								ColorChange("\t\tThere was an incorrect operator found error-2.", 2);
+                                error_flag = true;
+                                break;
+                            } else {
+                                operator_found_flag = false;
+                                ampersand_flag = false;
+                                next_operator_find_flag = true;
+                            }
+                        }
+                        incoming_commands.push_back(token);
+                        argument_position++;
+                    }
+                    token = "";
+                }
+            }
+        }
+    }
+    if (error_flag == false) {
+        if (which_command_parser == 0) {
+            Basic_Command_Parse_Loop(incoming_commands, envp);
+        } else {
+            Operator_Command_Parse_Loop(incoming_commands, envp);
+        }
+    } else {
+        incoming_commands.clear();
+    }
+   	/*--------------------------------------------------------------------*/	
+    if (debugSwitch == 1) 
+        ColorChange("\t\tMission - You are in the ArgumentChecker method.", 3);
+
+    return;
+}
+
 void Thursday::ColorChange(std::string sentence, int signal) {
 	/*-------------------------------------------------------------------
 	Note: This method controls what color to pick for the output. Error 
-	statments get a red color, and warnings get a yellow color. If the 
+	statements get a red color, and warnings get a yellow color. If the 
 	color is turned off then I print normally, or print with a newline. 
 	This method was last updated on 2/15/2018.
 	--------------------------------------------------------------------*/
@@ -243,8 +592,8 @@ std::string Thursday::Cryptography(int number, int key, std::string message) {
 	string, convert the letter to a number, check to see if it is not a 
 	space, if we are encrypting then we add the key to the number. If 
 	the number exceeds the top end of 126 we take the remainder and 
-	change it to the evquivalent of the low end. The same is for the
-	decrpytion. Lastly this method can only decrpyt and encrypt 
+	change it to the equivalent  of the low end. The same is for the
+	decryption. Lastly this method can only decrpyt and encrypt 
 	messages using the same type of algorithm. This method was last updated 
 	on 2/17/2018.
 	--------------------------------------------------------------------*/	
@@ -278,7 +627,7 @@ std::string Thursday::Cryptography(int number, int key, std::string message) {
 
 void Thursday::DebugSwitch(bool signal) {
 	/*-------------------------------------------------------------------
-	Note: This method just turns the debug statments on and off. This method
+	Note: This method just turns the debug statements on and off. This method
 	was last updated on 11/6/2017.
 	--------------------------------------------------------------------*/
 	if (debugSwitch == true) 
@@ -367,6 +716,7 @@ void Thursday::DirectoryDelete(std::string dirname) {
 		remove(dirname.c_str());
 	}
  	/*--------------------------------------------------------------------*/
+	 directory_contents.clear();
 	if (debugSwitch == 1)
 		ColorChange("\t\tMission - You are leaving the DirectoryDelete method.", 3);
 
@@ -376,14 +726,38 @@ void Thursday::DirectoryDelete(std::string dirname) {
 void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) {
 	/*-------------------------------------------------------------------
 	Note: This method is used to get the contents of a directory and print
-	* the files. This method is jused just for the ls command. This method
-	* was last updated on 11/6/2017.
+	the files. There are only three options that this program can do is the
+	-all, -l, and normal. The -all will print all the directories in the 
+	system, the -l option gives more information about the files, and lastly
+	the normal option just gives you the files in the directory that you want
+	it from. How this method works is by getting the contents of the directory,
+	then loop through the contents and check to see what each file is, and
+	save it to a specific vector. Then we sort each vector, and check to see
+	if the -l option was given. If we did an ls on the current directory then
+	we get the file information and print, else we build the absolute path,
+	then get the file information and print. This option will print everything
+	in one column. Then the next option is the normal one, we check to see if 
+	the screen size is big enough to have the files printed in four columns
+	or if we need to print everything in one column. If the screen is big
+	enough then we need to grab a file from each vector and make sure that 
+	we are not over indexing each one. We save the file and print everything 
+	in four columns if there is anything to print. If the screen is not big
+	enough then we print everything in one column. This method was last 
+	updated on 2/18/2018.
 	--------------------------------------------------------------------*/
 	if (debugSwitch == 1)
 		ColorChange("\t\tMission - You are in the DisplayDirectories method.", 3);
 	/*--------------------------------------------------------------------*/ 
 	struct stat fileStruct;	
-	std::string temp_path;
+	std::size_t stringFind;
+	int columns = utili::screen_size();
+	int indent = 0;
+	int totalNumberOfFiles = 0;
+	std::string temp_path = "";
+	std::vector<std::string> directories;
+	std::vector<std::string> regularFiles;
+	std::vector<std::string> executableFiles;
+	std::vector<std::string> symbolicFiles;
 	std::vector<std::string> directory_contents = utili::directory_contents(pathName);
 	
 	if (lsArgument == "-all") {
@@ -391,129 +765,65 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 	} else if (lsArgument == "" || lsArgument == "-l") {
 		for (int a = 0; a < directory_contents.size(); ++a) {
 			if(pathName.size() > 0)	{
-				temp_file = pathName + '/' + entry->d_name;	
-				lstat(temp_file.c_str(), &fileStruct);
+				temp_path = pathName + '/' + directory_contents[a];	
+				lstat(temp_path.c_str(), &fileStruct);
 			} else {
-				lstat(directory_contents[i], &fileStruct);
+				lstat(directory_contents[a].c_str(), &fileStruct);
 			}
 
 			if ((fileStruct.st_mode & S_IFMT) == S_IFLNK) {
-				symbolicFiles.push_back(entry->d_name);
+				symbolicFiles.push_back(directory_contents[a]);
 			} else if ((fileStruct.st_mode & S_IFMT) == S_IFDIR) {
-				directories.push_back(entry->d_name);
-			} else if (! access(entry->d_name, X_OK) && ((fileStruct.st_mode & S_IFMT) == S_IFREG)) {
-				executableFiles.push_back(entry->d_name);
+				directories.push_back(directory_contents[a]);
+			} else if (! access(directory_contents[a].c_str(), X_OK) && ((fileStruct.st_mode & S_IFMT) == S_IFREG)) {
+				executableFiles.push_back(directory_contents[a]);
 			} else if ((fileStruct.st_mode & S_IFMT) == S_IFREG) {
-				regularFiles.push_back(entry->d_name);
+				regularFiles.push_back(directory_contents[a]);
 			}
 		}
-	}
-
-
-
-
-
-
-	std::size_t stringFind;																													// Used to find strings within strings.
-																												// Used to access information about a file.
-	DIR * dir;																																// Used to open a directory and see what files are in it.
-	dirent * entry;																															// Used to access the contents of a directroy using the previous variable.
-	int columns = utili::screen_size();
-	int indent = 0;
-	int totalNumberOfFiles = 0;
-	std::string tempFile = "";	
-	std::vector<std::string> directories;
-	std::vector<std::string> regularFiles;																									// Used to store the regular files.
-	std::vector<std::string> executableFiles;																								// Used to store the executables.
-	std::vector<std::string> symbolicFiles;																									// Used to stroe the symbolic links.
-
-	if (pathName.size() == 0)																												// If the incoming path name is empty.
-		dir = opendir(".");																													// We will just open up the current directory.
-	else 
-		dir = opendir(pathName.c_str());																									// Else we will open up the path name.
-	
-																						// We want to print all the directories in the system.
-	} else if (lsArgument == "" || lsArgument == "-l") {																					// Else if the ls argument is -l or empty.
-		while ((entry = readdir(dir))) {																									// Loop through the directory.
-			if(pathName.size() > 0)	{																										// If there is an incoming path.
-				tempFile = pathName + '/' + entry->d_name;																					// If there is an incoming path then we want the whole path of the file we are looking at.																									
-				lstat(tempFile.c_str(), &fileStruct);																						// Get information on the file that we are looking at.
-			} else {
-				lstat(entry->d_name, &fileStruct);																							// If we are looking at a file in the directory we are currently in.
-			}
-
-			if ((fileStruct.st_mode & S_IFMT) == S_IFLNK) {																					// Check to see if the file is a symbolic link.
-				symbolicFiles.push_back(entry->d_name);																						// Add it to the symbolic link vector.
-			} else if ((fileStruct.st_mode & S_IFMT) == S_IFDIR) {																			// Check to see if the file is a directory.
-				directories.push_back(entry->d_name);																						// Add it to the directory vector.
-			} else if (! access(entry->d_name, X_OK) && ((fileStruct.st_mode & S_IFMT) == S_IFREG)) {										// Check to see if the file is an executable. 
-				executableFiles.push_back(entry->d_name);																					// Add it to the executable link vector.
-			} else if ((fileStruct.st_mode & S_IFMT) == S_IFREG) {																			// Check to see if the file is just a normal file.
-				regularFiles.push_back(entry->d_name);																						// Add it to the regular file vector.
-			}
-		}
-			
-        if (closedir(dir) == -1)																											// Close the directory.
-            ColorChange("\t\tLS File Closing Failure: ", 2);																				// If there is an error, print one.
-		
-		if (directories.size()  > regularFiles.size()) {																					// See which one is bigger directories or regular files. These two are always going to out number 
-			if (executableFiles.size() > directories.size()) {																				// Do a check to see if by chance the number of executables has a bigger number than the directories.
-				totalNumberOfFiles = executableFiles.size();																				// Set our iterator to the saved variable.
-			} else {
-				totalNumberOfFiles = directories.size();																					// Set our iterator to the saved variable.
-			}		
-		} else {
-			if (executableFiles.size() > regularFiles.size()) {																				// If directories is not bigger than regular then lets check to see if executables out numbers regular files.
-				totalNumberOfFiles = executableFiles.size();																				// Set our iterator to the saved variable.
-			} else {
-				totalNumberOfFiles = regularFiles.size();																					// Set our iterator to the saved variable.
-			}
-		}
-
-		std::sort(directories.begin(), directories.end());																					// Sort the vector alphabetically.
-		std::sort(symbolicFiles.begin(), symbolicFiles.end());																				// Sort the vector alphabetically.
-		std::sort(executableFiles.begin(), executableFiles.end());																			// Sort the vector alphabetically.
-		std::sort(regularFiles.begin(), regularFiles.end());																				// Sort the vector alphabetically.
-		
-		if (lsArgument == "-l") {																											// Print out the files with information.
+		std::sort(directories.begin(), directories.end());
+		std::sort(symbolicFiles.begin(), symbolicFiles.end());
+		std::sort(executableFiles.begin(), executableFiles.end());
+		std::sort(regularFiles.begin(), regularFiles.end());
+		if (lsArgument == "-l") {
 			int i = 0;
-			for (i = 0; i < directories.size(); i++) {																						// Loop through the directory.
-				if (pathName.size() > 0) 																									// Check to see if a path came through.
-					tempFile = pathName + '/' + directories[i];																				// If so then create our path to the file.
+			for (i = 0; i < directories.size(); i++) {
+				if (pathName.size() > 0)
+					temp_path = pathName + '/' + directories[i];
 				else 
-					tempFile = directories[i];																								// If there is no path then just save the file.
-				std::cout << "\t\t" << colorCyan << utili::fileInformation(tempFile) << " " << std::left << directories[i] << std::endl;	// We have to create the path so that the fileInformation method knows where to look for file info.
+					temp_path = directories[i];
+				std::cout << "\t\t" << colorCyan << utili::fileInformation(temp_path) << " " << std::left << directories[i] << std::endl;
 			}
 
 			for (i = 0; i < symbolicFiles.size(); i++) {
 				if (pathName.size() > 0) 
-					tempFile = pathName + '/' + symbolicFiles[i];
+					temp_path = pathName + '/' + symbolicFiles[i];
 				else 
-					tempFile = symbolicFiles[i];				
-				std::cout << "\t\t" << colorLightYellow << utili::fileInformation(tempFile) << " " << std::left << symbolicFiles[i] << std::endl;
+					temp_path = symbolicFiles[i];				
+				std::cout << "\t\t" << colorLightYellow << utili::fileInformation(temp_path) << " " << std::left << symbolicFiles[i] << std::endl;
 			}
 
 			for (i = 0; i < executableFiles.size(); i++) {
 				if (pathName.size() > 0) 
-					tempFile = pathName + '/' + executableFiles[i];
+					temp_path = pathName + '/' + executableFiles[i];
 				else 
-					tempFile = executableFiles[i];				
-				std::cout << "\t\t" << colorLightGreen << utili::fileInformation(tempFile) << " " << std::left << executableFiles[i] << std::endl;
+					temp_path = executableFiles[i];				
+				std::cout << "\t\t" << colorLightGreen << utili::fileInformation(temp_path) << " " << std::left << executableFiles[i] << std::endl;
 			}
 
 			for (i = 0; i < regularFiles.size(); i++) {
 				if (pathName.size() > 0) 
-					tempFile = pathName + '/' + regularFiles[i];
+					temp_path = pathName + '/' + regularFiles[i];
 				else 
-					tempFile = regularFiles[i];				
-				std::cout << "\t\t" << colorDEF << utili::fileInformation(tempFile) << " " << std::left << regularFiles[i] << std::endl;
+					temp_path = regularFiles[i];				
+				std::cout << "\t\t" << colorDEF << utili::fileInformation(temp_path) << " " << std::left << regularFiles[i] << std::endl;
 			}
-		} else {																																// Prints out all the file names in columns by category and in order.
+		} else {
 			if (columns > 100) {
 				std::string sym = "", dir = "", exc = "", reg = "";
-				for (int i = 0; i < totalNumberOfFiles; i++) {																					// Loop through all the vectors.					
-					if (i < directories.size())																									// Makes sure that we are not indexing an empty array.
-						dir = directories[i];																									// Save the element from the vector.
+				for (int i = 0; i < directory_contents.size(); i++) {					
+					if (i < directories.size())
+						dir = directories[i];
 					else
 						dir = "    ";
 					if (i < regularFiles.size())
@@ -539,7 +849,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 							<< colorDEF << std::setw(indent) << std::left << reg
 							<< colorLightGreen << std::setw(indent) << std::left << exc
 							<< colorLightYellow << std::setw(indent) << std::left << sym
-							<< std::endl;																										// Print the content in columns.
+							<< std::endl;
 				}
 			} else {
 				int i = 0;
@@ -562,8 +872,8 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 					std::cout << std::setw(indent) << std::left << symbolicFiles[i] << std::endl;			
 			}
 		}
-
-		directories.clear();																												// Clear the vectors out.
+		directory_contents.clear();
+		directories.clear();
 		symbolicFiles.clear();
 		executableFiles.clear();
 		regularFiles.clear();
@@ -573,15 +883,18 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		ColorChange("\t\tMission - You are leaving the DisplayDirectories method.", 3);
 		
     return;
-} 
+}
 
 void Thursday::EnvironmentUtilites(int Number, std::string variable, std::string variableValue) {
 	/*-------------------------------------------------------------------
-	Note: This method has four different options. The first one will unset
-	* a environment variable (unsetenv), the second will add one (setenv), 
-	* the third will display it (getenv), and the last one will print all 
-	* the variables (printenv). These are the global variables for the system
-	* alone. This method was last updated on 11/6/2017. 
+	Note: This method is used to add, remove, print all, and retrieve
+	environment variables. The method is setup in this order, the first 
+	one will unset a environment variable (unsetenv), the second will add 
+	one (setenv), the third will display it (getenv), and the last one will 
+	print all the variables (printenv). How this method works is by using
+	our Environment vector for checking to see what the system has, in 
+	order to remove, set, get, and print all.  This method was last update
+	on 2/18/2018.
 	--------------------------------------------------------------------*/		
     if (debugSwitch == 1) 
 		ColorChange("\t\tMission - You are in the EnvironmentUtilites method.", 3);
@@ -593,8 +906,9 @@ void Thursday::EnvironmentUtilites(int Number, std::string variable, std::string
 			if (variable == Environment[i]) {											// If the variable was found in the vector.
 				Environment.erase(Environment.begin()+i);								// Delete the current position, which would be the name of the variable.
 				Environment.erase(Environment.begin()+i);								// Delete the next position in the vector which should be the value of the variable.
-				if (unsetenv(variable.c_str()) == -1) {} 
-					//Something
+				if (unsetenv(variable.c_str()) == -1) {
+					ColorChange("\t\tThere is an issue with removing that environment variable.", 2);
+				} 
 			}
 		}
 	} else if (Number == 1) {															// If the user wants to add (setenv) the global variable.
@@ -620,7 +934,7 @@ void Thursday::EnvironmentUtilites(int Number, std::string variable, std::string
 				foundSwitch = true;														// Set our switch to true if the variable was found.
 			}
 		}
-		if (foundSwitch == false)														// If the global variable was not found in the vector.
+		if (foundSwitch == false)
 			std::cout << "\t\t" << variable << " was not found." << std::endl;
 
 	} else if (Number == 3) {															// If the user wants to print out all the elements in the Environment vector.
@@ -640,44 +954,47 @@ void Thursday::EnvironmentUtilites(int Number, std::string variable, std::string
 	return;		
 }
 
-int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> arguments) {
+int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> arguments, char * envp[]) {
 	/*-------------------------------------------------------------------
-	Note: This method brings an incoming command that needs to be executed
-	* and an array of arguments that are NULL terminated. This method was 
-	* last updated on 11/6/2017.
+	Note: This method is for executing system level commands that Thursday
+	cannot process. How this method work is by looping through the arguments
+	and putting them into a char pointer array, then null terminating it.
+	Next we get the binary location of the incoming command, then we fork
+	and exec the command with its arguments and current environment. Then 
+	we wait for the command, and clean up our array of pointers. This 
+	method was last updated on 2/18/2018.
 	--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are in the ExecuteFile method.", 3);
 	/*--------------------------------------------------------------------*/
-
-	int i = 0;  																				// Used to iterate through the incoming arguments.
-	size_t arrSize = 100; 																		// Used to allocate bytes to a char pointer.
-	char ** myArray = new char * [arrSize];														// Used to allocat an array of char pointers.
-	for (i = 0; i < arguments.size(); i++) {													// Loop through the incoming arguments.
-		myArray[i] = new char [arrSize];														// Allcocate memory for each element in the array.
-		strcpy(myArray[i], strdup(arguments[i].c_str()));										// Copy the incoming argument to the element in the array.
+	int i = 0;
+	size_t arrSize = 100;
+	char ** myArray = new char * [arrSize];
+	for (i = 0; i < arguments.size(); i++) {
+		myArray[i] = new char [arrSize];
+		strcpy(myArray[i], strdup(arguments[i].c_str()));
 	}
-	myArray[i++] = NULL;																		// Null terminate the array for the exec command.
+	myArray[i++] = NULL;
 	
-    pid_t pid;																					// Create a data type to store a process number.
-	incomingCommand = FileChecker(incomingCommand, 0);											// Send the incoming command to find in the location of the binary in the system. Will either return just the command or the location path.
+    pid_t pid;
+	incomingCommand = FileChecker(incomingCommand, false);
 	
-	pid = fork();																				// Create another process.
-	if (pid == 0) {																				// If the process is the child.
-		if (execv(incomingCommand.c_str(), myArray) == -1) {									// Execute with the given command / location path, and char array of arguments.
-			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);		// If there is an error a messeage will be printed.
+	pid = fork();
+	if (pid == 0) {
+		if (execve(incomingCommand.c_str(), myArray, envp) == -1) {
+			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);
 			return 0;
 		}
 	} else {
-		if (waitSwitch == false)																// If the running in the back ground command is false.
-			waitpid(pid, NULL, 0);																// Wait for the process to finish executing.
+		if (waitSwitch == false)
+			waitpid(pid, NULL, 0);
 	}
 
-	for (i = 0; i < arguments.size(); i++)														// Loop through the char array.
-		delete myArray[i];																		// Delete each element in the array.
+	for (i = 0; i < arguments.size(); i++)
+		delete myArray[i];
 
-	delete [] myArray;																			// Delete the char array pointer.
-	myArray = NULL;																				// Set the array pointer to NULL;
+	delete [] myArray;
+	myArray = NULL;
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are leaving the ExecuteFile method.", 3);
@@ -685,43 +1002,131 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
     return 1;
 }
 
+void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_append, std::string standard_out_file, bool standard_error_append, std::string standard_error_file, std::vector<std::string> commands, char * envp[]) {
+	/*------------------------------------------------------------------
+	Note: This method is for executing system level commands that Thursday
+	cannot process. How this method work is by looping through the arguments
+	and putting them into a char pointer array, then null terminating it.
+	Next we get the binary location of the incoming command, then we fork
+	and exec the command with its arguments and current environment. Then 
+	we wait for the command, and clean up our array of pointers. The main
+	difference about this method is that it can redirect all of the standard
+	output, input, and errors to files, while also be able to append to the 
+	standard out and error files. This method was last updated on 2/18/2018.
+	--------------------------------------------------------------------*/	
+    if (debugSwitch == 1)
+        ColorChange("\t\tMission - You are in the Exec_Redirection method.", 3); 
+	 /*--------------------------------------------------------------------*/
+	int i = 0; 
+    std::string file_path = ""; 
+    size_t arrSize = 100;
+    pid_t pid;
+	
+    FILE *fp;
+    FILE *fp2;
+    FILE *fp3;
+
+	char ** myArray = new char * [arrSize];
+	for (i = 0; i < commands.size(); i++) {
+		myArray[i] = new char [arrSize];
+		strcpy(myArray[i], strdup(commands[i].c_str()));
+	}
+	myArray[i++] = NULL;
+
+	file_path = FileChecker(commands[0], 0);
+    char * pointer_file_path = (char*)malloc(50);
+    strcpy(pointer_file_path, strdup(file_path.c_str()));
+
+    pid = fork();
+    if (pid == 0) {
+        if (standard_in_file != "")
+		    fp = freopen(standard_in_file.c_str(), "r", stdin);
+        if (standard_out_file != "") {
+		    if (standard_out_append == false) {
+                fp2 = freopen(standard_out_file.c_str(), "w", stdout);
+            } else {
+                fp2 = freopen(standard_out_file.c_str(), "a", stdout);
+            }
+        }
+        if (standard_error_file != "") {
+		    if (standard_error_append == false) {
+                fp3 = freopen(standard_error_file.c_str(), "w", stderr);
+            } else {
+                fp3 = freopen(standard_error_file.c_str(), "a", stderr);
+            }
+        }
+		if (execve(pointer_file_path, myArray, envp) == -1) {
+			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);
+		}
+        if (standard_in_file == "")
+		    fclose(fp);
+
+        if (standard_out_file == "")
+            fclose(fp2);
+
+        if (standard_error_file == "")
+            fclose(fp3);
+
+    } else {
+		waitpid(pid, 0, WUNTRACED);
+	}
+
+	delete [] myArray;
+    delete pointer_file_path;
+    pointer_file_path = NULL;
+	myArray = NULL;
+   	/*--------------------------------------------------------------------*/	
+    if (debugSwitch == 1) 
+        ColorChange("\t\tMission - You are in the Exec_Redirection method.", 3);
+
+    return;
+}
+
 std::string Thursday::FileChecker(std::string argument, int signal) {
 	/*-------------------------------------------------------------------
-	Note: This method either is getting the binary path for a command or 
-	* is checking to see if the file is actually real. If the file is not 
-	* found in either section then nothing is returned. This method was last
-	* updated on 11/6/2017.
+	Note: This method checks to see if a file is located any where in the
+	path vector, or if the file even exists. How this method works for the
+	first option is by taking a token of that path from the path vector, and 
+	building an absolute path. Then running the absolute path through the 
+	function call access, which checks to see if we have permission to work
+	on the file. If it comes back with an error then the file doesn't exist, 
+	else it does. For the second option, we take the incoming string "file", 
+	and check to see if it is a directory, regular file, symbolic file, and
+	executable file. If it is then we know it is an actual file, else for 
+	either option, if nothing was found then we return an empty string from
+	the method. This method	was last updated on 2/18/2018.
 	--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are in the FileChecker method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	std::string incomingArgument = "";	
-	
-	if (signal == 0) {																// If the user wants to check in the binaries. 		
-		for (int i = 0; i < PathVector.size(); i++) {								// Loop through the path vector containing all the different locations commands and binaries.
-			incomingArgument = PathVector[i];										// Add one of the predefined locations to the pointer.
-			incomingArgument += "/";												// Add a back slash.
-			incomingArgument += argument;											// Add the command to the pointer to complete the path.
-			if (access(incomingArgument.c_str(), F_OK) == 0)						// Use a c function to check if the path is an actual location.
-				return incomingArgument;											// Return the working path.
+	if (signal == 0) {		
+		std::string incomingArgument = "";
+		for (int i = 0; i < PathVector.size(); i++) {
+			incomingArgument = PathVector[i];
+			incomingArgument += "/";
+			incomingArgument += argument;
+			if (access(incomingArgument.c_str(), F_OK) == 0)
+				return incomingArgument;
 		}
-	} else if (signal == 1) {														// If the user wants to see if the file exists.
-		struct stat fileCheck;														// Open up the struct to the file.
-		lstat(argument.c_str(), &fileCheck);											// Stat will points the struct variable to the file.
-		if ((fileCheck.st_mode & S_IFMT) == S_IFDIR) {								// If the file is a directory.
+	} else if (signal == 1) {
+		struct stat fileCheck;
+		lstat(argument.c_str(), &fileCheck);
+		if ((fileCheck.st_mode & S_IFMT) == S_IFLNK) {
 			return argument;
-		} else if ((fileCheck.st_mode & S_IFMT) == S_IFLNK) {						// If the file is a symbolic link.
+		} else if ((fileCheck.st_mode & S_IFMT) == S_IFDIR) {
 			return argument;
-		} else if ((fileCheck.st_mode & S_IFMT) == S_IFREG) {						// If the file is a regular file.
+		} else if (! access(argument.c_str(), X_OK) && ((fileCheck.st_mode & S_IFMT) == S_IFREG)) {
+			return argument;
+		} else if ((fileCheck.st_mode & S_IFMT) == S_IFREG) {
 			return argument;
 		}
 	}
 	/*--------------------------------------------------------------------*/ 
-	argument = "";																	// Reset the argument because the method didn't find the file.
+	argument = "";
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are leaving the FileChecker method.", 3);
 
-	return argument;																// If there was no path found then just return the incoming command.
+	return argument;
 }
 
 std::vector<std::string> Thursday::FileLoader(std::vector<std::string> incomingVector, std::string fileName, int signal) {
@@ -786,44 +1191,46 @@ std::vector<std::string> Thursday::FileLoader(std::vector<std::string> incomingV
 
 void Thursday::Help(std::string argument) {
 	/*------------------------------------------------------------------
-	Note: This method takes in an argument from the user. The argument is
-	* going to be a command that the user wants more information on. This 
-	* goes for all the commands for this program and everything for linux.
-	* This method was updated on 9/25/2017.
+	Note: This method looks up a command that the user is trying to get
+	more information on. The command can be for Thursday specific or Linux 
+	specific. How this method works is by creating an absolute path for 
+	the file, looping through the file, and looking for the command that 
+	the user wants to look up. Once found I create a definition string and
+	print it to the screen. This method was last updated on 2/18/2018.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
 		ColorChange("\t\tMission - You are in the ArgumentChecker method.", 3);
  	/*--------------------------------------------------------------------*/
- 	bool mySwitch = false;																		// Used to see if we found the command that the user is searching for.
- 	std::string type = "";																		// Used to save the type of the command.
- 	std::string word = ""; 																		// Used to save the word of the command.
- 	std::string definition = "";																// Used to save the definition of the command.
- 	std::string fileName = "";																	// Used to create a temporary file path to the commands.txt.
-	fileName = informationDestination;															// Add the information destination to the variable.
-	fileName += "/Commands.txt";																// Add the filename to the temporary variable.
+ 	bool mySwitch = false;
+ 	std::string type = "";
+ 	std::string word = "";
+ 	std::string definition = "";
+ 	std::string fileName = "";
+	fileName = informationDestination;
+	fileName += "/Commands.txt";
 
-	std::ifstream InputData;																	// Create a variable for opening a file.
-	InputData.open(fileName);																	// Open the file.
-	if (!InputData) {																			// If the file was not found then print an error statment.
+	std::ifstream InputData;
+	InputData.open(fileName);
+	if (!InputData) {
 		ColorChange("\t\tThere was an error opening the file in the Library Usage Method.", 2);
 		return;
 	}
-	while (!InputData.eof()) {																	// Loop through the file.
-		std::getline(InputData, type, '#');														// Get the word type from the dictionary.
-		std::getline(InputData, word, '#');														// Get the word from the dictionary.
-		std::getline(InputData, definition, '#');												// Get the word definition from the dictionary.
+	while (!InputData.eof()) {
+		std::getline(InputData, type, '#');
+		std::getline(InputData, word, '#');
+		std::getline(InputData, definition, '#');
 		//--------------------------------------------------------------
-		type = utili::remove_special_characters(type);											// Search for special characters from the word type.
-		word = utili::remove_special_characters(word);											// Search for special characters from the word.
-		definition = utili::remove_special_characters(definition);								// Search for special characters from the word definition.
+		type = utili::remove_special_characters(type);
+		word = utili::remove_special_characters(word);
+		definition = utili::remove_special_characters(definition);
 		//--------------------------------------------------------------
-		if (word == argument) {																	// If the word matches the command that the user is searching for.
+		if (word == argument) {
 			std::cout << "\t\t" << type << " " << word << " " << definition << std::endl;
-			mySwitch = true;																	// If we found the command the user was searching for then set our switch to true.
+			mySwitch = true;
 		}
 	}
 	
-	if (mySwitch != true)																		// If the command was not found.
+	if (mySwitch != true)
 		ColorChange("\t\tNothing found in our database!", 3);
 
    	/*--------------------------------------------------------------------*/	
@@ -833,101 +1240,372 @@ void Thursday::Help(std::string argument) {
 	return;
 }
 
-void Thursday::PromptDisplay() {
+void Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]) {
 	/*------------------------------------------------------------------
-	Note: This method takes the user or default prompt number and constructs
-	* the custom prompt to be displayed. This method will be displayed in the
-	* color change. This method was last updated on 9/24/2017.
+	Note: This method builds the prompt to be displayed onto the screen
+	for the user. Every option has a different prompt setup. This method
+	was last updated on 2/18/2018.
 	--------------------------------------------------------------------*/	
     if (debugSwitch == 1)
         ColorChange("\t\tMission - You are in the PromptDisplay method.", 3); 
 	 /*--------------------------------------------------------------------*/
-	std::string thePrompt = "";						// A place to store the prompt that will be constructed.
-	if (promptNumber == 0) {						// The default option for a prompt.
+    std::string standard_error_file = "";
+    std::string standard_input_file = "";
+    std::string standard_output_file = "";
+    bool standard_error_flag = false;
+    bool standard_out_flag = false;
+    bool standard_in_flag = false;
+    bool pipe_flag = false;
+    bool pipe_control_flag = false;
+    bool skip_argument_flag = false;
+    bool end_of_section = false;
+    bool adding_to_standard_out_file = false;
+    bool adding_to_standard_error_file = false;
+    bool temp_file_used = false;
+    int the_size = 0;
+    int temp_Size = 0;
+    std::vector<std::string> the_operators;
+    std::vector<std::string> commands;
+
+    for (int f = 0; f < incoming_commands.size(); f++) {
+        the_size = incoming_commands[f].size();
+        temp_Size = 0;
+        if (incoming_commands[f] == "|") {
+            standard_in_flag = true;
+            standard_out_flag = false;
+            standard_error_flag = false;
+            skip_argument_flag = true;
+            if (the_operators.size() == 0) {
+                if (pipe_flag == false)
+                    Exec_Redirection("", false, standard_output_file, false, "", commands, envp);
+                else
+                    Exec_Redirection(standard_input_file, false, standard_output_file, false, "", commands, envp);
+                temp_file_used = true;
+            } else {
+                for (int g = 0; g < the_operators.size(); g++) {
+                    if (pipe_control_flag == false) {
+                        if (the_operators[g] == "in") {
+                            pipe_control_flag = true;
+                            Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+                        } else if (the_operators[g] == "out") {
+                            pipe_control_flag = true;
+                            if (pipe_flag == false) {
+                                Exec_Redirection("", adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+                            } else {
+								Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+                            }
+                        }
+                    }
+                }
+            }
+            standard_input_file = standard_output_file;
+            pipe_control_flag = false;
+            adding_to_standard_error_file = false;
+            adding_to_standard_out_file = false;
+            pipe_flag = true;
+            commands.clear();
+            the_operators.clear();
+        }
+
+        if (incoming_commands[f] == ">" || incoming_commands[f] == "1>" || incoming_commands[f] == ">>" || incoming_commands[f] == "1>>" ) {
+            if (standard_out_flag == false) {
+                the_operators.push_back("out");
+                if (pipe_flag == true)
+                    standard_input_file = standard_output_file;
+                if (incoming_commands[f] == ">>" || incoming_commands[f] == "1>>")
+                    adding_to_standard_out_file = true;
+                standard_out_flag = true;
+                standard_in_flag = true;
+                skip_argument_flag = true;
+                temp_Size = f;
+                temp_Size += 3;
+                if (temp_Size <= incoming_commands.size()) {
+                    if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
+						ColorChange("\t\tThere are one to many arguments / commands after the standard out operator.", 2);
+                        incoming_commands.clear();
+                        return;
+                    }
+                }
+                f++;
+                the_size = incoming_commands[f].size();
+                if (incoming_commands[f][the_size - 1] == ';') {
+                    incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
+                    end_of_section = true;
+                }
+                standard_output_file = incoming_commands[f];
+            } else {
+				ColorChange("\t\tThere was one to many standard out operators.", 2);
+                incoming_commands.clear();
+                return;                  
+            }
+        }
+
+        if (incoming_commands[f] == "2>" || incoming_commands[f] == "2>>") {
+            if (incoming_commands[f] == "2>>")
+                adding_to_standard_error_file = true;
+            the_operators.push_back("error");
+            skip_argument_flag = true;
+            temp_Size = f;
+            temp_Size += 3;
+            if (temp_Size <= incoming_commands.size()) {
+                if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
+					ColorChange("\t\tThere are one to many arguments / commands after the standard out operator.", 2);
+                    incoming_commands.clear();
+                    return;
+                }
+            }
+            f++;
+            the_size = incoming_commands[f].size();
+            if (incoming_commands[f][the_size - 1] == ';') {
+                incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
+                end_of_section = true;
+            }
+            standard_error_file = incoming_commands[f];
+        }
+
+        if (incoming_commands[f] == "0<" || incoming_commands[f] == "<") {
+            if (standard_in_flag == false) {
+                the_operators.push_back("in");
+                standard_in_flag = true;
+                skip_argument_flag = true;
+                temp_Size = f;
+                temp_Size += 3;
+                if (temp_Size <= incoming_commands.size()) {
+                    if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
+						ColorChange("\t\tThere are one to many arguments / commands after the standard in operator.", 2);
+                        incoming_commands.clear();
+                        return;
+                    }
+                }
+                f++;
+                the_size = incoming_commands[f].size();
+                if (incoming_commands[f][the_size - 1] == ';') {
+                    incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
+                    end_of_section = true;
+                }
+                standard_input_file = incoming_commands[f];
+            } else {
+				ColorChange("\t\tThere was one to many standard in operators or was found after a pipe operator.", 2);
+                incoming_commands.clear();
+                return;                
+            }
+        }
+
+        if (end_of_section == true || incoming_commands[f][the_size - 1] == ';' || (incoming_commands.size() - 1) == f) {
+            if (the_operators.size() == 0) {
+                skip_argument_flag = true;
+                commands.push_back(incoming_commands[f]);
+                if (pipe_flag == false)
+                    Exec_Redirection("", false, "", false, "", commands, envp);
+                else
+                    Exec_Redirection(standard_input_file, false, "", false, "", commands, envp);
+            } else {
+                for (int j = 0; j < the_operators.size(); j++) {
+                    if (pipe_control_flag == false) {
+                        if (the_operators[j] == "in") {
+                            pipe_control_flag = true;
+                            Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+                        } else if (the_operators[j] == "out") {
+                            pipe_control_flag = true;
+                            if (pipe_flag == false)
+                                Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+                            else
+                                Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+                        }
+                    }
+                }
+            }
+            standard_error_file = "";
+            standard_input_file = "";
+            standard_output_file = "";
+            standard_error_flag = false;
+            standard_out_flag = false;
+            standard_in_flag = false;
+			skip_argument_flag = false;
+            pipe_flag = false;
+            adding_to_standard_error_file = false;
+            adding_to_standard_out_file = false;
+            pipe_control_flag = false;
+            end_of_section = false;
+            the_operators.clear();
+            commands.clear();
+        }
+
+        if (skip_argument_flag == false)
+            commands.push_back(incoming_commands[f]);
+    	else
+            skip_argument_flag = false;
+    }
+
+    if (temp_file_used == true)
+        remove("temp_output.txt");
+   	/*--------------------------------------------------------------------*/	
+    if (debugSwitch == 1) 
+        ColorChange("\t\tMission - You are in the ArgumentChecker method.", 3);
+
+    return;
+
+}
+
+void Thursday::PromptDisplay() {
+	/*------------------------------------------------------------------
+	Note: This method builds the prompt to be displayed onto the screen
+	for the user. Every option has a different prompt setup. This method
+	was last updated on 2/18/2018.
+	--------------------------------------------------------------------*/	
+    if (debugSwitch == 1)
+        ColorChange("\t\tMission - You are in the PromptDisplay method.", 3); 
+	 /*--------------------------------------------------------------------*/
+	std::string thePrompt = "";
+	if (promptNumber == 0) {
 		thePrompt = "?: ";
-	} else if (promptNumber == 1) {					// The option for just having the hostname as a prompt.
+	} else if (promptNumber == 1) {
 		thePrompt = hostName;
 		thePrompt += ": ";
-	} else if (promptNumber == 2) {					// The option to have the current path as a prompt.
+	} else if (promptNumber == 2) {
 		thePrompt = currentPath;
 		thePrompt += ": ";
-	} else if (promptNumber == 3) {					// The option to have the host name and current path as a prompt.
+	} else if (promptNumber == 3) {
 		thePrompt = hostName;
 		thePrompt += ":";
 		thePrompt += currentPath;
 		thePrompt += ": ";
-	} else if (promptNumber == 4) {					// The option to have the users custom prompt.
+	} else if (promptNumber == 4) {
 		thePrompt = currentPrompt;
 	}
+	ColorChange(thePrompt, 1);
 
-	ColorChange(thePrompt, 1);						// Send the prompt to the color change method.
+    return;
+}
+
+void Thursday::Recursive_Directory_Search(std::string path, std::string searchWord, bool showDirectories) {  
+	/*-------------------------------------------------------------------
+	Note: This method is a recursive search algorithm to loop through all
+	of the files in the file system. The commands that use this is find,
+	and the ls -all. How this method works is by opening the starting 
+	directory's path, and looping through the contents. If is always 
+	looking for our search word that the user is trying to find. If the 
+	system finds a directory then we move into that directory and repeat
+	the process looking for our search word. Think of this algorithm 
+	doing what the depth first search algorithm does. This method was
+	last udpated on 2/18/2018.
+	--------------------------------------------------------------------*/ 
+    if (debugSwitch == true) 
+		ColorChange("\t\tMission - You are in the DepthFirstSearch method.", 3);
+	/*--------------------------------------------------------------------*/ 
+	bool item_found = false;
+    std::string new_path = "";
+    struct stat fileStruct;	
+	DIR * dir;
+	dirent * entry;
+
+	if ((dir = opendir(path.c_str())) != NULL) {
+        while ((entry = readdir(dir))) {
+            new_path = path + entry->d_name;
+            if (entry->d_name == searchWord) {
+                if (showDirectories == false) {
+                    std::cout << "\t\t" << new_path << std::endl;
+                }
+                item_found = true;
+            } 
+            if (strcmp(entry->d_name,  ".") && strcmp(entry->d_name,  "..")) {	
+                if (lstat(new_path.c_str(), &fileStruct) == 0) {
+                    if (fileStruct.st_mode & S_IFLNK) {
+                    } else if (fileStruct.st_mode & S_IFDIR) {
+                        new_path += "/";
+                        if (showDirectories == true)
+                            std::cout << "\t\tDirectory: " << new_path << std::endl;
+                        Recursive_Directory_Search(new_path, searchWord, showDirectories);
+                    }
+                }
+            }
+        }
+        if (closedir(dir) == -1)
+            ColorChange("\t\tFile Closing Failure in the method Find.", 2);
+    }
+    if (item_found == false) {
+		if (showDirectories != 0)
+			ColorChange("\t\tThe file could not be found in the starting directory.", 3);
+	}
+	/*--------------------------------------------------------------------*/ 
+    if (debugSwitch == true) 
+		ColorChange("\t\tMission - You are leaving the DepthFirstSearch method.", 3);
 
     return;
 }
 
 void Thursday::Search(std::string argument) {
 	/*------------------------------------------------------------------
-	Note: This method takes the incoming argument and figures out what text
-	* file that we need to open in order to get the correct word. This 
-	* method was last updated on 9/25/2017.
+	Note: This method taking in a word that the user wants a definition on.
+	How this method works is by taking the string / word that the user wants
+	more information on, taking the first character to determine what file to
+	open up, and looping through that file to find the word the they want.
+	But first we have to determine what file to open, and how I did that was
+	by grabbing the first character and seeing if it is a capital letter, if
+	so then it is in the correct format. If it was a lower case letter then
+	I had to make it a capital letter. Then if it wasn't either one of the 
+	last two possibilities then we return an error. Next I create the file
+	that we have to use in order to open the file, then test opening it. 
+	After that I loop through the file looking for the word and if found,
+	create a definition string and present it to the user. This method
+	was last updated on 2/18/2018.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
 		ColorChange("\t\tMission - You are in the Search method.", 3);
  	/*--------------------------------------------------------------------*/	
-	std::string definition = "";													// Used to store the definiton of the word being searched.
-	std::string fileName = "";														// Used to open a file.
-	std::string output = "";														// used to store the word and definition together.
-	std::string searchWord = "";													// Used to create the search word the user is looking for.
-	std::string word = "";															// Used to store the word coming from the file.
-	std::string letter = "";														// Used to store the letter coming from the argument.
-    int wordChar = 0;																// Used to change the letter coming from the argument.
-	bool mySwitch = false;															// Used to see if we found the users word he was looking for.
+	std::string definition = "";
+	std::string fileName = "";
+	std::string output = "";
+	std::string searchWord = "";
+	std::string word = "";
+	std::string letter = "";
+    int wordChar = 0;
+	bool mySwitch = false;
  	/*--------------------------------------------------------------------*/
-    if (argument[0] >= 65 && argument[0] <= 90) {									// If the first letter in the argument is uppercase.
- 		letter = argument[0];														// Save the first letter of the searched word.
- 		searchWord = argument;														// Create a search word variable because we have to modify our argument if it has an uppdercase first letter.		
-    } else if (argument[0] >= 97 && argument[0] <= 122) {							// If the first letter in the argument is lowercase.	
-        wordChar = argument[0];														// Get the first character.	
-        wordChar -= 32;																// Decrement the variable by 32, to make it lowercase.	
-        letter += wordChar;															// Convert the modified first character and give it to the letter variable.
-        searchWord += letter;														// Add it to the search word variable.
-		for (int i = 1; i < argument.size(); i++)									// Loop through the remaining characters in the argument.
-			searchWord += argument[i];												// Add the character to the search word.
+    if (argument[0] >= 65 && argument[0] <= 90) {
+ 		letter = argument[0];
+ 		searchWord = argument;	
+    } else if (argument[0] >= 97 && argument[0] <= 122) {	
+        wordChar = argument[0];
+        wordChar -= 32;	
+        letter += wordChar;
+        searchWord += letter;
+		for (int i = 1; i < argument.size(); i++)
+			searchWord += argument[i];
     } else {
         ColorChange("\t\tThe word you are searching is not in the correct format.", 2);
         return;
     }
     
-    fileName = dictionaryDestination;												// Create our path to load to the file.
-    fileName += "/";																// Add the backslash for the path.
-    fileName += letter;																// Add the letter to the temp variable.
-    fileName += ".txt";																// Add the extension to open the file in the dictionary.
+    fileName = dictionaryDestination;
+    fileName += "/";
+    fileName += letter;
+    fileName += ".txt";
 
-	std::ifstream InputData;														// Create a variable for  opening a file.
-	InputData.open(fileName);														// Open the file.
-	if (!InputData) {																// If the file could not be found then we pritn and error.
+	std::ifstream InputData;
+	InputData.open(fileName);
+	if (!InputData) {
 		ColorChange("\t\tThere was an error opening the file in the Search method.", 2);
 		return;
 	}
 
-	while (!InputData.eof()) {														// Loop through the file.
-		std::getline(InputData, word, '#');											// Get the word.
-		std::getline(InputData, definition, '#');									// Get the directory.
+	while (!InputData.eof()) {
+		std::getline(InputData, word, '#');
+		std::getline(InputData, definition, '#');
 		//~ //--------------------------------------------------------------
-		word = utili::remove_special_characters(word);								// Check to make sure that there are no special characters in the word.
-		definition = utili::remove_special_characters(definition);					// Check to make sure that there are no special characters in the definition.
+		word = utili::remove_special_characters(word);
+		definition = utili::remove_special_characters(definition);
 		//~ //--------------------------------------------------------------
-		if (word == searchWord) {													// If we found the search word that the user was looking for.
+		if (word == searchWord) {
 			std::cout << std::endl;
-			output = word;															// Add the word to our output.
-			output += " -";															// Add a space and dash to the output.
-			output += definition;													// Add the definition to the output.
+			output = word;
+			output += " -";
+			output += definition;
 			utili::print_string(output);
-			mySwitch = true;														// Turn the switch for true. 
+			mySwitch = true;
 		}
 	}
-	
-	if (mySwitch == false)															// If the word being searched was not found.
+	if (mySwitch == false)
 		ColorChange("\t\tNothing found in our database!", 3);
 		
    	/*--------------------------------------------------------------------*/
@@ -1288,7 +1966,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 			}
 		}
 	} else if (signal == 1) {																// If the incoming vector of commands is not associated with this application.
-		ExecuteFile(incomingInput[i], incomingInput); 										// Send the first argument and then send the rest of the vector.
+		ExecuteFile(incomingInput[i], incomingInput, envp); 										// Send the first argument and then send the rest of the vector.
 	}
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
@@ -1299,19 +1977,23 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 
 void Thursday::SetupAndCloseSystem(int argc, char * envp[]) {
 	/*------------------------------------------------------------------
-	Note: This method the environment (including the path), and 
-	* the system comands. This method was last updated on 11/18/2017.
+	Note: This method gets the system's environment, thursday commands,
+	and path vectors setup correctly. I would do this in the constructor 
+	but we need the envp variable. How this method works is buy setting
+	up the absolute path to load the system commands, get the environment 
+	variables. We get the path from the environment and then tokenize the 
+	string by ':' and put it into our vector. This method was last updated
+	on 2/18/2018.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
 		ColorChange("\t\tMission - You are in the SetupAndCloseSystem method.", 3);
  	/*--------------------------------------------------------------------*/
-	std::string globalFileName = "";														// Used to open up the global environment for the system.
-	std::string thursdayCommandsFileName = "";												// Used to get the system commands of the system.
-	thursdayCommandsFileName = informationDestination;										// Add the information destination to our temp file name.
-	thursdayCommandsFileName += "/ThursdayCommands.txt";									// Add the file name that we want to open for our system commands.
+	std::string globalFileName = "";
+	std::string thursdayCommandsFileName = "";
+	thursdayCommandsFileName = informationDestination;
+	thursdayCommandsFileName += "/ThursdayCommands.txt";
 
-																							// Setting up the system.
-	ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);			//Loads the Thursday Commands
+	ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);
 	Environment = utili::get_environment(envp);
 	
 	std::string input = "";
@@ -1328,654 +2010,4 @@ void Thursday::SetupAndCloseSystem(int argc, char * envp[]) {
 		ColorChange("\t\tMission - You are leaving the SetupAndCloseSystem method.", 3);
 
 	return;
-}
-
-
-
-void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]) {
-
-    std::vector<std::string> sending_commands;
-    bool thursday_command_flag = false;
-    int command_size = 0;
-
-    for (int a = 0; a < incoming_commands.size(); ++a) {
-
-        command_size = incoming_commands.size();
-
-		if (incoming_commands[a] == "enable") {
-			ColorChange("\t\tThursday's commands have been enable.", 3);
-			myCommandSwitch = false;
-		} 
-
-		if (myCommandSwitch == false) {
-			for (int b = 0; b < ThursdayCommands.size(); b++) {
-				if (ThursdayCommands[b] == incoming_commands[a])
-					thursday_command_flag = true;
-			}
-		}
-
-        if ((incoming_commands[a][command_size - 1] == ';') || (incoming_commands.size() == (a + 1))) {
-            if (incoming_commands[a][command_size - 1] == ';')
-                incoming_commands[a].erase(incoming_commands[a].begin()+(incoming_commands[a].size() - 1), incoming_commands[a].end());
-            
-            sending_commands.push_back(incoming_commands[a]);
-			if (thursday_command_flag == true)
-				SearchCommands(sending_commands, 0, envp);
-			else
-				SearchCommands(sending_commands, 1, envp);
-            thursday_command_flag = false;
-            sending_commands.clear();
-        } else {
-            sending_commands.push_back(incoming_commands[a]);
-        }
-    }
-    return;    
-}
-
-int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
-    
-	std::string token = "";
-    std::string special_symbol_container = "";
-    bool error_flag = false;
-    bool ampersand_flag = false;
-    bool next_operator_find_flag = false;
-    bool single_quote_flag = false;
-    bool double_quote_flag = false;
-    bool bracket_char_flag = false;
-    bool parentheses_char_flag = false;
-    bool curly_brace_char_flag = false;
-    bool skip_this_char = false;
-    bool operator_found_flag = false;
-    int which_command_parser = 0;
-    int argument_position = 0;
-	std::vector<std::string> incoming_commands;
-
-    // This loop just gets rid of all spaces and tokens the incoming input.
-    // This loop also makes sure there is a correct number of quotes (single and double).
-    // This loop is also make sure that there are not more than one operator next to each other without a space and with a space.
-    // I do this by setting a flag when an operator is found, and set another operator when a space is found.
-    // If the next character after that space is another opeator then there is an error else there is not.
-    // Then shoves them into a vector and returns the vector.
-
-    for (int a = 0; a < incoming_input.size(); ++a) {
-
-        if (parentheses_char_flag == false && curly_brace_char_flag == false && bracket_char_flag == false && double_quote_flag == false) {
-            if (incoming_input[a] == 39) {
-                if (single_quote_flag == false) {
-                    single_quote_flag = true;
-                    skip_this_char = true;
-                    special_symbol_container += incoming_input[a];
-                } else {
-                    single_quote_flag = false;
-                    skip_this_char = true;
-                    special_symbol_container += incoming_input[a];
-                    incoming_commands.push_back(special_symbol_container);
-                    special_symbol_container = "";
-                }
-            }
-        }
-        if (single_quote_flag == false && parentheses_char_flag == false && curly_brace_char_flag == false && bracket_char_flag == false) {
-            if (incoming_input[a] == '"') {
-                if (double_quote_flag == false) {
-                    double_quote_flag = true;
-                    skip_this_char = true;
-                    special_symbol_container += incoming_input[a];
-                } else {
-                    double_quote_flag = false;
-                    skip_this_char = true;
-                    special_symbol_container += incoming_input[a];
-                    incoming_commands.push_back(special_symbol_container);
-                    special_symbol_container = "";
-                }
-            }
-        }
-        if (single_quote_flag == false && double_quote_flag == false && curly_brace_char_flag == false && bracket_char_flag == false) {
-           if (incoming_input[a] == '(' || incoming_input[a] == ')') {
-                if (incoming_input[a] == '(') {
-                    if (parentheses_char_flag == false) {
-                        parentheses_char_flag = true;
-                        skip_this_char = true;
-                        special_symbol_container += incoming_input[a];
-                    } else {
-						ColorChange("\t\tThere is a parentheses char error-1.", 2);
-                        error_flag = true;
-                        break;
-                    }
-                } else if (incoming_input[a] == ')') {
-                    if (parentheses_char_flag == true) {
-                        parentheses_char_flag = false;
-                        skip_this_char = true;
-                        special_symbol_container += incoming_input[a];
-                        incoming_commands.push_back(special_symbol_container);
-                        special_symbol_container = "";
-                    } else {
-                        std::cout << "" << std::endl;
-						ColorChange("\t\tThere is a parentheses char error-2.", 2);
-                        error_flag = true;
-                        break;
-                    }
-                }
-            }
-        }
-        if (single_quote_flag == false && double_quote_flag == false && parentheses_char_flag ==false && curly_brace_char_flag == false) {
-            if (incoming_input[a] == '[' || incoming_input[a] == ']') {
-                if (incoming_input[a] == '[') {
-                    if (bracket_char_flag == false) {
-                        bracket_char_flag = true;
-                        skip_this_char = true;
-                        special_symbol_container += incoming_input[a];
-                    } else {
-						ColorChange("\t\tThere is a bracket char error-1.", 2);
-                        error_flag = true;
-                        break;
-                    }
-                } else if (incoming_input[a] == ']') {
-                    if (bracket_char_flag == true) {
-                        bracket_char_flag = false;
-                        skip_this_char = true;
-                        special_symbol_container += incoming_input[a];
-                        incoming_commands.push_back(special_symbol_container);
-                        special_symbol_container = "";
-                    } else {
-						ColorChange("\t\tThere is a bracket char error-2.", 2);
-                        error_flag = true;
-                        break;
-                    }
-                }
-            }
-        }
-        if (single_quote_flag == false && double_quote_flag == false && parentheses_char_flag == false && bracket_char_flag == false) {
-            if (incoming_input[a] == '{' || incoming_input[a] == '}') {
-                if (incoming_input[a] == '{') {
-                    if (curly_brace_char_flag == false) {
-                        curly_brace_char_flag = true;
-                        skip_this_char = true;
-                        special_symbol_container += incoming_input[a];
-                    } else {
-						ColorChange("\t\tThere is a curly brace char error-1.", 2);
-                        error_flag = true;
-                        break;
-                    }
-                } else if (incoming_input[a] == '}') {
-                    if (curly_brace_char_flag == true) {
-                        curly_brace_char_flag = false;
-                        skip_this_char = true;
-                        special_symbol_container += incoming_input[a];
-                        incoming_commands.push_back(special_symbol_container);
-                        special_symbol_container = "";
-                    } else {
-						ColorChange("\t\tThere is a curly brace char error-2.", 2);
-                        error_flag = true;
-                        break;
-                    }
-                }
-            }
-        }
-        if (single_quote_flag == false && double_quote_flag == false && parentheses_char_flag == false && bracket_char_flag == false && curly_brace_char_flag == false) {
-            if (incoming_input[a] == '>' || incoming_input[a] == '<' || incoming_input[a] == '|') {
-                if (operator_found_flag == false) {
-                    operator_found_flag = true;
-                    which_command_parser = 1;
-                } else {
-                    if (incoming_input[a] != '>') {
-						ColorChange("\t\tThere are to many operators near by error-1.", 2);
-                        error_flag = true;
-                        break;
-                    }
-                }
-            } else if (incoming_input[a] == '&') {
-                if (ampersand_flag == false) {
-                    ampersand_flag = true;
-					which_command_parser = 1;
-                } else {
-					ColorChange("\t\tThere was an ampersand error-1.", 2);
-                    error_flag = true;
-                    break;
-                }
-            }
-        }
-        if (skip_this_char == false) {
-            if (single_quote_flag == true || double_quote_flag == true || curly_brace_char_flag == true || bracket_char_flag == true || parentheses_char_flag == true) {
-                special_symbol_container += incoming_input[a];
-            } else {
-                if (incoming_input[a] != 32)
-                    token += incoming_input[a];
-            }
-        } else {
-            skip_this_char = false;
-        }
-
-        if (incoming_input[a] == 32 || incoming_input[a] == ';' || ((incoming_input.size() -1) == a) ) {
-            if (incoming_input[a] == 32) {
-                if (single_quote_flag == false && double_quote_flag == false && curly_brace_char_flag == false && parentheses_char_flag == false && bracket_char_flag == false) {
-                    if (ampersand_flag == true) {
-                        if (argument_position != 0) {
-							ColorChange("\t\tThere was an ampersand error-2.", 2);
-                            error_flag = true;
-                            break;
-                        } else {
-                            ampersand_flag = false;
-                        }
-                    }
-                    if (token.size() > 0) {
-                        if (next_operator_find_flag == true) {
-                            if (operator_found_flag == true) {
-								ColorChange("\t\tThere are to many operators near by error-2.", 2);
-                                error_flag = true;
-                                break;
-                            } else {
-                                next_operator_find_flag = false;
-                            }
-                        }
-                        if (operator_found_flag == true) {
-                            if (token != ">" || token != ">>" || token != "1>" || token != "1>>" || token != "2>" || token != "2>>" || token != "<" || token != "0<" || token != "|") {
-                                operator_found_flag = false;
-                                ampersand_flag = false;
-                                next_operator_find_flag = true;
-                            } else {
-								ColorChange("\t\tThere was an incorrect operator found error-1.", 2);
-                                error_flag = true;
-                                break;
-                            }
-                        }
-                        incoming_commands.push_back(token);
-                        argument_position++;
-                    }
-                    token = "";
-                } 
-            } else {
-                if (single_quote_flag == true || double_quote_flag == true) {
-                    if (single_quote_flag == true) {
-						ColorChange("\t\tThere was a single quote error with this section of input.", 2);
-                    } else {
-						ColorChange("\t\tThere was a double quote error with this secton of input.", 2);
-                    }
-                    error_flag = true;
-                    break;
-                } else if (parentheses_char_flag == true) {
-					ColorChange("\t\tThere was a parentheses error with this seciton of input.", 2);
-                    error_flag = true;
-                    break;
-                } else if (bracket_char_flag == true) {
-					ColorChange("\t\tThere was a bracket error with this seciton of input.", 2);
-                    error_flag = true;
-                    break;
-                } else if (curly_brace_char_flag == true) {
-					ColorChange("\t\tThere was a curly brace error with this seciton of input.", 2);
-                    error_flag = true;
-                    break;
-                } else {
-                    if (ampersand_flag == true) {
-                        if (argument_position != 0) {
-							ColorChange("\t\tThere was an ampersand error-3.", 2);
-                            error_flag = true;
-                            break;
-                        } else {
-                            ampersand_flag = false;
-                        }
-                    }
-                    if (token.size() > 0) {
-                        if (next_operator_find_flag == true) {
-                            if (operator_found_flag == true) {
-								ColorChange("\t\tThere are to many operators near by error-2.", 2);
-                                error_flag = true;
-                                break;
-                            } else {
-                                next_operator_find_flag = false;
-                            }
-                        }
-                        if (operator_found_flag == true) {
-                            if (token != ">" || token != ">>" || token != "1>" || token != "1>>" || token != "2>" || token != "2>>" || token != "<" || token != "0<" || token != "|") {
-								ColorChange("\t\tThere was an incorrect operator found error-2.", 2);
-                                error_flag = true;
-                                break;
-                            } else {
-                                operator_found_flag = false;
-                                ampersand_flag = false;
-                                next_operator_find_flag = true;
-                            }
-                        }
-                        incoming_commands.push_back(token);
-                        argument_position++;
-                    }
-                    token = "";
-                }
-            }
-        }
-    }
-    
-    int status = 0;
-    if (error_flag == false) {
-        if (which_command_parser == 0) {
-            Basic_Command_Parse_Loop(incoming_commands, envp);
-        } else {
-            status = Operator_Command_Parse_Loop(incoming_commands, envp);
-        }
-    } else {
-        incoming_commands.clear();
-        status = 1;
-    }
-
-    return status;
-}
-
-void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_append, std::string standard_out_file, bool standard_error_append, std::string standard_error_file, std::vector<std::string> commands, char * envp[]) {
-
-	int i = 0; 
-    std::string file_path = ""; 
-    size_t arrSize = 100;
-    pid_t pid;
-	
-    FILE *fp;
-    FILE *fp2;
-    FILE *fp3;
-
-	char ** myArray = new char * [arrSize];														// Used to allocat an array of char pointers.
-	for (i = 0; i < commands.size(); i++) {										                // Loop through the incoming arguments.
-		myArray[i] = new char [arrSize];														// Allcocate memory for each element in the array.
-		strcpy(myArray[i], strdup(commands[i].c_str()));								        // Copy the incoming argument to the element in the array.
-	}
-	myArray[i++] = NULL;																		// Null terminate the array for the exec command.
-
-	file_path = FileChecker(commands[0], 0);
-    char * pointer_file_path = (char*)malloc(50);
-    strcpy(pointer_file_path, strdup(file_path.c_str()));
-
-    pid = fork();
-    if (pid == 0) {
-        if (standard_in_file != "")
-		    fp = freopen(standard_in_file.c_str(), "r", stdin);
-        if (standard_out_file != "") {
-		    if (standard_out_append == false) {
-                fp2 = freopen(standard_out_file.c_str(), "w", stdout);
-            } else {
-                fp2 = freopen(standard_out_file.c_str(), "a", stdout);
-            }
-        }
-        if (standard_error_file != "") {
-		    if (standard_error_append == false) {
-                fp3 = freopen(standard_error_file.c_str(), "w", stderr);
-            } else {
-                fp3 = freopen(standard_error_file.c_str(), "a", stderr);
-            }
-        }
-		if (execve(pointer_file_path, myArray, envp) == -1) {
-			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);
-		}
-        if (standard_in_file == "")
-		    fclose(fp);
-
-        if (standard_out_file == "")
-            fclose(fp2);
-
-        if (standard_error_file == "")
-            fclose(fp3);
-
-    } else {
-		waitpid(pid, 0, WUNTRACED);
-	}
-
-	delete [] myArray;
-    delete pointer_file_path;
-    pointer_file_path = NULL;
-	myArray = NULL;
-
-    return;
-}
-
-int Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]) {
-
-    std::string standard_error_file = "";
-    std::string standard_input_file = "";
-    std::string standard_output_file = "";
-
-    bool standard_error_flag = false;
-    bool standard_out_flag = false;
-    bool standard_in_flag = false;
-
-    bool pipe_flag = false;
-    bool pipe_control_flag = false;
-    bool skip_argument_flag = false;
-    bool end_of_section = false;
-
-    bool adding_to_standard_out_file = false;
-    bool adding_to_standard_error_file = false;
-    bool temp_file_used = false;
-
-    int the_size = 0;
-    int temp_Size = 0;
-
-    std::vector<std::string> the_operators;
-    std::vector<std::string> commands;
-
-    // Rule #1: You cannot have standard out before standard in.
-    // Rule #2: You can have standard out and stnadard error after a pipe but not standard in.
-    // Rule #3: You can only have one standard out and standard in each input section.
-
-    for (int f = 0; f < incoming_commands.size(); f++) {
-        the_size = incoming_commands[f].size();
-        temp_Size = 0;
-        if (incoming_commands[f] == "|") {
-            standard_in_flag = true;
-            standard_out_flag = false;
-            standard_error_flag = false;
-            skip_argument_flag = true;
-            if (the_operators.size() == 0) {
-                if (pipe_flag == false)
-                    Exec_Redirection("", false, standard_output_file, false, "", commands, envp);
-                else
-                    Exec_Redirection(standard_input_file, false, standard_output_file, false, "", commands, envp);
-                temp_file_used = true;
-            } else {
-                for (int g = 0; g < the_operators.size(); g++) {
-                    if (pipe_control_flag == false) {
-                        if (the_operators[g] == "in") {
-                            pipe_control_flag = true;
-                            Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
-                        } else if (the_operators[g] == "out") {
-                            pipe_control_flag = true;
-                            if (pipe_flag == false) {
-                                Exec_Redirection("", adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
-                            } else {
-								Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
-                            }
-                        }
-                    }
-                }
-            }
-            standard_input_file = standard_output_file;
-            pipe_control_flag = false;
-            adding_to_standard_error_file = false;
-            adding_to_standard_out_file = false;
-            pipe_flag = true;
-            commands.clear();
-            the_operators.clear();
-        }
-
-        if (incoming_commands[f] == ">" || incoming_commands[f] == "1>" || incoming_commands[f] == ">>" || incoming_commands[f] == "1>>" ) {
-            if (standard_out_flag == false) {
-                the_operators.push_back("out");
-                if (pipe_flag == true)
-                    standard_input_file = standard_output_file;
-                if (incoming_commands[f] == ">>" || incoming_commands[f] == "1>>")
-                    adding_to_standard_out_file = true;
-                standard_out_flag = true;
-                standard_in_flag = true;
-                skip_argument_flag = true;
-                temp_Size = f;
-                temp_Size += 3;
-                if (temp_Size <= incoming_commands.size()) {
-                    if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
-						ColorChange("\t\tThere are one to many arguments / commands after the standard out operator.", 2);
-                        incoming_commands.clear();
-                        return 1;
-                    }
-                }
-                f++;
-                the_size = incoming_commands[f].size();
-                if (incoming_commands[f][the_size - 1] == ';') {
-                    incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
-                    end_of_section = true;
-                }
-                standard_output_file = incoming_commands[f];
-            } else {
-				ColorChange("\t\tThere was one to many standard out operators.", 2);
-                incoming_commands.clear();
-                return 1;                  
-            }
-        }
-
-        if (incoming_commands[f] == "2>" || incoming_commands[f] == "2>>") {
-            if (incoming_commands[f] == "2>>")
-                adding_to_standard_error_file = true;
-            the_operators.push_back("error");
-            skip_argument_flag = true;
-            temp_Size = f;
-            temp_Size += 3;
-            if (temp_Size <= incoming_commands.size()) {
-                if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
-					ColorChange("\t\tThere are one to many arguments / commands after the standard out operator.", 2);
-                    incoming_commands.clear();
-                    return 1;
-                }
-            }
-            f++;
-            the_size = incoming_commands[f].size();
-            if (incoming_commands[f][the_size - 1] == ';') {
-                incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
-                end_of_section = true;
-            }
-            standard_error_file = incoming_commands[f];
-        }
-
-        if (incoming_commands[f] == "0<" || incoming_commands[f] == "<") {
-            if (standard_in_flag == false) {
-                the_operators.push_back("in");
-                standard_in_flag = true;
-                skip_argument_flag = true;
-                temp_Size = f;
-                temp_Size += 3;
-                if (temp_Size <= incoming_commands.size()) {
-                    if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
-						ColorChange("\t\tThere are one to many arguments / commands after the standard in operator.", 2);
-                        incoming_commands.clear();
-                        return 1;
-                    }
-                }
-                f++;
-                the_size = incoming_commands[f].size();
-                if (incoming_commands[f][the_size - 1] == ';') {
-                    incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
-                    end_of_section = true;
-                }
-                standard_input_file = incoming_commands[f];
-            } else {
-				ColorChange("\t\tThere was one to many standard in operators or was found after a pipe operator.", 2);
-                incoming_commands.clear();
-                return 1;                
-            }
-        }
-
-        if (end_of_section == true || incoming_commands[f][the_size - 1] == ';' || (incoming_commands.size() - 1) == f) {
-            if (the_operators.size() == 0) {
-                skip_argument_flag = true;
-                commands.push_back(incoming_commands[f]);
-                if (pipe_flag == false)
-                    Exec_Redirection("", false, "", false, "", commands, envp);
-                else
-                    Exec_Redirection(standard_input_file, false, "", false, "", commands, envp);
-            } else {
-                for (int j = 0; j < the_operators.size(); j++) {
-                    if (pipe_control_flag == false) {
-                        if (the_operators[j] == "in") {
-                            pipe_control_flag = true;
-                            Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
-                        } else if (the_operators[j] == "out") {
-                            pipe_control_flag = true;
-                            if (pipe_flag == false)
-                                Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
-                            else
-                                Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
-                        }
-                    }
-                }
-            }
-            standard_error_file = "";
-            standard_input_file = "";
-            standard_output_file = "";
-            standard_error_flag = false;
-            standard_out_flag = false;
-            standard_in_flag = false;
-			skip_argument_flag = false;
-            pipe_flag = false;
-            adding_to_standard_error_file = false;
-            adding_to_standard_out_file = false;
-            pipe_control_flag = false;
-            end_of_section = false;
-            the_operators.clear();
-            commands.clear();
-        }
-
-        if (skip_argument_flag == false)
-            commands.push_back(incoming_commands[f]);
-    	else
-            skip_argument_flag = false;
-    }
-
-    if (temp_file_used == true)
-        remove("temp_output.txt");
-
-    return 0;
-
-}
-
-void Thursday::Recursive_Directory_Search(std::string path, std::string searchWord, bool showDirectories) {  
-	/*-------------------------------------------------------------------
-	Note: This method is mainly used for find and whereis commands. This 
-	* method also ues the directory change, stack push / pop, and the
-	* display directories methods. This method was last updated on 9/24/2017.
-	--------------------------------------------------------------------*/ 
-    if (debugSwitch == true) 
-		ColorChange("\t\tMission - You are in the DepthFirstSearch method.", 3);
-	/*--------------------------------------------------------------------*/ 
-	bool item_found = false;
-    std::string new_path = "";
-    struct stat fileStruct;	
-	DIR * dir;
-	dirent * entry;
-
-	if ((dir = opendir(path.c_str())) != NULL) {
-        while ((entry = readdir(dir))) {
-            new_path = path + entry->d_name;
-            if (entry->d_name == searchWord) {
-                if (showDirectories == false) {
-                    std::cout << "\t\t" << new_path << std::endl;
-                }
-                item_found = true;
-            } 
-            if (strcmp(entry->d_name,  ".") && strcmp(entry->d_name,  "..")) {	
-                if (lstat(new_path.c_str(), &fileStruct) == 0) {
-                    if (fileStruct.st_mode & S_IFLNK) {
-                    } else if (fileStruct.st_mode & S_IFDIR) {
-                        new_path += "/";
-                        if (showDirectories == true)
-                            std::cout << "\t\tDirectory: " << new_path << std::endl;
-                        Recursive_Directory_Search(new_path, searchWord, showDirectories);
-                    }
-                }
-            }
-        }
-        if (closedir(dir) == -1)
-            ColorChange("\t\tFile Closing Failure in the method Find.", 2);
-    }
-
-    if (item_found == false) {
-		if (showDirectories != 0)
-			ColorChange("\t\tThe file could not be found in the starting directory.", 3);
-	}
-	/*--------------------------------------------------------------------*/ 
-    if (debugSwitch == true) 
-		ColorChange("\t\tMission - You are leaving the DepthFirstSearch method.", 3);
-
-    return;
 }
