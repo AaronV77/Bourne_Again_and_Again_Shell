@@ -749,39 +749,43 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 	if (debugSwitch == 1)
 		ColorChange("\t\tMission - You are in the DisplayDirectories method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	struct stat fileStruct;	
-	std::size_t stringFind;
+	std::size_t stringFind;																													// Used to find strings within strings.
+	struct stat fileStruct;																													// Used to access information about a file.
+	DIR * dir;																																// Used to open a directory and see what files are in it.
+	dirent * entry;																															// Used to access the contents of a directroy using the previous variable.
 	int columns = utili::screen_size();
 	int indent = 0;
 	int totalNumberOfFiles = 0;
 	std::string temp_path = "";
-	std::vector<std::string> directories;
-	std::vector<std::string> regularFiles;
-	std::vector<std::string> executableFiles;
-	std::vector<std::string> symbolicFiles;
-	std::vector<std::string> directory_contents;
-	directory_contents = utili::directory_contents(pathName, directory_contents);
-	
-	if (lsArgument == "-all") {
-		Recursive_Directory_Search("/", "", true);	
-	} else if (lsArgument == "" || lsArgument == "-l") {
-		for (int a = 0; a < directory_contents.size(); ++a) {
-			if(pathName.size() > 0)	{
-				temp_path = pathName + '/' + directory_contents[a];	
-				lstat(temp_path.c_str(), &fileStruct);
-			} else {
-				lstat(directory_contents[a].c_str(), &fileStruct);
-			}
+	std::vector<std::string> directories;																									// Used to store the directories.
+	std::vector<std::string> regularFiles;																									// Used to store the regular files.
+	std::vector<std::string> executableFiles;																								// Used to store the executables.
+	std::vector<std::string> symbolicFiles;																									// Used to stroe the symbolic links.
 
-			if ((fileStruct.st_mode & S_IFMT) == S_IFLNK) {
-				symbolicFiles.push_back(directory_contents[a]);
-			} else if ((fileStruct.st_mode & S_IFMT) == S_IFDIR) {
-				directories.push_back(directory_contents[a]);
-			} else if (! access(directory_contents[a].c_str(), X_OK) && ((fileStruct.st_mode & S_IFMT) == S_IFREG)) {
-				executableFiles.push_back(directory_contents[a]);
-			} else if ((fileStruct.st_mode & S_IFMT) == S_IFREG) {
-				regularFiles.push_back(directory_contents[a]);
+	if (pathName.size() == 0)																												// If the incoming path name is empty.
+		dir = opendir(".");																													// We will just open up the current directory.
+	else 
+		dir = opendir(pathName.c_str());																									// Else we will open up the path name.
+	
+	if (lsArgument == "-all") {																												// If the ls argument is all.
+		Recursive_Directory_Search("/", "", true);	
+	} else if (lsArgument == "" || lsArgument == "-l") {																					// Else if the ls argument is -l or empty.
+		while ((entry = readdir(dir))) {																										// Loop through the directory.
+			if(pathName.size() > 0)	{																										// If there is an incoming path.
+				temp_path = pathName + '/' + entry->d_name;																					// If there is an incoming path then we want the whole path of the file we are looking at.																									
+				lstat(temp_path.c_str(), &fileStruct);																						// Get information on the file that we are looking at.
+			} else {
+				lstat(entry->d_name, &fileStruct);																							// If we are looking at a file in the directory we are currently in.
 			}
+			if ((fileStruct.st_mode & S_IFMT) == S_IFLNK) {																					// Check to see if the file is a symbolic link.
+				symbolicFiles.push_back(entry->d_name);																						// Add it to the symbolic link vector.
+			} else if ((fileStruct.st_mode & S_IFMT) == S_IFDIR) {																			// Check to see if the file is a directory.
+				directories.push_back(entry->d_name);																						// Add it to the directory vector.
+			} else if (! access(entry->d_name, X_OK) && ((fileStruct.st_mode & S_IFMT) == S_IFREG)) {										// Check to see if the file is an executable. 
+				executableFiles.push_back(entry->d_name);																					// Add it to the executable link vector.
+			} else if ((fileStruct.st_mode & S_IFMT) == S_IFREG) {																			// Check to see if the file is just a normal file.
+				regularFiles.push_back(entry->d_name);																						// Add it to the regular file vector.
+			}	
 		}
 		if (directories.size()  > regularFiles.size()) {
 			if (executableFiles.size() > directories.size()) {
@@ -887,7 +891,6 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 					std::cout << std::setw(indent) << std::left << symbolicFiles[i] << std::endl;			
 			}
 		}
-		directory_contents.clear();
 		directories.clear();
 		symbolicFiles.clear();
 		executableFiles.clear();
@@ -1265,6 +1268,44 @@ void Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_com
 	they are not the first argument in the vector. Each operator does something different, and by following the
 	rules, if standard out is found first or after a pipe is found, standard in is closed until a semicolon is
 	found. If we find more than one standard error then we just over write it and move forward.
+
+	Starting with standard input, I check to make sure that we have not already found standard in, and if we did 
+	print an error. Else I store the in word in a vector, turn on some flags, and do a check to see if there is 
+	only one argument after standard in. There can only be one argument after any standard in, standard out, and 
+	standard error. The only argument that should come after any one of these is a file. So I do a check to make 
+	sure that there is an operator 2 arguments ahead in the vector. If I over index then we are fine, else there 
+	is an error. Next I increment the loop iterator to look at the next item, check to make sure that there is not a 
+	semicolon at the end of the argument. If there was then we set a flag to reset, and get rid of the character 
+	off the item. Then finally save the file path. 
+
+	Next with standard error, I do not care if we keep finding standard error, just because I will just keep over 
+	writing the file. Now there is something special to the standard out and standard error operators, you can 
+	add / append to the file if you have used them before hand. So the first thing I do when checking for standard 
+	error is look for the append operator "2>>" if found I set a flag, else we just keep moving forward. I store 
+	the error in the vector and set some flags. I do the same thing that I did in the standard in operato and check 
+	to see if there is only one argument after it. You can read how I did this in standard in section. 
+
+	Next with standard output, the first thing I do is make sure that I have not already found a standard out operator, 
+	then check to see if I have either one of the following operators ">>" or "1>>". These will append to the file like 
+	I have mentioned before. Then I set some flags, turn off the ability to go into the standard in section of the code. 
+	After that I then do the same thing and make sure that there is only one argument after the opeator, look in standard 
+	input for more information.
+
+	Coming in last is the pipe operator. This is the most complex operator out of all four. First thing that I do is 
+	turn off standard in and reset some other flags. Next, if there are not operators found, and if the pipe flag has 
+	not already been found then we exec with just the standard output file, which will be a temp filename, becasue we know
+	that there are going to be commands coming after the operator. Else if we have already found a pipe opeator and now 
+	that we found another, then we exec with incoming standard input from the previous commands and have another standard 
+	output temp file. Now if we found operators before the pipe operator then we loop through looking for which ones 
+	that we found. We only want to run one of the operators because when I send everything to the exec funciton I am passing 
+	arguments to it if standard out was found as well. The same thing goes for standard out but if I have not found a pipe 
+	flag before and standard out operator was found first then there is no need for a standard input argument. Else I send 
+	everything over to the exec function, then afterwards I give the standard input file the standard output file name 
+	because if the output was saved then the new input needs to have that information.
+
+	I clean up after the pipe command and clear out the vectors. Now if I find a semicolon or we have found the last item 
+	in the vector, then we do almost the exact same steps that we did in the pipe operator here.
+	This method was last updated on 2/19/2018.
 	--------------------------------------------------------------------*/	
     if (debugSwitch == 1)
         ColorChange("\t\tMission - You are in the PromptDisplay method.", 3); 
@@ -1292,45 +1333,56 @@ void Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_com
         the_size = incoming_commands[f].size();
         temp_Size = 0;
         if (incoming_commands[f] == "|") {
+			temp_Size = f;
+			temp_Size++;
 			if (f != 0) {
-				standard_in_flag = true;
-				standard_out_flag = false;
-				standard_error_flag = false;
-				skip_argument_flag = true;
-				if (the_operators.size() == 0) {
-					if (pipe_flag == false) {
-						standard_output_file = "temp_output.txt";
-						temp_file_1_used = true;
-						Exec_Redirection("", false, standard_output_file, false, "", commands, envp);
+				if (temp_Size < (incoming_commands.size() - 1)) {
+					standard_in_flag = true;
+					standard_out_flag = false;
+					standard_error_flag = false;
+					skip_argument_flag = true;
+					if (the_operators.size() == 0) {
+						if (pipe_flag == false) {
+							standard_output_file = "temp_output1.txt";
+							temp_file_1_used = true;
+							Exec_Redirection("", false, standard_output_file, false, "", commands, envp);
+						} else {
+							standard_output_file = "temp_output2.txt";
+							temp_file_2_used = true;
+							Exec_Redirection(standard_input_file, false, standard_output_file, false, "", commands, envp);
+						}
 					} else {
-						standard_output_file = "temp_output2.txt";
-						temp_file_2_used = true;
-						Exec_Redirection(standard_input_file, false, standard_output_file, false, "", commands, envp);
-					}
-				} else {
-					for (int g = 0; g < the_operators.size(); g++) {
-						if (pipe_control_flag == false) {
-							if (the_operators[g] == "in") {
-								pipe_control_flag = true;
-								Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
-							} else if (the_operators[g] == "out") {
-								pipe_control_flag = true;
-								if (pipe_flag == false) {
-									Exec_Redirection("", adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
-								} else {
+						for (int g = 0; g < the_operators.size(); g++) {
+							if (pipe_control_flag == false) {
+								if (the_operators[g] == "in") {
+									pipe_control_flag = true;
 									Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+								} else if (the_operators[g] == "out") {
+									pipe_control_flag = true;
+									if (pipe_flag == false) {
+										Exec_Redirection("", adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+									} else {
+										Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+									}
 								}
 							}
 						}
+						if (pipe_control_flag == false) {
+							Exec_Redirection("", false, "", adding_to_standard_error_file, standard_error_file, commands, envp);
+						}
 					}
+					standard_input_file = standard_output_file;
+					pipe_control_flag = false;
+					adding_to_standard_error_file = false;
+					adding_to_standard_out_file = false;
+					pipe_flag = true;
+					commands.clear();
+					the_operators.clear();
+				} else {
+					ColorChange("\t\tThere are no commands / arguments after the pipe operator.", 2);
+					incoming_commands.clear();
+					return;  
 				}
-				standard_input_file = standard_output_file;
-				pipe_control_flag = false;
-				adding_to_standard_error_file = false;
-				adding_to_standard_out_file = false;
-				pipe_flag = true;
-				commands.clear();
-				the_operators.clear();
 			} else {
 				ColorChange("\t\tThere was an operator in the first position.", 2);
 				incoming_commands.clear();
@@ -1464,6 +1516,9 @@ void Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_com
                         }
                     }
                 }
+				if (pipe_control_flag == false) {
+					Exec_Redirection("", false, "", adding_to_standard_error_file, standard_error_file, commands, envp);
+				}
             }
             standard_error_file = "";
             standard_input_file = "";
@@ -1487,8 +1542,10 @@ void Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_com
             skip_argument_flag = false;
     }
 
-    // if (temp_file_used == true)
-    //     remove("temp_output.txt");
+    if (temp_file_1_used == true)
+        remove("temp_output1.txt");
+	if (temp_file_2_used == true)
+		remove("temp_output2.txt");
    	/*--------------------------------------------------------------------*/	
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are in the ArgumentChecker method.", 3);

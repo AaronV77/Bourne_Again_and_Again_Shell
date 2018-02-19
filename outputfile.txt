@@ -1,6 +1,0 @@
-total 80
--rw-rw-r-- 1 valorosoa valorosoa  3217 Feb 17 22:47 CODE_OF_CONDUCT.md
--rw-rw-r-- 1 valorosoa valorosoa   301 Feb 17 22:47 CONTRIBUTING.md
-drwxrwxr-x 2 valorosoa valorosoa  4096 Feb 17 22:47 Dictionary-1.2
-drwxrwxr-x 5 valorosoa valorosoa  4096 Feb 17 22:47 examples
-drwxrwxr-x 2 valorosoa valorosoa  4096 Feb 17 22:47 information
