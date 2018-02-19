@@ -137,14 +137,15 @@ int main (int argc, char * argv[], char *envp[]) {
 				std::cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
 				theCommands = incomingCommands[UpAndDownIterator];												//Reset the input string with the previous command.
 				LeftAndRightIterator = theCommands.size() + 1;													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
-			} else if (theCommands.size() == 0) {																//If there is nothing on the screen then we want to make sure to reprint the first item in the array.							
-				UpAndDownIterator = 0;	
-				printf("%c[2K", 27);																			//Clear the current terminal line.
-				std::cout << "\r";																				//I forget what this does. Online says its a carriage return.
-				home.PromptDisplay();																			//print the normal prompt.
-				std::cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
-				theCommands = incomingCommands[UpAndDownIterator];												//Reset the input string with the previous command.
-				LeftAndRightIterator = theCommands.size() + 1;													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
+			// } else if (theCommands.size() != 0) {																//If there is nothing on the screen then we want to make sure to reprint the first item in the array.							
+			// 	std::cout << "HERE" << std::endl;
+			// 	UpAndDownIterator = 0;	
+			// 	printf("%c[2K", 27);																			//Clear the current terminal line.
+			// 	std::cout << "\r";																				//I forget what this does. Online says its a carriage return.
+			// 	home.PromptDisplay();																			//print the normal prompt.
+			// 	std::cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
+			// 	theCommands = incomingCommands[UpAndDownIterator];												//Reset the input string with the previous command.
+			// 	LeftAndRightIterator = theCommands.size() + 1;													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
 			} else {
 				UpAndDownIterator = 0;																			//Reset the iterator to zero.
 			}
@@ -265,7 +266,7 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
 		//a backslash, then we know that the saved path is at least in the root directory. The loop will exit since it won't find another
 		//backslash, so we are ignoring the actual file that the user is trying to type.
 		input = "";
-		directoryContents = utili::directory_contents(savedPath);						// Get all the files and directories in the current directory.
+		directoryContents = utili::directory_contents(savedPath, directoryContents);	// Get all the files and directories in the current directory.
 		if (directoryContents.size() > 0) {												// Make sure that the directory has something in it.
 			for (int b = 0; b < directoryContents.size(); b++) {						// Loop through the directory that is all in a vector.
 				input = directoryContents[b];											// Save the current item from the vector of the directory.
@@ -283,7 +284,7 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
 		savedPath = ".";																// If we didn't find a path then lets look in the current directory.
 		numberOfCharacters = incomingTypedString.size();
 		lastCharactersInTheString = incomingTypedString;
-		directoryContents = utili::directory_contents(savedPath);
+		directoryContents = utili::directory_contents(savedPath, directoryContents);
 		if (directoryContents.size() > 0) {												// Make sure that the directory has something in it.
 			for (int b = 0; b < directoryContents.size(); b++) {
 				input = directoryContents[b];

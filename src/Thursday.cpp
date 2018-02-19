@@ -490,7 +490,7 @@ void Thursday::ColorSwitch(bool signal) {
 
 }
 
-void Thursday::CompressAndDecompress(int Number, std::string argument) {
+void Thursday::CompressAndDecompress(int Number, std::string argument, char * envp[]) {
 	/*-------------------------------------------------------------------
 	Note: This method will compress and decompress files that only have the
 	tgz extensions . How this is done is by getting all the required arguments
@@ -524,7 +524,7 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
 			ColorChange("\t\tSorry can only decompress a file if it has the tgz extentsion.", 2);
 		}
 	}
-	ExecuteFile("tar", arguments);															// Send arguments and path over to be executed.
+	ExecuteFile("tar", arguments, envp);															// Send arguments and path over to be executed.
 	/*--------------------------------------------------------------------*/ 
     if (debugSwitch == true) 
 		ColorChange("\t\tMission - You are leaving the CompressAndDecompress method.", 3);
@@ -532,7 +532,7 @@ void Thursday::CompressAndDecompress(int Number, std::string argument) {
 	return;
 }
 
-void Thursday::CopyAndMoveFiles(std::string itemsBeingMoved, std::string destinationPath, bool functionSwitch) {
+void Thursday::CopyAndMoveFiles(std::string itemsBeingMoved, std::string destinationPath, bool functionSwitch, char * envp[]) {
 	/*-------------------------------------------------------------------
 	Note: This method is for the mv and cp commands. How this method 
 	works is by checking to see if the user is trying to move a symbolic
@@ -576,7 +576,7 @@ void Thursday::CopyAndMoveFiles(std::string itemsBeingMoved, std::string destina
 		arguments.push_back(itemsBeingMoved);
 		arguments.push_back(destinationPath);
 	}
-	ExecuteFile(whichCommand, arguments);
+	ExecuteFile(whichCommand, arguments, envp);
 	/*--------------------------------------------------------------------*/ 
 	if (debugSwitch == true) 
 		ColorChange("\t\tMission - You are leaving the CopyAndMoveFiles method.", 3);
@@ -693,7 +693,8 @@ void Thursday::DirectoryDelete(std::string dirname) {
 	if (debugSwitch == 1)
 		ColorChange("\t\tMission - You are in the DirectoryDelete method.", 3);
  	/*--------------------------------------------------------------------*/
-	std::vector<std::string> directory_contents = utili::directory_contents(dirname);
+	std::vector<std::string> directory_contents;
+	directory_contents = utili::directory_contents(dirname, directory_contents);
 	std::string temp_variable = "";
 	struct stat stFileInfo;	
 
@@ -758,7 +759,8 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 	std::vector<std::string> regularFiles;
 	std::vector<std::string> executableFiles;
 	std::vector<std::string> symbolicFiles;
-	std::vector<std::string> directory_contents = utili::directory_contents(pathName);
+	std::vector<std::string> directory_contents;
+	directory_contents = utili::directory_contents(pathName, directory_contents);
 	
 	if (lsArgument == "-all") {
 		Recursive_Directory_Search("/", "", true);	
@@ -779,6 +781,19 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 				executableFiles.push_back(directory_contents[a]);
 			} else if ((fileStruct.st_mode & S_IFMT) == S_IFREG) {
 				regularFiles.push_back(directory_contents[a]);
+			}
+		}
+		if (directories.size()  > regularFiles.size()) {
+			if (executableFiles.size() > directories.size()) {
+				totalNumberOfFiles = executableFiles.size();
+			} else {
+				totalNumberOfFiles = directories.size();
+			}		
+		} else {
+			if (executableFiles.size() > regularFiles.size()) {	
+				totalNumberOfFiles = executableFiles.size();
+			} else {
+				totalNumberOfFiles = regularFiles.size();
 			}
 		}
 		std::sort(directories.begin(), directories.end());
@@ -821,7 +836,7 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 		} else {
 			if (columns > 100) {
 				std::string sym = "", dir = "", exc = "", reg = "";
-				for (int i = 0; i < directory_contents.size(); i++) {					
+				for (int i = 0; i < totalNumberOfFiles; i++) {					
 					if (i < directories.size())
 						dir = directories[i];
 					else
@@ -1644,7 +1659,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 					DirectoryChange(previousPath);
 				} else if (incomingInput[i] == "bash") { 
 					arguments.push_back(incomingInput[i]); 
-					ExecuteFile(incomingInput[i], arguments); 
+					ExecuteFile(incomingInput[i], arguments, envp); 
 					arguments.clear(); 
 				} else if (incomingInput[i] == "cd") { 
 					if (size == 2) {														// Check to see if we have another argument in the vector.
@@ -1684,7 +1699,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 				} else if (incomingInput[i] == "compress") { 
 					if (size == 2) { 
 						i++; 
-						CompressAndDecompress(0, incomingInput[i]);
+						CompressAndDecompress(0, incomingInput[i], envp);
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
@@ -1708,7 +1723,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 							 cpPath = incomingInput[i];
 						}
 						if (fileSwitch == true && pathSwitch == true) {
-							CopyAndMoveFiles(cpFile, cpPath, false);
+							CopyAndMoveFiles(cpFile, cpPath, false, envp);
 							if (size == 4) {
 								i++;
 								if (incomingInput[i] == "-m")
@@ -1728,7 +1743,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 				} else if (incomingInput[i] == "decompress") { 
 					if (size == 2) { 
 						i++; 
-						CompressAndDecompress(1, incomingInput[i]); 
+						CompressAndDecompress(1, incomingInput[i], envp); 
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
@@ -1765,7 +1780,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 					}
 				} else if (incomingInput[i] == "exit") {
 					arguments.push_back("reset");
-					ExecuteFile("reset", arguments);
+					ExecuteFile("reset", arguments, envp);
 					exit(0);				
 				} else if (incomingInput[i] == "find") {
 					if (size == 3) {
@@ -1877,7 +1892,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 							 mvPath = incomingInput[i];
 						}
 						if (fileSwitch == true && pathSwitch == true) {
-							CopyAndMoveFiles(mvFile, mvPath, true);
+							CopyAndMoveFiles(mvFile, mvPath, true, envp);
 							if (size == 4) {
 								i++;
 								if (incomingInput[i] == "-m")
@@ -1994,7 +2009,7 @@ void Thursday::SetupAndCloseSystem(int argc, char * envp[]) {
 	thursdayCommandsFileName += "/ThursdayCommands.txt";
 
 	ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);
-	Environment = utili::get_environment(envp);
+	Environment = utili::get_environment(envp, Environment);
 	
 	std::string input = "";
 	for (int i = 0; i < Environment.size(); ++i) {
