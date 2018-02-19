@@ -1,0 +1,16 @@
+total 80
+-rw-rw-r-- 1 valorosoa valorosoa  3217 Feb 17 22:47 CODE_OF_CONDUCT.md
+-rw-rw-r-- 1 valorosoa valorosoa   301 Feb 17 22:47 CONTRIBUTING.md
+drwxrwxr-x 2 valorosoa valorosoa  4096 Feb 17 22:47 Dictionary-1.2
+drwxrwxr-x 5 valorosoa valorosoa  4096 Feb 17 22:47 examples
+drwxrwxr-x 2 valorosoa valorosoa  4096 Feb 17 22:47 information
+-rw-rw-r-- 1 valorosoa valorosoa  1050 Feb 17 22:47 ISSUE_TEMPLATE.md
+-rw-rw-r-- 1 valorosoa valorosoa  1514 Feb 17 22:47 LICENSE
+drwxrwxr-x 2 valorosoa valorosoa  4096 Feb 17 22:47 notes
+-rwxrwxr-x 1 valorosoa valorosoa  4846 Feb 17 22:47 README.md
+-rwxrwxr-x 1 valorosoa valorosoa   270 Feb 17 22:47 setup.sh
+drwxrwxr-x 2 valorosoa valorosoa  4096 Feb 19 12:47 src
+-rw-rw-r-- 1 valorosoa valorosoa   340 Feb 19 12:50 temp_output2.txt
+-rw-rw-r-- 1 valorosoa valorosoa     0 Feb 19 12:52 temp_output.txt
+-rwxrwxr-x 1 valorosoa valorosoa   299 Feb 17 22:47 update_system.sh
+-rwxrwxr-x 1 valorosoa valorosoa 23631 Feb 17 22:47 user_parse.cpp

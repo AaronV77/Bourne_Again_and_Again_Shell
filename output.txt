@@ -1,0 +1,17 @@
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+Dictionary-1.2
+examples
+information
+ISSUE_TEMPLATE.md
+LICENSE
+notes
+outputfile.txt
+output.txt
+README.md
+setup.sh
+src
+temp_output2.txt
+temp_output.txt
+update_system.sh
+user_parse.cpp

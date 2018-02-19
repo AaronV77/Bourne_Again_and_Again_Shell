@@ -102,7 +102,37 @@ void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_comman
 
 void Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
     /*------------------------------------------------------------------
-	Note: 
+	Note: This method does a lot for the system and is going to be hard to explain in one short paragraph.
+	The overview for this method is that it takes an incoming string and checks for errors in the input, if
+	there are no errors it either passes it along to the next method for parsing. Some of the things that this
+	method checks for is the correct number of these characters ", ', ), (, {, }, [, ], and to make sure that there
+	are not more than one operator next to one another. Lastly this method is also tokening up the string as
+	well. How this method works is by looping through the incoming string character by character, and checking 
+	for the following characters ", ', ), (, {, }, [, ], >, <, and |. For the first nine characters we are only checking
+	for them if we have not already found one of the others. With these nine characters if I have found one of 
+	them, then I am adding the characters to a string to keep everything together until I find that special 
+	character again. I do something special with these ), (, {, }, [, ], characters and that is make sure that 
+	I have not refound the same starting character once I already have. Right now I can only find one set of these
+	characters at this time. I am also checking for ampersands and making sure that there is not more than one of
+	them in a section of input. I do this by making keeping track of how many arguments / commands that I've found
+	and if I find an ampersand on the first argument then we are fine, else we display an error. How I am checking for
+	operators next to each other is by checking after a space is found to make sure that it is not another operator. 
+	Now this ">>" is allowable so I just ignore the standard out operator, but I use two sets of flags to get this 
+	task accomplished. In the middle of this algorithm is where I add the character we are currently looking at, if
+	one of the special containers ), (, {, }, [, ], was found then I just add to that string or to the token string.
+	There is also the option of skipping the character if I had to add it to a string some where previously in the 
+	algorithm. Next I am checking for spaces, semicolons, or the last character in the string. If a space is found
+	then we have to add it to the vector, but we check for ampersands, if we have an operator that we can accept, and
+	make sure that there is not another operator found after the space. How I check for operators next to each other is
+	once I find an operator that I can accept, and process a space, I set another flag that. If I find another space, 
+	I check to see if that flag is set and if I have found another operator some where within that incoming token. If I
+	find it then there is an error. Lastly if I find a semicolon or the last character then I make sure to check to make
+	sure that all special characters boolean values are all false, then I do relatively the same thing I do when I find
+	a space. I check for ampersands and operators, the only thing that I don't check / do is make sure that there is another
+	not another operating coming next because a semicolon is the reset. If  I find another operator after the semicolon its 
+	fine, and if I'm on the last character then who cares. If an operator was found then we send the vector to the 
+	Operator_Command_Parse_Loop method, and if not then we go to the Basic_Command_Parse_Loop method .This method was last 
+	updated on 2/19/2018.
 	--------------------------------------------------------------------*/	
     if (debugSwitch == 1)
         ColorChange("\t\tMission - You are in the PromptDisplay method.", 3); 
@@ -122,13 +152,6 @@ void Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
     int which_command_parser = 0;
     int argument_position = 0;
 	std::vector<std::string> incoming_commands;
-
-    // This loop just gets rid of all spaces and tokens the incoming input.
-    // This loop also makes sure there is a correct number of quotes (single and double).
-    // This loop is also make sure that there are not more than one operator next to each other without a space and with a space.
-    // I do this by setting a flag when an operator is found, and set another operator when a space is found.
-    // If the next character after that space is another opeator then there is an error else there is not.
-    // Then shoves them into a vector and returns the vector.
 
     for (int a = 0; a < incoming_input.size(); ++a) {
 
@@ -181,11 +204,6 @@ void Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                         special_symbol_container += incoming_input[a];
                         incoming_commands.push_back(special_symbol_container);
                         special_symbol_container = "";
-                    } else {
-                        std::cout << "" << std::endl;
-						ColorChange("\t\tThere is a parentheses char error-2.", 2);
-                        error_flag = true;
-                        break;
                     }
                 }
             }
@@ -209,10 +227,6 @@ void Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                         special_symbol_container += incoming_input[a];
                         incoming_commands.push_back(special_symbol_container);
                         special_symbol_container = "";
-                    } else {
-						ColorChange("\t\tThere is a bracket char error-2.", 2);
-                        error_flag = true;
-                        break;
                     }
                 }
             }
@@ -236,10 +250,6 @@ void Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                         special_symbol_container += incoming_input[a];
                         incoming_commands.push_back(special_symbol_container);
                         special_symbol_container = "";
-                    } else {
-						ColorChange("\t\tThere is a curly brace char error-2.", 2);
-                        error_flag = true;
-                        break;
                     }
                 }
             }
@@ -348,15 +358,6 @@ void Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                         }
                     }
                     if (token.size() > 0) {
-                        if (next_operator_find_flag == true) {
-                            if (operator_found_flag == true) {
-								ColorChange("\t\tThere are to many operators near by error-2.", 2);
-                                error_flag = true;
-                                break;
-                            } else {
-                                next_operator_find_flag = false;
-                            }
-                        }
                         if (operator_found_flag == true) {
                             if (token != ">" || token != ">>" || token != "1>" || token != "1>>" || token != "2>" || token != "2>>" || token != "<" || token != "0<" || token != "|") {
 								ColorChange("\t\tThere was an incorrect operator found error-2.", 2);
@@ -365,7 +366,6 @@ void Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
                             } else {
                                 operator_found_flag = false;
                                 ampersand_flag = false;
-                                next_operator_find_flag = true;
                             }
                         }
                         incoming_commands.push_back(token);
@@ -1257,9 +1257,14 @@ void Thursday::Help(std::string argument) {
 
 void Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]) {
 	/*------------------------------------------------------------------
-	Note: This method builds the prompt to be displayed onto the screen
-	for the user. Every option has a different prompt setup. This method
-	was last updated on 2/18/2018.
+	Note: This method is where I come to process all the incoming operators that are in the vector.
+	There three rules to follow when looking into this method. Rule #1: You cannot have standard out
+	before standard in. Rule #2: You can have standard out and standard error after a pipe but not standard in.
+	Rule #3: You can only have one standard out and standard in each input section. How this method works
+	is by looping through the entire vector that was passed in. We check for operators, and make sure that
+	they are not the first argument in the vector. Each operator does something different, and by following the
+	rules, if standard out is found first or after a pipe is found, standard in is closed until a semicolon is
+	found. If we find more than one standard error then we just over write it and move forward.
 	--------------------------------------------------------------------*/	
     if (debugSwitch == 1)
         ColorChange("\t\tMission - You are in the PromptDisplay method.", 3); 
@@ -1276,7 +1281,8 @@ void Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_com
     bool end_of_section = false;
     bool adding_to_standard_out_file = false;
     bool adding_to_standard_error_file = false;
-    bool temp_file_used = false;
+    bool temp_file_1_used = false;
+	bool temp_file_2_used = false;
     int the_size = 0;
     int temp_Size = 0;
     std::vector<std::string> the_operators;
@@ -1286,124 +1292,153 @@ void Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_com
         the_size = incoming_commands[f].size();
         temp_Size = 0;
         if (incoming_commands[f] == "|") {
-            standard_in_flag = true;
-            standard_out_flag = false;
-            standard_error_flag = false;
-            skip_argument_flag = true;
-            if (the_operators.size() == 0) {
-                if (pipe_flag == false)
-                    Exec_Redirection("", false, standard_output_file, false, "", commands, envp);
-                else
-                    Exec_Redirection(standard_input_file, false, standard_output_file, false, "", commands, envp);
-                temp_file_used = true;
-            } else {
-                for (int g = 0; g < the_operators.size(); g++) {
-                    if (pipe_control_flag == false) {
-                        if (the_operators[g] == "in") {
-                            pipe_control_flag = true;
-                            Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
-                        } else if (the_operators[g] == "out") {
-                            pipe_control_flag = true;
-                            if (pipe_flag == false) {
-                                Exec_Redirection("", adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
-                            } else {
+			if (f != 0) {
+				standard_in_flag = true;
+				standard_out_flag = false;
+				standard_error_flag = false;
+				skip_argument_flag = true;
+				if (the_operators.size() == 0) {
+					if (pipe_flag == false) {
+						standard_output_file = "temp_output.txt";
+						temp_file_1_used = true;
+						Exec_Redirection("", false, standard_output_file, false, "", commands, envp);
+					} else {
+						standard_output_file = "temp_output2.txt";
+						temp_file_2_used = true;
+						Exec_Redirection(standard_input_file, false, standard_output_file, false, "", commands, envp);
+					}
+				} else {
+					for (int g = 0; g < the_operators.size(); g++) {
+						if (pipe_control_flag == false) {
+							if (the_operators[g] == "in") {
+								pipe_control_flag = true;
 								Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
-                            }
-                        }
-                    }
-                }
-            }
-            standard_input_file = standard_output_file;
-            pipe_control_flag = false;
-            adding_to_standard_error_file = false;
-            adding_to_standard_out_file = false;
-            pipe_flag = true;
-            commands.clear();
-            the_operators.clear();
+							} else if (the_operators[g] == "out") {
+								pipe_control_flag = true;
+								if (pipe_flag == false) {
+									Exec_Redirection("", adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+								} else {
+									Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+								}
+							}
+						}
+					}
+				}
+				standard_input_file = standard_output_file;
+				pipe_control_flag = false;
+				adding_to_standard_error_file = false;
+				adding_to_standard_out_file = false;
+				pipe_flag = true;
+				commands.clear();
+				the_operators.clear();
+			} else {
+				ColorChange("\t\tThere was an operator in the first position.", 2);
+				incoming_commands.clear();
+				return;  
+			}
         }
 
+
         if (incoming_commands[f] == ">" || incoming_commands[f] == "1>" || incoming_commands[f] == ">>" || incoming_commands[f] == "1>>" ) {
-            if (standard_out_flag == false) {
-                the_operators.push_back("out");
-                if (pipe_flag == true)
-                    standard_input_file = standard_output_file;
-                if (incoming_commands[f] == ">>" || incoming_commands[f] == "1>>")
-                    adding_to_standard_out_file = true;
-                standard_out_flag = true;
-                standard_in_flag = true;
-                skip_argument_flag = true;
-                temp_Size = f;
-                temp_Size += 3;
-                if (temp_Size <= incoming_commands.size()) {
-                    if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
-						ColorChange("\t\tThere are one to many arguments / commands after the standard out operator.", 2);
-                        incoming_commands.clear();
-                        return;
-                    }
-                }
-                f++;
-                the_size = incoming_commands[f].size();
-                if (incoming_commands[f][the_size - 1] == ';') {
-                    incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
-                    end_of_section = true;
-                }
-                standard_output_file = incoming_commands[f];
-            } else {
-				ColorChange("\t\tThere was one to many standard out operators.", 2);
-                incoming_commands.clear();
-                return;                  
-            }
+			if (f != 0) {
+				if (standard_out_flag == false) {
+					the_operators.push_back("out");
+					// if (pipe_flag == true)
+					// 	standard_input_file = standard_output_file;
+					if (incoming_commands[f] == ">>" || incoming_commands[f] == "1>>")
+						adding_to_standard_out_file = true;
+					standard_out_flag = true;
+					standard_in_flag = true;
+					skip_argument_flag = true;
+					temp_Size = f;
+					temp_Size += 3;
+					if (temp_Size <= incoming_commands.size()) {
+						if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
+							ColorChange("\t\tThere are one to many arguments / commands after the standard out operator.", 2);
+							incoming_commands.clear();
+							return;
+						}
+					}
+					f++;
+					the_size = incoming_commands[f].size();
+					if (incoming_commands[f][the_size - 1] == ';') {
+						incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
+						end_of_section = true;
+					}
+					standard_output_file = incoming_commands[f];
+				} else {
+					ColorChange("\t\tThere was one to many standard out operators.", 2);
+					incoming_commands.clear();
+					return;                  
+				}
+			} else {
+				ColorChange("\t\tThere was an operator in the first position.", 2);
+				incoming_commands.clear();
+				return;  
+			}
         }
 
         if (incoming_commands[f] == "2>" || incoming_commands[f] == "2>>") {
-            if (incoming_commands[f] == "2>>")
-                adding_to_standard_error_file = true;
-            the_operators.push_back("error");
-            skip_argument_flag = true;
-            temp_Size = f;
-            temp_Size += 3;
-            if (temp_Size <= incoming_commands.size()) {
-                if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
-					ColorChange("\t\tThere are one to many arguments / commands after the standard out operator.", 2);
-                    incoming_commands.clear();
-                    return;
-                }
-            }
-            f++;
-            the_size = incoming_commands[f].size();
-            if (incoming_commands[f][the_size - 1] == ';') {
-                incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
-                end_of_section = true;
-            }
-            standard_error_file = incoming_commands[f];
+			if (f != 0) {
+				if (incoming_commands[f] == "2>>")
+					adding_to_standard_error_file = true;
+				the_operators.push_back("error");
+				skip_argument_flag = true;
+				temp_Size = f;
+				temp_Size += 3;
+				if (temp_Size <= incoming_commands.size()) {
+					if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
+						ColorChange("\t\tThere are one to many arguments / commands after the standard out operator.", 2);
+						incoming_commands.clear();
+						return;
+					}
+				}
+				f++;
+				the_size = incoming_commands[f].size();
+				if (incoming_commands[f][the_size - 1] == ';') {
+					incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
+					end_of_section = true;
+				}
+				standard_error_file = incoming_commands[f];
+			} else {
+				ColorChange("\t\tThere was an operator in the first position.", 2);
+				incoming_commands.clear();
+				return;  
+			}
         }
 
         if (incoming_commands[f] == "0<" || incoming_commands[f] == "<") {
-            if (standard_in_flag == false) {
-                the_operators.push_back("in");
-                standard_in_flag = true;
-                skip_argument_flag = true;
-                temp_Size = f;
-                temp_Size += 3;
-                if (temp_Size <= incoming_commands.size()) {
-                    if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
-						ColorChange("\t\tThere are one to many arguments / commands after the standard in operator.", 2);
-                        incoming_commands.clear();
-                        return;
-                    }
-                }
-                f++;
-                the_size = incoming_commands[f].size();
-                if (incoming_commands[f][the_size - 1] == ';') {
-                    incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
-                    end_of_section = true;
-                }
-                standard_input_file = incoming_commands[f];
-            } else {
-				ColorChange("\t\tThere was one to many standard in operators or was found after a pipe operator.", 2);
-                incoming_commands.clear();
-                return;                
-            }
+			if (f != 0) {
+				if (standard_in_flag == false) {
+					the_operators.push_back("in");
+					standard_in_flag = true;
+					skip_argument_flag = true;
+					temp_Size = f;
+					temp_Size += 3;
+					if (temp_Size <= incoming_commands.size()) {
+						if (incoming_commands[temp_Size] == ">" || incoming_commands[temp_Size] == ">>" || incoming_commands[temp_Size] == "1>" || incoming_commands[temp_Size] == "1>>" || incoming_commands[temp_Size] == "2>" || incoming_commands[temp_Size] == "2>>" || incoming_commands[temp_Size] == "<" || incoming_commands[temp_Size] == "0<" || incoming_commands[temp_Size] == "|") {
+							ColorChange("\t\tThere are one to many arguments / commands after the standard in operator.", 2);
+							incoming_commands.clear();
+							return;
+						}
+					}
+					f++;
+					the_size = incoming_commands[f].size();
+					if (incoming_commands[f][the_size - 1] == ';') {
+						incoming_commands[f].erase(incoming_commands[f].begin()+(incoming_commands[f].size() - 1), incoming_commands[f].end());
+						end_of_section = true;
+					}
+					standard_input_file = incoming_commands[f];
+				} else {
+					ColorChange("\t\tThere was one to many standard in operators or was found after a pipe operator.", 2);
+					incoming_commands.clear();
+					return;                
+				}
+			} else {
+				ColorChange("\t\tThere was an operator in the first position.", 2);
+				incoming_commands.clear();
+				return;  
+			}
         }
 
         if (end_of_section == true || incoming_commands[f][the_size - 1] == ';' || (incoming_commands.size() - 1) == f) {
@@ -1452,8 +1487,8 @@ void Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_com
             skip_argument_flag = false;
     }
 
-    if (temp_file_used == true)
-        remove("temp_output.txt");
+    // if (temp_file_used == true)
+    //     remove("temp_output.txt");
    	/*--------------------------------------------------------------------*/	
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are in the ArgumentChecker method.", 3);
