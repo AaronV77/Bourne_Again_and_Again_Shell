@@ -131,7 +131,7 @@ void Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
 	a space. I check for ampersands and operators, the only thing that I don't check / do is make sure that there is another
 	not another operating coming next because a semicolon is the reset. If  I find another operator after the semicolon its 
 	fine, and if I'm on the last character then who cares. If an operator was found then we send the vector to the 
-	Operator_Command_Parse_Loop method, and if not then we go to the Basic_Command_Parse_Loop method .This method was last 
+	Operator_Command_Parse_Loop method, and if not then we go to the Basic_Command_Parse_Loop method. This method was last 
 	updated on 2/19/2018.
 	--------------------------------------------------------------------*/	
     if (debugSwitch == 1)
@@ -749,42 +749,42 @@ void Thursday::DisplayDirectories(std::string lsArgument, std::string pathName) 
 	if (debugSwitch == 1)
 		ColorChange("\t\tMission - You are in the DisplayDirectories method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	std::size_t stringFind;																													// Used to find strings within strings.
-	struct stat fileStruct;																													// Used to access information about a file.
-	DIR * dir;																																// Used to open a directory and see what files are in it.
-	dirent * entry;																															// Used to access the contents of a directroy using the previous variable.
+	std::size_t stringFind;
+	struct stat fileStruct;
+	DIR * dir;
+	dirent * entry;
 	int columns = utili::screen_size();
 	int indent = 0;
 	int totalNumberOfFiles = 0;
 	std::string temp_path = "";
-	std::vector<std::string> directories;																									// Used to store the directories.
-	std::vector<std::string> regularFiles;																									// Used to store the regular files.
-	std::vector<std::string> executableFiles;																								// Used to store the executables.
-	std::vector<std::string> symbolicFiles;																									// Used to stroe the symbolic links.
+	std::vector<std::string> directories;
+	std::vector<std::string> regularFiles;
+	std::vector<std::string> executableFiles;
+	std::vector<std::string> symbolicFiles;
 
-	if (pathName.size() == 0)																												// If the incoming path name is empty.
-		dir = opendir(".");																													// We will just open up the current directory.
+	if (pathName.size() == 0)
+		dir = opendir(".");
 	else 
-		dir = opendir(pathName.c_str());																									// Else we will open up the path name.
+		dir = opendir(pathName.c_str());
 	
-	if (lsArgument == "-all") {																												// If the ls argument is all.
+	if (lsArgument == "-all") {
 		Recursive_Directory_Search("/", "", true);	
-	} else if (lsArgument == "" || lsArgument == "-l") {																					// Else if the ls argument is -l or empty.
-		while ((entry = readdir(dir))) {																										// Loop through the directory.
-			if(pathName.size() > 0)	{																										// If there is an incoming path.
-				temp_path = pathName + '/' + entry->d_name;																					// If there is an incoming path then we want the whole path of the file we are looking at.																									
-				lstat(temp_path.c_str(), &fileStruct);																						// Get information on the file that we are looking at.
+	} else if (lsArgument == "" || lsArgument == "-l") {
+		while ((entry = readdir(dir))) {
+			if(pathName.size() > 0)	{
+				temp_path = pathName + '/' + entry->d_name;																									
+				lstat(temp_path.c_str(), &fileStruct);
 			} else {
-				lstat(entry->d_name, &fileStruct);																							// If we are looking at a file in the directory we are currently in.
+				lstat(entry->d_name, &fileStruct);
 			}
-			if ((fileStruct.st_mode & S_IFMT) == S_IFLNK) {																					// Check to see if the file is a symbolic link.
-				symbolicFiles.push_back(entry->d_name);																						// Add it to the symbolic link vector.
-			} else if ((fileStruct.st_mode & S_IFMT) == S_IFDIR) {																			// Check to see if the file is a directory.
-				directories.push_back(entry->d_name);																						// Add it to the directory vector.
-			} else if (! access(entry->d_name, X_OK) && ((fileStruct.st_mode & S_IFMT) == S_IFREG)) {										// Check to see if the file is an executable. 
-				executableFiles.push_back(entry->d_name);																					// Add it to the executable link vector.
-			} else if ((fileStruct.st_mode & S_IFMT) == S_IFREG) {																			// Check to see if the file is just a normal file.
-				regularFiles.push_back(entry->d_name);																						// Add it to the regular file vector.
+			if ((fileStruct.st_mode & S_IFMT) == S_IFLNK) {
+				symbolicFiles.push_back(entry->d_name);
+			} else if ((fileStruct.st_mode & S_IFMT) == S_IFDIR) {
+				directories.push_back(entry->d_name);
+			} else if (! access(entry->d_name, X_OK) && ((fileStruct.st_mode & S_IFMT) == S_IFREG)) {
+				executableFiles.push_back(entry->d_name);
+			} else if ((fileStruct.st_mode & S_IFMT) == S_IFREG) {
+				regularFiles.push_back(entry->d_name);
 			}	
 		}
 		if (directories.size()  > regularFiles.size()) {
