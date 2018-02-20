@@ -22,7 +22,7 @@ Program#printenv#- This command will print all the bash global variables. Takes 
 Program#prompt#- This command will change the commannd prompt. There are four different options with this command.#
 Program#search#- This command will search the dictionary for a meaning of the given word.#
 Program#setenv#- This command will set an environment variable to the system global environment.#
-Program#system#- This command will erase all the computer system files. Takes no other commands with it.#
+Program#shutdown#- This command will shutdown the machine.
 Program#time#- This command will display the current time.#
 Program#uid#- This command will display the user ID number. Takes no other commands with it.#
 Program#usage#- This command will print out the basic details of Thursday. Takes no other commands with it.#

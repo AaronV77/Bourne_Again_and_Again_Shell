@@ -2049,6 +2049,13 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect.", 2);
 					}
+				} else if (incomingInput[i] == "shutdown"){
+					if (arguments.size() > 0) 
+						arguments.clear();
+					arguments.push_back("/sbin/shutdown");
+					arguments.push_back("-h");
+					arguments.push_back("now");
+					ExecuteFile(incomingInput[i], arguments, envp); 
 				}
 			} else {																		//If the command is within T - Z (t - z).
 				if (incomingInput[i] == "time") {	
@@ -2076,6 +2083,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 		ExecuteFile(incomingInput[i], incomingInput, envp); 										// Send the first argument and then send the rest of the vector.
 	}
 	/*--------------------------------------------------------------------*/
+	incomingInput.clear();
     if (debugSwitch == 1) 
 		ColorChange("\t\tMission - You are leaving the SearchCommands method.", 3);
 

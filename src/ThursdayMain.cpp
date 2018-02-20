@@ -137,7 +137,7 @@ int main (int argc, char * argv[], char *envp[]) {
 				std::cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
 				theCommands = incomingCommands[UpAndDownIterator];												//Reset the input string with the previous command.
 				LeftAndRightIterator = theCommands.size() + 1;													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
-			// } else if (theCommands.size() != 0) {																//If there is nothing on the screen then we want to make sure to reprint the first item in the array.							
+			// } else if (theCommands.size() != 0) {															//If there is nothing on the screen then we want to make sure to reprint the first item in the array.							
 			// 	std::cout << "HERE" << std::endl;
 			// 	UpAndDownIterator = 0;	
 			// 	printf("%c[2K", 27);																			//Clear the current terminal line.
@@ -161,6 +161,10 @@ int main (int argc, char * argv[], char *envp[]) {
 				LeftAndRightIterator = theCommands.size() + 1;													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
 			} else {																							//If we hit the very top of the vector then we want to clear the termina input just like bash.
 				if (theCommands.size() > 0) {
+					for (int i = LeftAndRightIterator; i < (theCommands.size()+1); ++i)	{
+						printf("\033[C"); 
+						LeftAndRightIterator++;
+					}
 					for (int d = 0; d < theCommands.size(); d++) {												//Loop through the number of characters currently being typed.
 						printf("\b \b");																		//Deletes a character on the current line and moves the string back one.
 						LeftAndRightIterator--;																	//Decrement the left and right iterator.

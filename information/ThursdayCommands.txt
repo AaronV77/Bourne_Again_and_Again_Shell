@@ -27,6 +27,7 @@ prompt#
 rm#
 search#
 setenv#
+shutdown#
 time#
 uid#
 unsetenv#

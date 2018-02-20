@@ -25,6 +25,7 @@ prompt#- This command will change the command prompt. Takes one argument and it 
 rm#- This command will remove any file or directory without any extra arguments. Takes one argument, either a folder or file.#
 search#- This command will search the dictionary for a meaning of the given word. Takes one argument and is the word you are searching for.#
 setenv#- This command will set an environment variable to the bash global system. Takes two arguments, the first being the name of the variable and the second being the value for the variable. The system will not allow you to have two of the same global variable name.#
+shutdown# - This command will shutdown the machine simply with one command. Takes no other arguments.#
 time#- This command will display the current time. Takes no other arguments.#
 uid#- This command will display the user ID number. Takes no other arguments.#
 usage#- This command will print out the basic details of Thursday. Takes no other arguments.#
