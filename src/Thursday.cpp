@@ -13,7 +13,7 @@ Thursday::Thursday() {
 	debugSwitch = false;
 	waitSwitch = false;
 	ColorSwitch(true);
-	colorOption = 5;
+	colorOption = 10;
 	promptNumber = 2;
 	gid = getgid();
 	pid = getpid();
