@@ -61,20 +61,23 @@ void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_comman
     std::vector<std::string> sending_commands;
     bool thursday_command_flag = false;
     int command_size = 0;
+	int argument_position = 0;
 
     for (int a = 0; a < incoming_commands.size(); ++a) {
 
         command_size = incoming_commands.size();
 
-		if (incoming_commands[a] == "enable") {
-			ColorChange("\t\tThursday's commands have been enable.", 3);
-			myCommandSwitch = false;
-		} 
+		if (argument_position == 0) {
+			if (incoming_commands[a] == "enable") {
+				ColorChange("\t\tThursday's commands have been enable.", 3);
+				myCommandSwitch = false;
+			} 
 
-		if (myCommandSwitch == false) {
-			for (int b = 0; b < ThursdayCommands.size(); b++) {
-				if (ThursdayCommands[b] == incoming_commands[a])
-					thursday_command_flag = true;
+			if (myCommandSwitch == false) {
+				for (int b = 0; b < ThursdayCommands.size(); b++) {
+					if (ThursdayCommands[b] == incoming_commands[a])
+						thursday_command_flag = true;
+				}
 			}
 		}
 
@@ -83,6 +86,7 @@ void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_comman
                 incoming_commands[a].erase(incoming_commands[a].begin()+(incoming_commands[a].size() - 1), incoming_commands[a].end());
             
             sending_commands.push_back(incoming_commands[a]);
+			argument_position++;
 			if (thursday_command_flag == true)
 				SearchCommands(sending_commands, 0, envp);
 			else
@@ -91,6 +95,7 @@ void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_comman
             sending_commands.clear();
         } else {
             sending_commands.push_back(incoming_commands[a]);
+			argument_position++;
         }
     }
    	/*--------------------------------------------------------------------*/	
