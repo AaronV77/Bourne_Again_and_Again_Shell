@@ -65,7 +65,7 @@ void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_comman
 
     for (int a = 0; a < incoming_commands.size(); ++a) {
 
-        command_size = incoming_commands.size();
+        command_size = incoming_commands[a].size();
 
 		if (argument_position == 0) {
 			if (incoming_commands[a] == "enable") {
@@ -84,9 +84,9 @@ void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_comman
         if ((incoming_commands[a][command_size - 1] == ';') || (incoming_commands.size() == (a + 1))) {
             if (incoming_commands[a][command_size - 1] == ';')
                 incoming_commands[a].erase(incoming_commands[a].begin()+(incoming_commands[a].size() - 1), incoming_commands[a].end());
-            
+
             sending_commands.push_back(incoming_commands[a]);
-			argument_position++;
+			argument_position = 0;
 			if (thursday_command_flag == true)
 				SearchCommands(sending_commands, 0, envp);
 			else
@@ -1771,7 +1771,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 							DirectoryChange(random);										// Make the directory change.
 						}
 					} else {
-						ColorChange("\t\tThe number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect-1.", 2);
 					}
 				} else if (incomingInput[i] == "color") { 			
 					if (size == 2) { 
@@ -1786,7 +1786,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 						else
 							ColorSwitch(false);
 					} else {
-						ColorChange("\t\the number of arguments was incorrect.", 2);
+						ColorChange("\t\the number of arguments was incorrect-2.", 2);
 					}
 				} else if (incomingInput[i] == "commands") { 
 					fileName = informationDestination; 
@@ -1798,7 +1798,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 						i++; 
 						CompressAndDecompress(0, incomingInput[i], envp);
 					} else {
-						ColorChange("\t\tThe number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect-3.", 2);
 					}
 				} else if (incomingInput[i] == "cp") {
 					std::string checkPath = "";
@@ -1828,7 +1828,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 							}
 						}
 					} else {
-						ColorChange("\t\tSorry insufficient number of arguments.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect-4.", 2);
 					}
 				} else if (incomingInput[i] == "date") { 
 					std::cout << "\t\t" << utili::date(1) << std::endl; 
@@ -1842,7 +1842,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 						i++; 
 						CompressAndDecompress(1, incomingInput[i], envp); 
 					} else {
-						ColorChange("\t\tThe number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect-5.", 2);
 					}
 				} else if (incomingInput[i] == "decrypt") {
 					if (size == 3) {
@@ -1855,7 +1855,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 						i++;
 						std::cout << "\t\t" << Cryptography(2, key, incomingInput[i]) << std::endl;
 					} else {
-						ColorChange("\t\tThe number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect-6.", 2);
 					}
 				} else if (incomingInput[i] == "disable") {
 					if (myCommandSwitch == false) {
@@ -1873,7 +1873,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 						i++;
 						std::cout << "\t\t" << Cryptography(1, key, incomingInput[i]) << std::endl;	
 					} else {
-						ColorChange("\t\tThe number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect-7.", 2);
 					}
 				} else if (incomingInput[i] == "exit") {
 					arguments.push_back("reset");
@@ -1894,7 +1894,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 						random = "/";
 						Recursive_Directory_Search(random, incomingInput[i], false);
 					} else {
-						ColorChange("\t\tThe number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect-8.", 2);
 					}
 				}
 			} else {																		//If the command is within G - L (g - l).											
@@ -1903,7 +1903,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 						i++;
 						EnvironmentUtilites(2, incomingInput[i], "");
 					} else {
-						ColorChange("\t\tThe number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect-9.", 2);
 					}
 				} else if (incomingInput[i] == "hd") {
 					passwd * CurrUser = getpwuid(getuid());
@@ -1913,7 +1913,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 						i++;
 						Help(incomingInput[i]);
 					} else {
-						ColorChange("\t\tThe number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect-10.", 2);
 					}
 				} else if (incomingInput[i] == "info") {
 					std::cout << "\t\t" << "The user ID is: " << uid << std::endl;
@@ -1997,7 +1997,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 							}
 						}
 					} else {
-						ColorChange("\t\tSorry insufficient number of arguments.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect-11.", 2);
 					}
 				} else if (incomingInput[i] == "pid") { 
 					std::cout << "\t\t" << "The process ID is: " << getpid() << std::endl;
@@ -2027,7 +2027,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 							}
 						}
 					} else {
-						ColorChange("\t\tThe number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect-12.", 2);
 					}
 				} else if (incomingInput[i] == "rm") {
 					if (size == 2) {
@@ -2035,7 +2035,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 						if (remove(incomingInput[i].c_str()) != 0)							// If the file is a normal file then delete, but if its a directory we move forward.
 							DirectoryDelete(incomingInput[i]);
 					} else {
-						ColorChange("\t\tThe number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect-13.", 2);
 					}
 				} else if (incomingInput[i] == "search") {
 					if (size == 2) {
@@ -2043,7 +2043,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 						Search(incomingInput[i]);
 						std::cout << "" << std::endl;
 					} else {
-						ColorChange("\t\tThe number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect-14.", 2);
 					}
 				} else if (incomingInput[i] == "setenv") {
 					if (size == 3) {
@@ -2052,7 +2052,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 						i++;
 						EnvironmentUtilites(1, random, incomingInput[i]);
 					} else {
-						ColorChange("\t\tThe number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect-15.", 2);
 					}
 				} else if (incomingInput[i] == "shutdown"){
 					if (arguments.size() > 0) 
@@ -2072,7 +2072,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 						i++;
 						EnvironmentUtilites(0, incomingInput[i], "");
 					} else {
-						ColorChange("\t\tThe number of arguments was incorrect.", 2);
+						ColorChange("\t\tThe number of arguments was incorrect-16.", 2);
 					}
 				} else if (incomingInput[i] == "usage") {
 					std::cout << std::endl;
