@@ -1,5 +1,5 @@
 Game: Thursday.o Utilities.o
-	g++ -std=c++11 Utilities.o Thursday.o ThursdayMain.cpp -o Thurs
+	g++ -std=c++11 Utilities.o Thursday.o ThursdayMain2.cpp -o Thurs
 
 Thursday.o: Thursday.cpp Thursday.h
 	g++ -std=c++11 -c  Thursday.cpp
