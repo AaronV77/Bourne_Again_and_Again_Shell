@@ -16,6 +16,8 @@
 #include <vector>
 
 namespace utili {   
+    static const int MAX_SIZE = 256;
+	static char path[MAX_SIZE];
     /*Methods*/
     /*-------------------------------------------------------------------------------------------*/
     std::string convert_number_to_letter(int incomingNumber);
@@ -23,6 +25,8 @@ namespace utili {
     std::vector<std::string> directory_contents(std::string directoryPath, std::vector<std::string> contents);
     std::string fileInformation(std::string pathName);
     std::vector<std::string> get_environment(char **, std::vector<std::string> environment);
+    bool isDirectory(std::string incomingPath);
+    bool isFile(std::string incomingPath);
     int isNumber(std::string incomingString);
     void print_content(std::vector<std::string> content);
     void print_string(std::string incomingString);

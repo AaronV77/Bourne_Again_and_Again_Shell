@@ -151,6 +151,29 @@ std::vector<std::string> utili::get_environment(char * envp[], std::vector<std::
 	return environment;
 }
 
+bool utili::isDirectory(std::string incomingPath) {
+	struct stat fileStruct;
+	lstat(incomingPath.c_str(), &fileStruct);
+	if ((fileStruct.st_mode & S_IFMT) == S_IFDIR)
+		return true;
+
+	return false;
+}
+
+bool utili::isFile(std::string incomingPath) {
+	struct stat fileStruct;
+	lstat(incomingPath.c_str(), &fileStruct);
+	if ((fileStruct.st_mode & S_IFMT) == S_IFLNK) {
+		return true;
+	} else if (! access(incomingPath.c_str(), X_OK) && ((fileStruct.st_mode & S_IFMT) == S_IFREG)) {
+		return true;
+	} else if ((fileStruct.st_mode & S_IFMT) == S_IFREG) {
+		return true;
+	}	
+
+	return false;
+}
+
 int utili::isNumber(std::string incomingString) {
 	/*------------------------------------------------------------------
 	Note: This method takes an incoming string and checks to see if it

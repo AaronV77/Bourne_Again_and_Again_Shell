@@ -91,6 +91,7 @@ private:
 	std::string hostName;
 	std::string informationDestination;
 	std::string previousPath;
+	std::string user_home_destination;
 	
     std::vector<std::string> Environment;
     std::vector<std::string> PathVector;

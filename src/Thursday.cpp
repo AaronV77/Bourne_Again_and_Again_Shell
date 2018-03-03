@@ -31,6 +31,8 @@ Thursday::Thursday() {
 	informationDestination = currentPath;
 	dictionaryDestination += "/Dictionary-1.2";
 	informationDestination += "/information";
+	passwd * CurrUser = getpwuid(getuid());
+	user_home_destination = static_cast<std::string>(CurrUser->pw_dir);
 }
 
 Thursday::~Thursday() {
@@ -662,7 +664,7 @@ void Thursday::DirectoryChange(std::string desiredPath) {
 	--------------------------------------------------------------------*/ 
     if (debugSwitch == true) 
 		ColorChange("\t\tMission - You are in the DirectoryChange method.", 3);
-	/*--------------------------------------------------------------------*/ 
+	/*--------------------------------------------------------------------*/
 	if (currentPath != desiredPath && desiredPath.size() > 0) {
 		if (chdir(desiredPath.c_str()) == -1) {
 			ColorChange("\t\tThere was an issue moving to that directory", 2);
@@ -1760,16 +1762,11 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 					arguments.clear(); 
 				} else if (incomingInput[i] == "cd") { 
 					if (size == 2) {														// Check to see if we have another argument in the vector.
-						i++;																//
-						stringFind = incomingInput[i].find('/');							// If there is a / in the path if so just try and change with that directory.																							
-						if (stringFind != std::string::npos) {								// See if there is a / in the element.					
-							DirectoryChange(incomingInput[i]);								// Make the directory change if a / was found.
-						} else {
-							random = currentPath;											// Add the currentPath to a string. I'm doing this because if I am moving from some where in the directory then I don't want to type the whole path.
-							random += "/";													// Add the / to the string.
-							random += incomingInput[i];										// Add the directory that the user wants to go into.
-							DirectoryChange(random);										// Make the directory change.
-						}
+						i++;
+						if (incomingInput[i] == "~")
+							DirectoryChange(user_home_destination);
+						else 
+							DirectoryChange(incomingInput[i]);
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect-1.", 2);
 					}

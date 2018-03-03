@@ -8,14 +8,15 @@ int main (int argc, char * argv[], char *envp[]) {
 	char path[256];
 	int characterNumber = 0;																					//Used to store the ascii value of the character from the keyboard.
 	int LeftAndRightIterator = 1;																				//Used to keep track of where the cursor is on the screen.
-	int quoteCounter = 0;																						//Used to keep track of how many quotes are in the stream.
 	int UpAndDownIterator = 0;																					//Used to keep track of where the system is in the commands vector.
-	int stringSize = 0;
 	int size = 0;
 	bool tabPressed = false;
 	bool quoteFound = false;																					//Used to stop store characters in the "theCommands" variable.
 	std::string theCommands = "";																				//Used to store the whole incoming input from the user besides if there is a quote.
-	std::vector<std::string> incomingCommands;																	//Used to store the incoming commands from the user and will be checked.
+    std::string input = "";
+    std::string lastItem = "";
+    std::string storage = "";
+    std::vector<std::string> incomingCommands;																	//Used to store the incoming commands from the user and will be checked.
 	struct termios oldattr, newattr;																			//Setup terminal variables.
 	
 	Thursday home;																								//Create an instance of the class.
@@ -46,76 +47,62 @@ int main (int argc, char * argv[], char *envp[]) {
 		tcsetattr(STDIN_FILENO, TCSANOW, &newattr);																//Set the new settings to the terminal.
 		characterNumber = getche();																				//Retrieve the character that was typed and send back the ascii value.
 		tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);																//Set the terminal to the old settings.
-		if (characterNumber == 9) {																			//When a tab was pressed.
-			std::string input = "";
-			std::string lastItem = "";
-			std::string storage = "";
+		switch(characterNumber) {
+            case 9:																			//When a tab was pressed.
+                if (tabPressed == false) {
+                    theCommands = autoComplete(home, theCommands, false);
+                    tabPressed = true;
+                    LeftAndRightIterator = theCommands.size() + 1;
+                } else {
+                    autoComplete(home, theCommands, true);
+                    home.PromptDisplay();
+                    std::cout << theCommands;
+                }
+                break;
+            case 10:																	    //When an enter key was pressed.
+                if (theCommands != "") {																		//Make sure that the char pointer is not empty / NULL.
+                    home.Check_Input_Loop(theCommands, envp);													//Send the commands in the incomingInput vector to the search commands method.
+                    incomingCommands.push_back(theCommands);													//Store the old commands in this vector.				
+                    tabPressed = false;
+                }
+                home.PromptDisplay();																			//Display the prompt.				
+                UpAndDownIterator = incomingCommands.size();													//Set the up and down iterator to zero.
+                LeftAndRightIterator = 1;																		//Reset the iterator for back and forth to zero.
+                theCommands = "";																				//Reset the variable.
+                break;
+            case 127:																        //Backspace character.
+                if (LeftAndRightIterator > 1) {																	//Delete the characters in the pointer, but no further than what was typed.
+                    tabPressed = false;
+                    printf("\b \b");																			//Delete thee character before the cursor on the screen.
+                    int endOfString = (theCommands.size()+1);													//Store thee size of the original string with one extra character for the iterator.
+                    theCommands.erase(theCommands.begin()+(LeftAndRightIterator - 2));							//Erase the character from the string.
+                    if (endOfString != LeftAndRightIterator) {													//If the cursor is not at the end of the string.
+                        LeftAndRightIterator--;																	//Subtract from the left and right iterator because our cursor moves over one when we delete the character.
+                        int i = 0;																				//With so many for loops just create one iterator variable.
+                        int shift = (endOfString - LeftAndRightIterator);										//Get our shift which is just the different from the back of the string to where the cursor is at on the string.
+                        for (i = 0; i < shift; ++i) {															//Move the cursor to the end of the string, so that we can delete everything on the screen.
+                            printf ("\033[C");																	//Function call to move the cursor on the screen to the right.		
+                            LeftAndRightIterator++;																//Keep track of moving our iterator.
+                        }
+                        for (i = 0; i < (theCommands.size() + 1); ++i) {										//Since our string is one less character it still has a space on the terminal display, so we can delete everything on the terminal screen.
+                            printf("\b \b");																	//Delete the characters on the screen.
+                            LeftAndRightIterator--;																//Move our iterator with the loop.
+                        }
+                        std::cout << theCommands;																//Reprint our new string on the screen. This will push our cursor to the end of the string.
+                        LeftAndRightIterator = (theCommands.size() + 1);										//So lets save where our new iterator lies on the screen.
 
-			std::istringstream iss (theCommands);																// Take the incoming string and parse it by spaces.
-			while (iss >> input) {																				// Loop through all the arguments in the incoming string.	
-				if (iss.eof()) {
-					lastItem = input;																			// We want the last item in the string because that is what the user was working on last.
-				} else {
-					storage += input;
-					storage += " ";
-				}	
-			}
-			if (tabPressed == false) {
-				storage += autoComplete(home, lastItem, false);
-				tabPressed = true;
-				theCommands = storage;
-				LeftAndRightIterator = theCommands.size() + 1;
-			} else {
-				storage += autoComplete(home, lastItem, true);
-				theCommands = storage;
-				LeftAndRightIterator = theCommands.size() + 1;
-				
-				home.PromptDisplay();
-				std::cout << theCommands;
-			}
-		} else if (characterNumber == 10) {																	//When an enter key was pressed.
-			if (theCommands != "") {																			//Make sure that the char pointer is not empty / NULL.
-				home.Check_Input_Loop(theCommands, envp);														//Send the commands in the incomingInput vector to the search commands method.
-				incomingCommands.push_back(theCommands);														//Store the old commands in this vector.				
-				tabPressed = false;
-			}
-			home.PromptDisplay();																				//Display the prompt.				
-			UpAndDownIterator = incomingCommands.size();														//Set the up and down iterator to zero.
-			LeftAndRightIterator = 1;																			//Reset the iterator for back and forth to zero.
-			theCommands = "";																					//Reset the variable.
-		} else if (characterNumber == 127) {																//Backspace character.
-			if (LeftAndRightIterator > 1) {																		//Delete the characters in the pointer, but no further than what was typed.
-				tabPressed = false;
-				printf("\b \b");																				//Delete thee character before the cursor on the screen.
-				int endOfString = (theCommands.size()+1);														//Store thee size of the original string with one extra character for the iterator.
-				theCommands.erase(theCommands.begin()+(LeftAndRightIterator - 2));								//Erase the character from the string.
-				if (endOfString != LeftAndRightIterator) {														//If the cursor is not at the end of the string.
-					LeftAndRightIterator--;																		//Subtract from the left and right iterator because our cursor moves over one when we delete the character.
-					int i = 0;																					//With so many for loops just create one iterator variable.
-					int shift = (endOfString - LeftAndRightIterator);											//Get our shift which is just the different from the back of the string to where the cursor is at on the string.
-					for (i = 0; i < shift; ++i) {																//Move the cursor to the end of the string, so that we can delete everything on the screen.
-						printf ("\033[C");																		//Function call to move the cursor on the screen to the right.		
-						LeftAndRightIterator++;																	//Keep track of moving our iterator.
-					}
-					for (i = 0; i < (theCommands.size() + 1); ++i) {											//Since our string is one less character it still has a space on the terminal display, so we can delete everything on the terminal screen.
-						printf("\b \b");																		//Delete the characters on the screen.
-						LeftAndRightIterator--;																	//Move our iterator with the loop.
-					}
-					std::cout << theCommands;																	//Reprint our new string on the screen. This will push our cursor to the end of the string.
-					LeftAndRightIterator = (theCommands.size() + 1);											//So lets save where our new iterator lies on the screen.
-
-					for (i = 0; i < (shift - 1); ++i) {															//Loop to move our cursor on the letter we were on originally.
-						printf("\033[D");																		//Move the cursor to the left.
-						LeftAndRightIterator--;																	//Move our iterator with the loop.
-					}
-				} else {
-					LeftAndRightIterator--;																		//Since we are at the end our string we can just delete the character both on the screen and string.
-				}											
-			}
-		} else if (characterNumber == 150) {																//Insert Key
-			//Lets do nothing for this key.
-		} else if (characterNumber == 153) {																//Delete key.
-			//if (LeftAndRightIterator != 1) {																	//Keep the user from deleteing to far over.
+                        for (i = 0; i < (shift - 1); ++i) {														//Loop to move our cursor on the letter we were on originally.
+                            printf("\033[D");																	//Move the cursor to the left.
+                            LeftAndRightIterator--;																//Move our iterator with the loop.
+                        }
+                    } else {
+                        LeftAndRightIterator--;																	//Since we are at the end our string we can just delete the character both on the screen and string.
+                    }											
+                }
+                break;
+            case 150:																        //Insert Key
+                break;
+            case 153:																        //Delete key.
 				size = theCommands.size() - (LeftAndRightIterator - 1);
 				for (int i = 0; i < size; ++i) {																//Move the cursor to the end of the string, so that we can delete everything on the screen.
 					printf ("\033[C");																			//Function call to move the cursor on the screen to the right.		
@@ -125,105 +112,105 @@ int main (int argc, char * argv[], char *envp[]) {
 					printf("\b \b");																			//Deletes a character on the current line and moves the pointer back one.
 					LeftAndRightIterator--;																		//Decrement the left and right iterator.
 				}
-				theCommands = "";																					//Reset the input stream.
-			//}
-		} else if (characterNumber == 195) {																//Up arrow key	
-			UpAndDownIterator--;																				//Decrement the iterator.
-			if (UpAndDownIterator >= 0 && incomingCommands.size() != 0) {										//Check to make sure the iterator is above  0.
-				tabPressed = false;
-				printf("%c[2K", 27);																			//Clear the current terminal line.
-				std::cout << "\r";																				// forget what this does. Online says its a carriage return.
-				home.PromptDisplay();																			//print the normal prompt.
-				std::cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
-				theCommands = incomingCommands[UpAndDownIterator];												//Reset the input string with the previous command.
-				LeftAndRightIterator = theCommands.size() + 1;													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
-			// } else if (theCommands.size() != 0) {															//If there is nothing on the screen then we want to make sure to reprint the first item in the array.							
-			// 	std::cout << "HERE" << std::endl;
-			// 	UpAndDownIterator = 0;	
-			// 	printf("%c[2K", 27);																			//Clear the current terminal line.
-			// 	std::cout << "\r";																				//I forget what this does. Online says its a carriage return.
-			// 	home.PromptDisplay();																			//print the normal prompt.
-			// 	std::cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
-			// 	theCommands = incomingCommands[UpAndDownIterator];												//Reset the input string with the previous command.
-			// 	LeftAndRightIterator = theCommands.size() + 1;													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
-			} else {
-				UpAndDownIterator = 0;																			//Reset the iterator to zero.
-			}
-		} else if (characterNumber == 198) {																//Down arrow key
-			UpAndDownIterator++;																				//Increment the iterator.
-			if (UpAndDownIterator < incomingCommands.size() && incomingCommands.size() != 0) {					//If the up and down iterator is less than the size of the vector minus 1, and if the vector size is not equal to zero.
-				tabPressed = false;
-				printf("%c[2K", 27);																			//Clear the printed terminal line.
-				std::cout << "\r";																				//I forget what this does. Online says its a carriage return.
-				home.PromptDisplay();																			//print the normal prompt.
-				std::cout  << incomingCommands[UpAndDownIterator]; 												//Reset the output and pring the colored prompt and print out the previous command.
-				theCommands = incomingCommands[UpAndDownIterator];												//Reset the input string with the previous command.
-				LeftAndRightIterator = theCommands.size() + 1;													//Reset the left and right iterator so that the cursor doesn't move past the commmand.
-			} else {																							//If we hit the very top of the vector then we want to clear the termina input just like bash.
-				if (theCommands.size() > 0) {
-					for (int i = LeftAndRightIterator; i < (theCommands.size()+1); ++i)	{
-						printf("\033[C"); 
-						LeftAndRightIterator++;
-					}
-					for (int d = 0; d < theCommands.size(); d++) {												//Loop through the number of characters currently being typed.
-						printf("\b \b");																		//Deletes a character on the current line and moves the string back one.
-						LeftAndRightIterator--;																	//Decrement the left and right iterator.
-					}
-					theCommands = "";	
-				}																								//Reset the input string.
-				UpAndDownIterator = incomingCommands.size();													//Reset the iterator to the size of the vector.
-			} 
-		} else if (characterNumber == 201) {																//Right arrow key.
-			if (LeftAndRightIterator < (theCommands.size()+1)) {												//If the iterator is not going past the current string.	
-				printf("\033[C"); 																				//Move the cursor to the right by one.	
-				LeftAndRightIterator++;																			//Increment the iterator.
-			}	
-		} else if (characterNumber == 204) {																//Left arrow key.
-			if (LeftAndRightIterator > 1) {																		//If the iterator is less than or equal to the vector size and is greater than zero.												
-				printf("\033[D");																				//Move the cursor to the left by one.
-				LeftAndRightIterator--;																			//Decrment the iterator.
-			}	 
-		} else if (characterNumber == 210) {																//End key, put you at the end of the string.
-			size = theCommands.size() - (LeftAndRightIterator - 1);
-			if (size == 0) 																						//If the iterator is at the end of the input then we want to delete the whole thing.
-				size = theCommands.size();
-			for (int i = 0; i < size; i++) {
-				printf("\033[C");
-				LeftAndRightIterator++;
-			}
-		} else if (characterNumber == 216) {																//Home key, put you at the beginning of the string.
-			size = (LeftAndRightIterator - 1);
-			for (int i = 0; i < size; i++) {
-				printf("\033[D");
-				LeftAndRightIterator--;
-			}	
-		} else if (characterNumber < 195 || characterNumber > 204) {										//Catch every other character.
-			tabPressed = false;
-			if ((theCommands.size()+1) != LeftAndRightIterator) {												//If the cursor is not at the end of the string.
-				std::string str = utili::convert_number_to_letter(characterNumber);								//Convert the character number into an actual letter.															
-				theCommands.insert((LeftAndRightIterator - 1), str);											//Insert the letter into our string.
-				int shift = (theCommands.size() - LeftAndRightIterator);										//Get our shift which is just the different from the back of the string to where the cursor is at on the string.
-				int i = 0;																						//Since there are more than one for loop, lets just create one variable.
-				for (i = 0; i < shift; ++i) {																	//Loop to move the cursor to the end of the string.
-					printf("\033[C");																			//Move the cursor to the left.
-					LeftAndRightIterator--;																		//Move the iterator to the right.
-				}	
-				for (i = 0; i < theCommands.size(); ++i) {														//Loop to delete the whole command off the screen.
-					printf("\b \b");																			//Delete a character off the screen.
-					LeftAndRightIterator--;
-				}
-				std::cout << theCommands;																		//Print the updated string. This will put the cursor at the end of the string.
-				LeftAndRightIterator = (theCommands.size()+1);													//Set our iterator to the end of the string.
-				
-				for (i = 0; i < shift; ++i) {																	//Loop to move the cursor to where we left off on the string.
-					printf("\033[D");																			//Move the cursor to the left.
-					LeftAndRightIterator--;																		//Move our iterator in.
-				}
-			} else {
-				theCommands += characterNumber;																	//Add the character to the input string.
-				LeftAndRightIterator++;																			//Move the iterator with the incoming character.
-			}
-		}
+				theCommands = "";																				//Reset the input stream.
+                break;
+            case 195:															        	//Up arrow key	
+                UpAndDownIterator--;																			//Decrement the iterator.
+                if (UpAndDownIterator >= 0 && incomingCommands.size() != 0) {									//Check to make sure the iterator is above  0.
+                    tabPressed = false;
+                    printf("%c[2K", 27);																		//Clear the current terminal line.
+                    // std::cout << "\r";																		//This carriage return will keep the prompt from shifting over.
+                    home.PromptDisplay();																		//print the normal prompt.
+                    std::cout  << incomingCommands[UpAndDownIterator]; 											//Reset the output and pring the colored prompt and print out the previous command.
+                    theCommands = incomingCommands[UpAndDownIterator];											//Reset the input string with the previous command.
+                    LeftAndRightIterator = theCommands.size() + 1;												//Reset the left and right iterator so that the cursor doesn't move past the commmand.
+                } else {
+                    UpAndDownIterator = 0;																		//Reset the iterator to zero.
+                }
+                break;
+            case 198:																        //Down arrow key
+                UpAndDownIterator++;																			//Increment the iterator.
+                if (UpAndDownIterator < incomingCommands.size() && incomingCommands.size() != 0) {				//If the up and down iterator is less than the size of the vector minus 1, and if the vector size is not equal to zero.
+                    tabPressed = false;
+                    printf("%c[2K", 27);																		//Clear the printed terminal line.
+                    std::cout << "\r";																			//This carriage return will keep the prompt from shifting over.
+                    home.PromptDisplay();																		//print the normal prompt.
+                    std::cout  << incomingCommands[UpAndDownIterator]; 											//Reset the output and pring the colored prompt and print out the previous command.
+                    theCommands = incomingCommands[UpAndDownIterator];											//Reset the input string with the previous command.
+                    LeftAndRightIterator = theCommands.size() + 1;												//Reset the left and right iterator so that the cursor doesn't move past the commmand.
+                } else {																						//If we hit the very top of the vector then we want to clear the termina input just like bash.
+                    if (theCommands.size() > 0) {
+                        for (int i = LeftAndRightIterator; i < (theCommands.size()+1); ++i)	{
+                            printf("\033[C"); 
+                            LeftAndRightIterator++;
+                        }
+                        for (int d = 0; d < theCommands.size(); d++) {											//Loop through the number of characters currently being typed.
+                            printf("\b \b");																	//Deletes a character on the current line and moves the string back one.
+                            LeftAndRightIterator--;																//Decrement the left and right iterator.
+                        }
+                        theCommands = "";	
+                    }																							//Reset the input string.
+                    UpAndDownIterator = incomingCommands.size();												//Reset the iterator to the size of the vector.
+                } 
+                break;
+            case 201:																        //Right arrow key.
+                if (LeftAndRightIterator < (theCommands.size()+1)) {											//If the iterator is not going past the current string.	
+                    printf("\033[C"); 																			//Move the cursor to the right by one.	
+                    LeftAndRightIterator++;																		//Increment the iterator.
+                }	
+                break;
+            case 204:																        //Left arrow key.
+                if (LeftAndRightIterator > 1) {																	//If the iterator is less than or equal to the vector size and is greater than zero.												
+                    printf("\033[D");																			//Move the cursor to the left by one.
+                    LeftAndRightIterator--;																		//Decrment the iterator.
+                }	 
+                break;
+            case 210:																        //End key.
+                size = theCommands.size() - (LeftAndRightIterator - 1);                                         //Get the number of times we have to move the cursor to the right.
+                if (size != 0) {                                                                                //If the cursor is not already at the end of the string.
+                    for (int i = 0; i < size; i++) {                                                            //Move the cursor x many times over.
+                        printf("\033[C");
+                        LeftAndRightIterator++;
+                    }
+                }
+                break;
+            case 216:															        	//Home key.
+                size = (LeftAndRightIterator - 1);
+                for (int i = 0; i < size; i++) {
+                    printf("\033[D");
+                    LeftAndRightIterator--;
+                }	
+                break;
+            default:
+                if (characterNumber < 195 || characterNumber > 204) {
+                    tabPressed = false;
+                    if ((theCommands.size()+1) != LeftAndRightIterator) {										//If the cursor is not at the end of the string.
+                        std::string str = utili::convert_number_to_letter(characterNumber);						//Convert the character number into an actual letter.															
+                        theCommands.insert((LeftAndRightIterator - 1), str);									//Insert the letter into our string.
+                        int shift = (theCommands.size() - LeftAndRightIterator);								//Get our shift which is just the different from the back of the string to where the cursor is at on the string.
+                        int i = 0;																				//Since there are more than one for loop, lets just create one variable.
+                        for (i = 0; i < shift; ++i) {															//Loop to move the cursor to the end of the string.
+                            printf("\033[C");																	//Move the cursor to the left.
+                            LeftAndRightIterator--;																//Move the iterator to the right.
+                        }	
+                        for (i = 0; i < theCommands.size(); ++i) {												//Loop to delete the whole command off the screen.
+                            printf("\b \b");																	//Delete a character off the screen.
+                            LeftAndRightIterator--;
+                        }
+                        std::cout << theCommands;																//Print the updated string. This will put the cursor at the end of the string.
+                        LeftAndRightIterator = (theCommands.size()+1);											//Set our iterator to the end of the string.
+                        
+                        for (i = 0; i < shift; ++i) {															//Loop to move the cursor to where we left off on the string.
+                            printf("\033[D");																	//Move the cursor to the left.
+                            LeftAndRightIterator--;																//Move our iterator in.
+                        }
+                    } else {
+                        theCommands += characterNumber;															//Add the character to the input string.
+                        LeftAndRightIterator++;																	//Move the iterator with the incoming character.
+                    }
+                }
+                break;
+        }
 
 		if (incomingCommands.size() > 100)																		//If there are more than 100 elements in the vector.
 			incomingCommands.erase(incomingCommands.begin()+50);												//Delete the first half of the vector.
@@ -235,147 +222,207 @@ int main (int argc, char * argv[], char *envp[]) {
 }
 
 std::string autoComplete(Thursday home, std::string incomingTypedString, bool mySwitch) {
-	size_t stringFind;
-	int numberOfCharacters = 0;
-	bool isOrNotIsAPath = false;
-	struct stat fileStruct;
-	std::vector<std::string> savedItems;
-	std::vector<std::string> directoryContents;
-	std::string input = "";
-	std::string comparisonCharacters = "";
-	std::string savedPath = "";
-	std::string lastItem = "";
-	std::string fileInfo = "";
-	std::string lastCharactersInTheString = "";
+    /*-------------------------------------------------------------------
+    Note: This method will auto complete the path that the user is trying to
+    complete without knowing how to correctly spell the file or path. How this
+    method works is by taking the incoming string and getting the last item / 
+    token from it. From there I check to see if the path is going to be an absolute
+    or relative path. Then I loop through the string character by character, and
+    build the path staring with the first character. I want to make sure that 
+    if the path is absolute that everything before what the user is trying to 
+    auto complete is correct, and that I can get to the directory that they 
+    want. If the user has typed more than one backslash together or if the path
+    they they are trying to get too, does not exist then I print an error. If 
+    there were no errors I get the contents of the directory that they are trying
+    to get the file or folder from. Once I have the directory contents, I loop
+    through the contents taking that last couple of characters that the user was 
+    trying to auto complete with and check the same number of characters against
+    the contents. If I find any matches I save them. Next, if the incoming switch
+    is false, the user has only pressed the tab key once, else they pressed it 
+    twice and are looking for the contents of the directory or matches they are 
+    trying to auto complete with. If there are no items that were similar to 
+    what the user was trying to auto complete to then we return. If there was one
+    item that matched what the user was trying, then I print the different characters
+    that don't match, and if what the user was trying to auto complete is a folder
+    then add a back slash to it else return the new string. If there is more than one
+    saved item item, then we have to auto complete to where ever the saved items
+    differ from each other. After that we print the characters, and return the new
+    string. Lastly, if the user has already pressed the tab once and wants to display
+    the contents of the directory or what they are trying to auto complete then that
+    happens last. This is done by just looping through the contents of the directory,
+    or saved items from within the algorithm. This method was last updated on 3/3/2018.
+	--------------------------------------------------------------------*/
+    const int MAX_SIZE = 256;
+	char path[MAX_SIZE];
+    bool warning_flag = false;
+    bool backslash_found_flag = false;
+    bool absolute_path_flag = false;
+    int iteration_counter = 0;
+    std::string token = "";
+    std::string storage = "";
+    std::string last_item_token = "";
+    std::string constructed_test_path = "";
+    std::string constructed_saved_path = "";
+    std::string temp_input = "";
+    std::string comparisonCharacters = "";
+    std::vector<std::string> directory_contents;
+    std::vector<std::string> saved_items;
 
-	if (incomingTypedString[0] == '/') {												// Check to see if we are looking at a path
-		isOrNotIsAPath = true;
-		for (int a = 0; a < incomingTypedString.size(); a++) {							// Loop through the last input stream the user was working on. Its what they are searching for.
-			if (incomingTypedString[a] == '/') {										// If we are looking at a backslash then we are leaving a directory. Lets see if it is an actual path.
-				input += incomingTypedString[a];
-				fileInfo = home.FileChecker(input, 1);									// Check to see if the path in the system.
-				if (fileInfo.size() == 0) {												// If the path is not then we need to get out of the loop
-					break;
-				} else {																// If the path is in the system then we can keep going.
-					savedPath = input;													// Lets save the last directory that we were in, because we will need this to get the contents of the directory inorder to get what we need.
-					lastCharactersInTheString = "";										// This is getting everything after the backslash. We want to reset it so when we get what the user is looking for we can search for it.
-				}
-			} else {																	// If we are not looking at a backslash then lets add the character onto the string.
-				input += incomingTypedString[a];
-				lastCharactersInTheString += incomingTypedString[a];
+
+    std::istringstream iss (incomingTypedString);
+    while (iss >> temp_input) {
+        if (iss.eof()) {
+            last_item_token = temp_input;
+        } else {
+            storage += temp_input;
+            storage += " ";
+        }	
+    }
+
+	if (last_item_token[0] == '/')
+		absolute_path_flag = true;
+
+    for (int a = 0; a < last_item_token.size(); a++) {
+        if (last_item_token[a] == '/') {
+            if (a == 0)
+                constructed_test_path += last_item_token[a];
+
+            if (backslash_found_flag == false) {
+                backslash_found_flag = true;
+            } else {
+                std::cout <<  std::endl << "\t\t The path is inccorect." << std::endl;
+                home.PromptDisplay();
+                std::cout << incomingTypedString;
+                return incomingTypedString;
+            }
+
+            constructed_test_path += token;
+
+            if (utili::isDirectory(constructed_test_path) == true) {
+                if (token.size() > 0) {
+                    constructed_saved_path += token;
+                    constructed_saved_path += "/";
+                    constructed_test_path += "/";
+                } else {
+                    constructed_saved_path += "/";
+                }
+                token = "";
+            } else {
+                if (warning_flag == false) {
+                    warning_flag = true;
+                } else {
+                    std::cout <<  std::endl << "\t\t The path is inccorect." << std::endl;
+                    home.PromptDisplay();
+                    std::cout << incomingTypedString;
+                    return incomingTypedString;
+                }
+            }
+        } else {
+            if (warning_flag == true) {
+                std::cout <<  std::endl << "\t\t The path is inccorect." << std::endl;
+                home.PromptDisplay();
+                std::cout << incomingTypedString;
+                return incomingTypedString;
+            }
+            backslash_found_flag = false;
+            token += last_item_token[a];
+        }
+
+    }
+
+    if (absolute_path_flag == false) {
+        temp_input = getcwd(path, MAX_SIZE);
+        temp_input += '/';
+        temp_input += constructed_saved_path;
+        constructed_saved_path = temp_input;
+    }
+
+    directory_contents = utili::directory_contents(constructed_saved_path, directory_contents);
+    if (directory_contents.size() > 0) {
+        for (int b = 0; b < directory_contents.size(); b++) {
+            temp_input = directory_contents[b];
+            for (int c = 0; c < token.size(); c++)
+                comparisonCharacters += temp_input[c];
+
+            if (token == comparisonCharacters) {
+                saved_items.push_back(directory_contents[b]);
+            }
+            comparisonCharacters = "";
+        }
+    }
+
+    if (mySwitch == false) {
+    	if (saved_items.size() == 0) {
+            return incomingTypedString;
+        } else if (saved_items.size() == 1) {
+			for (int d = 0; d < saved_items[0].size(); d++) {
+				if (token[d] != saved_items[0][d])
+                    std::cout << saved_items[0][d];
 			}
 
-		}
-		//Since we did see if the last argument was an actual path / file in the system, and made sure that the starting character was
-		//a backslash, then we know that the saved path is at least in the root directory. The loop will exit since it won't find another
-		//backslash, so we are ignoring the actual file that the user is trying to type.
-		input = "";
-		directoryContents = utili::directory_contents(savedPath, directoryContents);	// Get all the files and directories in the current directory.
-		if (directoryContents.size() > 0) {												// Make sure that the directory has something in it.
-			for (int b = 0; b < directoryContents.size(); b++) {						// Loop through the directory that is all in a vector.
-				input = directoryContents[b];											// Save the current item from the vector of the directory.
-				for (int c = 0; c < lastCharactersInTheString.size(); c++)				// Loop through the number of characters afte the last back slash that was found in the previous loop.
-					comparisonCharacters += input[c];									// Build a new string with the same number of characters of the thing that we are looking for.
+            constructed_saved_path += saved_items[0];
 
-				if (lastCharactersInTheString == comparisonCharacters)					// Take the item that the user is looking for and compare it to everything in that directory.
-					savedItems.push_back(directoryContents[b]);							// Since there can be more than one item with the same name or number of characters. We store the item.
-
-				comparisonCharacters = "";												// We reset the comparison string.
-			}
-		}
-	} else {																			// If what we are looking at is not a path.. So basically the file or directory has to be in the current directory that we are in.
-		input = "";
-		savedPath = ".";																// If we didn't find a path then lets look in the current directory.
-		numberOfCharacters = incomingTypedString.size();
-		lastCharactersInTheString = incomingTypedString;
-		directoryContents = utili::directory_contents(savedPath, directoryContents);
-		if (directoryContents.size() > 0) {												// Make sure that the directory has something in it.
-			for (int b = 0; b < directoryContents.size(); b++) {
-				input = directoryContents[b];
-				for (int c = 0; c < numberOfCharacters; c++)
-					comparisonCharacters += input[c];
-				
-				if (lastCharactersInTheString == comparisonCharacters)
-					savedItems.push_back(directoryContents[b]);
-
-				comparisonCharacters = "";
-			}
-		}
-	}
-
-	if (mySwitch == false) {																// If the user has only pressed the tab key once.
-		if (savedItems.size() == 1) {														// If there was only one item in the vector then lets print out the whole item.
-			for (int d = 0; d < savedItems[0].size(); d++) {								// Loop through the our only item that we were able to find.
-				if (lastCharactersInTheString[d] != savedItems[0][d])						// Print out the characters that I don't have in the user input.
-					std::cout << savedItems[0][d];											// Display the characters to the screen.
-			}
-			if (isOrNotIsAPath == true) { 													// If what wwe found was not a full absolute path.
-				std::string path = savedPath = savedItems[0];								// Combined the path and the found file part or whole file.
-				stat(path.c_str(), &fileStruct);											// Get information about the file.
-				if (fileStruct.st_mode & S_IFDIR) {											// See if the file is a directory.
-					std::cout << "/";
-					return path + "/";														// Return the whole path to the main so that the commands has the new path.		
-				} else {
-					return path;
-				}
-			} else {
-				stat(savedItems[0].c_str(), &fileStruct);									// Get information about the file.
-				if (fileStruct.st_mode & S_IFDIR) {											// See if the file is a directory.
-					std::cout << "/";
-					return savedItems[0] + "/";												// If we are looking at the current directory then we just neeed the lastpart of what the user was trying to type.
-				} else {
-					return savedItems[0];
-				}
-			}	
-		} else if (savedItems.size() > 0) {													// If there is more than one option, we want to fill in as much for the filename as we can before it starts to differ.
-			std::string exampleSearch = savedItems[0];
-			int exampleSearchSize = savedItems[0].size();
+            if (utili::isDirectory(constructed_saved_path) == true) {
+                std::cout << "/";
+                return storage + constructed_saved_path + "/";	
+            } else {
+                return storage + constructed_saved_path;
+            }
+		} else if (saved_items.size() > 0) {
+			std::string exampleSearch = saved_items[0];
 			std::string foundSearch = "";
 			bool searchTest = false;
 
-			for (int e = 0; e < exampleSearchSize; e++) {									// Loop through the number of characters of the first item in the vector.
-				for (int f = 0; f < savedItems.size(); f++) {								// Loop through everything that matches what the user was trying to type.
-					if (savedItems[f][e] != exampleSearch[e]) {								// Check to see any of the saved items does not match the same character to the first element in the vector.
-						searchTest = true;													// If we have found an string that does not match, then we know that this string is what we can "auto complete too".
+			for (int e = 0; e < saved_items[0].size(); e++) {
+				for (int f = 0; f < saved_items.size(); f++) {
+					if (saved_items[f][e] != exampleSearch[e]) {
+						searchTest = true;
 						break;
 					}
 				}
-				if (searchTest == true) {													// If we have found a string that does not match anymore.
+				if (searchTest == true) {
 					break;
-				} else {																	// If we are still good
-					if (e <= incomingTypedString.size()) {									// Make sure that we are not indexing out of the incoming user input.
-						if (exampleSearch[e] != incomingTypedString[e])						// We don't want to add the same stuff that the user was trying to add before.
-							foundSearch += exampleSearch[e];								// Add the missing content to the string.
+				} else {
+					if (e <= incomingTypedString.size()) {
+						if (exampleSearch[e] != token[e]) {
+							foundSearch += exampleSearch[e];
+                        }
 					} else {
-						foundSearch += exampleSearch[e];									// We have surpassed what the user has then lets keep adding the missing content.
+						foundSearch += exampleSearch[e];
 					}
 				}
 			}
 			std::cout << foundSearch;
-			return incomingTypedString + foundSearch;										// If we were not able to find anything then we just return what the user typed in.
-		} else {
-			return incomingTypedString;
+			return incomingTypedString + foundSearch;
 		}
-	} else {																				// If the user wants to display everything in the directory that is similar to what the user wants.
-		std::cout << std::endl;
-		if (savedItems.size() > 0) {														// If what the user typed in is not an absolute path.
-			for (int e = 0; e < savedItems.size(); e++) {									// Loop through all the items that we found that match what we want.
-				if ((e % 4) == 0)
-					std::cout << std::endl;
-				
-				std::cout << std::setw(40) << std::left <<  savedItems[e];
-			}
-		} else {
-			for (int f = 0; f < directoryContents.size(); f++) {							// Loop through all the items that in the directory specified.
-				if ((f % 4) == 0)
-					std::cout << std::endl;
+    } else {
+		int temp_size = 0;
+        bool nothing_found = false;
+        if (saved_items.size() > 0) 
+            temp_size = saved_items.size();
+        else if (directory_contents.size() > 0) 
+            temp_size = directory_contents.size();
+        else   
+            nothing_found = true;
 
-				std::cout << std::setw(40) << std::left << directoryContents[f];
-			}
-		}
-		std::cout << std::endl << std::endl;
+        if (nothing_found == false) {
+            std::cout << std::endl;
+            for (int g = 0; g < temp_size; g++) {
+                if ((g % 4) == 0)
+                    std::cout << std::endl;
+
+                if (saved_items.size() > 0) 
+                    std::cout << std::setw(40) << std::left <<  saved_items[g];
+                else   
+                    std::cout << std::setw(40) << std::left <<  directory_contents[g];
+                
+            }
+            std::cout << std::endl << std::endl;
+        }
+
 		return incomingTypedString;
-	}
+    }
+
 	return "";
 }
 
@@ -428,5 +475,4 @@ int getche(void) {
 	}
 	return -1;
 }
-
 
