@@ -27,9 +27,9 @@ class Thursday {
 	static char path[MAX_SIZE];
 	
 public:
-	//Thursday();
-	//~Thursday();
-	//void Basic_Command_Parse_Loop(std::vector<std::string>incoming_commands, char * envp[]);
+	Thursday();
+	~Thursday();
+	void Basic_Command_Parse_Loop(std::vector<std::string>incoming_commands, char * envp[]);
 	void Check_Input_Loop(std::string incoming_input, char * envp[]);
 	void ColorChange(std::string sentence, int signal);
 	void ColorSwitch(bool signal);
