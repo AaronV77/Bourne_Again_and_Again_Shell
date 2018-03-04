@@ -1,3 +1,10 @@
+#/*-------------------------------------------------------------------
+#Author: Aaron Anthony Valoroso
+#Date: March 3rd, 2018
+#License: BSD-3-Clause
+#Email: valoroso99@gmail.com
+#--------------------------------------------------------------------*/
+
 Game: Thursday.o Utilities.o
 	g++ -std=c++11 Utilities.o Thursday.o ThursdayMain.cpp -o Thurs
 

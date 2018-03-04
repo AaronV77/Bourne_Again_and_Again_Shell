@@ -1,3 +1,10 @@
+/*-------------------------------------------------------------------
+Author: Aaron Anthony Valoroso
+Date: March 3rd, 2018
+License: BSD-3-Clause
+Email: valoroso99@gmail.com
+--------------------------------------------------------------------*/
+
 #ifndef UTIL_H
 #define UTIL_H
 

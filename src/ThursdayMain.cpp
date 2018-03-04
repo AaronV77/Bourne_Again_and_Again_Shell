@@ -1,10 +1,37 @@
+/*-------------------------------------------------------------------
+Author: Aaron Anthony Valoroso
+Date: March 3rd, 2018
+License: BSD-3-Clause
+Email: valoroso99@gmail.com
+--------------------------------------------------------------------*/
+
 #include "Thursday.h"
 
 std::string autoComplete(Thursday home, std::string theCommands, bool mySwitch);
 int getche(void);
 
 int main (int argc, char * argv[], char *envp[]) {					
-
+	/*-------------------------------------------------------------------------------------------------------
+	Note: This program does all the necessary functionality to be able to update the terminal screen and the
+    underlying variables to edit incoming input for an application. How this code works, is by first displaying
+    the basic prompt, then getting the terminal settings, copying them, and then shutting off the echo feature
+    for when I type. I do this so that I don't get two letters when I type, and allow the program to read my
+    input. After that a method called getche() will capture my keystroke. Please read the method note, for how
+    it works, but that method will return a number of what keyboard button I pressed. I then run that number 
+    through a switch looking to see what key was pressed. I am not going to get specific on what the switch does
+    because there are already alot of comments made within it, but I look for the enter, tab, delete, backspace,
+    home, end, insert, and then the four arrow keys. Everything else is sent to the default, but now is good to
+    mention that there are two main variables within the main. They are theCommands and LeftAndRightIterator, the
+    first one is a string for holding everything that the user types, and the other is for keeping track of where
+    the cursor is in the input. Why I have these two variables is because if I edit the string variable the terminal
+    screen will not update as well. I have to update it manually to stay up-to-date with the string variable.
+    You will see what I mean later on. In the default section there are two options, if the cursor is at the end of the 
+    input then I can just add the new characters to the screen, else if the character is in the middle of the input.
+    Now if the cursor is in the middle of the input, I basically have to make sure that where the character is being
+    inserted in the input moves all the characters on the screen over one. This give room for the new character,
+    but I also have to update the string variable. Please read the comments on the side of the code because they 
+    give a better description of what I am doing at each point! This method was last updated on 3/3/2018.
+	---------------------------------------------------------------------------------------------------------*/
 	char path[256];
 	int characterNumber = 0;																					//Used to store the ascii value of the character from the keyboard.
 	int LeftAndRightIterator = 1;																				//Used to keep track of where the cursor is on the screen.
@@ -428,31 +455,29 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
 
 int getche(void) {
 	/*-------------------------------------------------------------------
-	Note: This function opens the terminal structure, grabs the location of the standard in
-	 * file descriptor. After that copies it to another entry, sets the variables into the struct
-	 * to makae changes immediately and echo anything coming in. Sets the variables to the terminal
-	 * and loops through grabbing characters coming through. There are checks for arrow keys and 
-	 * the delete key to not print their special characters, everything else gets passed through
-	 * and printed. Then terminal is set back to normal.
+	Note: This method is to capture the keystrokes of the user and process them
+    so that they can be sent back to the main. How this method works is by looping
+    through the incoming numbers, some keys have more than one number associated 
+    to them. If the key is either an enter key, space, or alphabetic character
+    I print and return the number to the main. If it is not one of the previous
+    characters then we are looking at an arrow, home, and end key
+    that return three numbers. The delete and home key return 4 numbers. So the 
+    third number is the most important one that I need and since it falls within
+    the alphabetic character values, I multiply the number by 3. This allows
+    me to get a new number with no issues. This method was last updated on
+    3/3/2018. 
 	--------------------------------------------------------------------*/	
-	struct termios oldattr, newattr;																			//Termions variables.
 	char c;																										//Used to store the character coming in.
 	bool specialCharacterSwitch = false;
 	int characterIterator = 0;																					//Some keys will output 3 or 4 charactes.
 	int savedCharacter = 0;
-	tcgetattr(STDIN_FILENO, &oldattr);																			//Get our current terminal settings.
-    newattr = oldattr;																							//Copy the terminal settings.
-    newattr.c_lflag &= ~( ICANON );																				//Give setting to allow the application to not print the incoming characters.
-    tcsetattr(STDIN_FILENO, TCSANOW, &newattr);																	//Replace the terminal settings with the new ones.
-	
+
 	while ((c = getchar())) {																					//Loop through getting characters.
 		if (specialCharacterSwitch == false) {
-			if ((c >= 32 && c <= 126) || c == 10) {																//If the letter is betweenwhat we want and and can easily process.
+			if ((c >= 32 && c <= 126) || c == 10) {																//If the letter is between what we want and can easily process.
 				printf("%c",c);																					//Just print the letter out and return.
-				tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);														//Give oru terminal the old settings again.
 				return c;
 			} else if (c == 9 || c == 127 ) {																	//Return the backspace and tab character, but don't print them.
-				tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);														//Give oru terminal the old settings again.
 				return c;		
 			} else {
 				specialCharacterSwitch = true;																	//Set our switch to true.
@@ -464,11 +489,9 @@ int getche(void) {
 				if (c == 51 || c == 50) {																		//Looking at del and insert
 					savedCharacter =  c * 3;																	//Save the character since we can't return it until we get all the incoming numbers from the key.
 				} else {
-					tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);													//Give oru terminal the old settings again.
 					return c * 3;
 				}
 			} else if (characterIterator == 4) {																//If the key outputs four numbers then we can ignore the last number.
-				tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);														//Give oru terminal the old settings again.
 				return savedCharacter;
 			}
 		}

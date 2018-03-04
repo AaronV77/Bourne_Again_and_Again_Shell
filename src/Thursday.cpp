@@ -1,3 +1,10 @@
+/*-------------------------------------------------------------------
+Author: Aaron Anthony Valoroso
+Date: March 3rd, 2018
+License: BSD-3-Clause
+Email: valoroso99@gmail.com
+--------------------------------------------------------------------*/
+
 #include "Thursday.h"
 
 char Thursday::path[MAX_SIZE];
