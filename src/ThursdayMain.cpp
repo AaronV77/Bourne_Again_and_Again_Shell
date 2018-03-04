@@ -119,7 +119,7 @@ int main (int argc, char * argv[], char *envp[]) {
                 if (UpAndDownIterator >= 0 && incomingCommands.size() != 0) {									//Check to make sure the iterator is above  0.
                     tabPressed = false;
                     printf("%c[2K", 27);																		//Clear the current terminal line.
-                    // std::cout << "\r";																		//This carriage return will keep the prompt from shifting over.
+                    std::cout << "\r";																		//This carriage return will keep the prompt from shifting over.
                     home.PromptDisplay();																		//print the normal prompt.
                     std::cout  << incomingCommands[UpAndDownIterator]; 											//Reset the output and pring the colored prompt and print out the previous command.
                     theCommands = incomingCommands[UpAndDownIterator];											//Reset the input string with the previous command.
