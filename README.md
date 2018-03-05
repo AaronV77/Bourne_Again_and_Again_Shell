@@ -8,7 +8,7 @@ If you have made it this far into the description than a round of appluase for y
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. Make sure that the system is compatable with your environment, if it doesn't then please post an issue and I will correct it accordinly. For any other questions or concerns, consult the Wiki in GitHub. I have put up documents for the application there and hopefully that will answer your questions, if not send me a message!
+These instructions will get you started working with Thursday and if you are looking to contribute to the project then there are gist documents to help with that too. If you are looking to contribute, then I would recommend forking the project. Just a little information you are probably wondering why the repo code is split between offline and online. Well, until this weekend Thursday only worked on top of Bash, but now I am starting to make Thursday run on its own. So the online is for the standalone version, and the offline is for running the project on top of bash. If you are having any issues with getting code to work, then please post an issue. Again I have GitHub Gist documents for the project for both contributing to the project and being able to understand how the project works. Hopefully they will answer any questions that you may have, but if not please send me an email!
 
 ## Warnings
 
