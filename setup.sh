@@ -1,4 +1,12 @@
-#/bin/bash
+#/bin/sh
+
+/*-------------------------------------------------------------------
+Author: Aaron Anthony Valoroso
+Date: March 4th, 2018
+License: BSD-3-Clause
+Email: valoroso99@gmail.com
+--------------------------------------------------------------------*/
+
 dir=$(pwd -P)
 build_dir="${dir}/build"
 var=$(id)
@@ -48,6 +56,8 @@ then
 				cd src
 				make
 				mv Thurs /bin
+				rm Thursday.o
+				rm Utilities.o
 				cd ..
 				cp -R Thursday ~/.Thursday
 			elif [ $user_option = 3 ];
