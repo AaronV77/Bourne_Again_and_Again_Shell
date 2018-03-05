@@ -1,0 +1,18 @@
+
+
+    Goals:
+        - Have the master branch copy have no comments in the code.
+        - Condense the library and make it more efficent.
+        - Implement when a user types shutdown it shuts down the system. "/sbin/shutdown -h now"
+        - Implement a way for standard out and standard error to be condensed.
+        - Implement two separate command parsers. One for operators the other for non operators.
+        - Implement a way to turn off errors across the system.
+        - Have clearer and more error messages across the system.
+        - Condense the tab auto complete in the main.
+    
+
+    Later thinking:
+        - Save the main of thursday for other programs. Make sure that its heavily documented.
+        - If we have usage > output1.txt > output.txt, this will distribute the data to both files.
+        - If we have ./a.out < input1.txt < input2.txt, this will import both datasets into ./a.out.
+        - Allow multiple [, {, (, be allowed within themselves.

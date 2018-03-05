@@ -36,10 +36,11 @@ Thursday::Thursday() {
 	homeDestination = currentPath;
 	dictionaryDestination = currentPath;
 	informationDestination = currentPath;
-	dictionaryDestination += "/Dictionary-1.2";
-	informationDestination += "/information";
+	dictionaryDestination += "/Offline/Dictionary-1.2";
+	informationDestination += "/Offline/information";
 	passwd * CurrUser = getpwuid(getuid());
 	user_home_destination = static_cast<std::string>(CurrUser->pw_dir);
+	DirectoryChange(user_home_destination);
 }
 
 Thursday::~Thursday() {
