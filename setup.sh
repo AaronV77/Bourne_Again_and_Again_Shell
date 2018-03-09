@@ -46,7 +46,8 @@ else
 			fi
 		elif [ $user_option = 3 ];
 		then
-			if [ -d "build" ]; then
+			if [ -d "build" ]; 
+			then
 				rm -rf build
 			fi
 		else
@@ -54,39 +55,52 @@ else
 		fi 
 	elif [ "$system_options" = "Online" ] || [ "$system_options" = "online" ];
 	then
-		if [ $(id -u) = 0 ];
+		if [ $user_option = 1 ] || [ $user_option = 2 ]; 
 		then
-			if [ $user_option = 1 ] || [ $user_option = 2 ]; 
+			cd Online
+			cd src
+			make
+			if [ "$os_system" = "Darwin" ]; 
 			then
-				cd Online
-				cd src
-				make
-				if [ "$os_system" = "Darwin" ]; 
-				then
-					mv Thurs /usr/local/bin
-				else
-					mv Thurs /bin
-				fi
-				rm Thursday.o
-				rm Utilities.o
-				cd ..
-				cp -R Thursday ~/.Thursday
-			elif [ $user_option = 3 ];
-			then
-				if [ -d "/bin/Thurs" ];
-				then
-					rm /bin/Thurs
-				fi
-				cd Online
-				cd src
-				rm Thursday.o
-				rm Utilities.o
-				cd $dir
+				mv Thurs /usr/local/bin
 			else
-				echo "The option you chose is not a valid option."
+				if [ $(id -u) = 0 ];
+				then
+					mv Thurs /bin
+				else 
+					echo "Sorry, this script needs root privileges."
+				fi
 			fi
+			rm Thursday.o
+			rm Utilities.o
+			cd ..
+			cp -R Thursday ~/.Thursday
+		elif [ $user_option = 3 ];
+		then
+			if [ "$os_system" = "Darwin" ]; 
+			then
+				if [ -d "/usr/local/bin/Thurs" ];
+				then
+					rm /usr/local/bin/Thurs
+				fi
+			else
+				if [ $(id -u) = 0 ];
+				then
+					if [ -d "/bin/Thurs" ];
+					then
+						rm /bin/Thurs
+					fi
+				else 
+					echo "Sorry, this script needs root privileges."
+				fi
+			fi
+			cd Online
+			cd src
+			rm Thursday.o
+			rm Utilities.o
+			cd $dir
 		else
-			echo "Sorry, this script needs root privileges."
+			echo "The option you chose is not a valid option."
 		fi
 	else
 		echo "Sorry, did not understand your input."
