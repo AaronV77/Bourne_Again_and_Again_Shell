@@ -17,7 +17,7 @@ Thursday::Thursday() {
 	the other paths for the other directories that Thursday loads information
 	from. This method was last updated on 2/15/2018.
 	--------------------------------------------------------------------*/
-	debugSwitch = false;
+	debugSwitch = true;
 	waitSwitch = false;
 	ColorSwitch(true);
 	colorOption = 10;

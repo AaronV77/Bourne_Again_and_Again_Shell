@@ -9,14 +9,15 @@
 
 dir=$(pwd -P)
 build_dir="${dir}/build"
-var=$(id)
+os_system=$(uname -s)
 
 echo "Welcome to Thursday!"
 read -p "Which system are we working on (Offline / Online / Usage): " system_options
 echo "Please choose one of the following options: "
-echo -e "\tInstall  - 1"
-echo -e "\tUpdate   - 2"
-echo -e "\tUnintall - 3"
+echo "    Install  - 1"
+echo "    Update   - 2"
+echo "    Unintall - 3"
+echo ""
 read -p "What operation are we doing: " user_option
 
 if [ "$system_options" = "Usage" ] || [ "$system_options" = "usage" ];
@@ -39,7 +40,7 @@ else
 			mv Thursday.o $build_dir
 			mv Utilities.o $build_dir
 			cd $dir
-			if [ "$var" = "uid=0(root) gid=0(root) groups=0(root)" ];
+			if [ $(id -u) = 0 ];
 			then
 				echo "Since you are root, you will need to root in order to remove the build directory."
 			fi
@@ -53,14 +54,19 @@ else
 		fi 
 	elif [ "$system_options" = "Online" ] || [ "$system_options" = "online" ];
 	then
-		if [ "$var" = "uid=0(root) gid=0(root) groups=0(root)" ];
+		if [ $(id -u) = 0 ];
 		then
 			if [ $user_option = 1 ] || [ $user_option = 2 ]; 
 			then
 				cd Online
 				cd src
 				make
-				mv Thurs /bin
+				if [ "$os_system" = "Darwin" ]; 
+				then
+					mv Thurs /usr/local/bin
+				else
+					mv Thurs /bin
+				fi
 				rm Thursday.o
 				rm Utilities.o
 				cd ..
