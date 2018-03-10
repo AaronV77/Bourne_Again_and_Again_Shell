@@ -8,6 +8,7 @@
 #--------------------------------------------------------------------*/
 
 dir=$(pwd -P)
+home=$(printenv HOME)
 build_dir="${dir}/build"
 os_system=$(uname -s)
 
@@ -42,7 +43,7 @@ else
 			cd $dir
 			if [ $(id -u) = 0 ];
 			then
-				echo "Since you are root, you will need to root in order to remove the build directory."
+				echo "Since you are root, you will need to be root in order to remove the build directory."
 			fi
 		elif [ $user_option = 3 ];
 		then
@@ -52,6 +53,7 @@ else
 			fi
 		else
 			echo "The option you chose is not a valid option."
+			exit
 		fi 
 	elif [ "$system_options" = "Online" ] || [ "$system_options" = "online" ];
 	then
@@ -71,33 +73,41 @@ else
 				rm Thursday.o
 				rm Utilities.o
 				cd ..
-				cp -R Thursday ~/.Thursday
+				cp -R Thursday $home/.Thursday
 			else 
 				echo "Sorry, this script needs root privileges."
+				exit
 			fi
 		elif [ $user_option = 3 ];
 		then
 			if [ "$os_system" = "Darwin" ]; 
 			then
-				if [ -d "/usr/local/bin/Thurs" ];
+				if [ -f "/usr/local/bin/Thurs" ];
 				then
 					rm /usr/local/bin/Thurs
 				fi
 			else
 				if [ $(id -u) = 0 ];
 				then
-					if [ -d "/bin/Thurs" ];
+					if [ -f "/bin/Thurs" ];
 					then
 						rm /bin/Thurs
 					fi
 				else 
 					echo "Sorry, this script needs root privileges."
+					exit
 				fi
 			fi
+			cd $home
+			rm -rf .Thursday
+			cd $dir
+			echo "Everything has been cleaned up!"
 		else
 			echo "The option you chose is not a valid option."
+			exit
 		fi
 	else
 		echo "Sorry, did not understand your input."
+		exit
 	fi
 fi
