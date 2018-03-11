@@ -517,8 +517,11 @@ void Thursday::CompressAndDecompress(int Number, std::string argument, char * en
 	std::string fileName = argument;														// Used to store the filename so that we can add .tgz to it.
 	std::size_t stringFind;																	// Used to find a string within a string.
 	std::string path = FileChecker("tar", 0);												// Get the location of the binary for tgz.
+	int fileName_size = fileName.size();
 
 	if (Number == 0) {																		// Store the arguments for compressing.	
+		if (fileName[fileName_size - 1] == '/')
+			fileName.pop_back();
 		fileName += ".tgz";																	// Add .tgz to the file name because this will be the new name for the compressed file.
 		arguments.push_back(path);															// The path is stored first.
 		arguments.push_back("cvzf");														// The compression argument is second.
@@ -1040,25 +1043,22 @@ void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_
     if (debugSwitch == 1)
         ColorChange("\t\tMission - You are in the Exec_Redirection method.", 3); 
 	 /*--------------------------------------------------------------------*/
-	int i = 0; 
     std::string file_path = ""; 
-    size_t arrSize = 100;
     pid_t pid;
 	
     FILE *fp;
     FILE *fp2;
     FILE *fp3;
 
-	char ** myArray = new char * [arrSize];
-	for (i = 0; i < commands.size(); i++) {
-		myArray[i] = new char [arrSize];
-		strcpy(myArray[i], strdup(commands[i].c_str()));
+	char * myArray[commands.size() + 1];
+	int a = 0;
+	while(a < commands.size()) {
+		myArray[a] = (char*)commands[a].c_str();
+		a++;
 	}
-	myArray[i++] = NULL;
+	myArray[a] = NULL;
 
 	file_path = FileChecker(commands[0], 0);
-    char * pointer_file_path = (char*)malloc(50);
-    strcpy(pointer_file_path, strdup(file_path.c_str()));
 
     pid = fork();
     if (pid == 0) {
@@ -1078,7 +1078,7 @@ void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_
                 fp3 = freopen(standard_error_file.c_str(), "a", stderr);
             }
         }
-		if (execve(pointer_file_path, myArray, envp) == -1) {
+		if (execve(file_path.c_str(), myArray, envp) == -1) {
 			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);
 		}
         if (standard_in_file == "")
@@ -1094,10 +1094,6 @@ void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_
 		waitpid(pid, 0, WUNTRACED);
 	}
 
-	delete [] myArray;
-    delete pointer_file_path;
-    pointer_file_path = NULL;
-	myArray = NULL;
    	/*--------------------------------------------------------------------*/	
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are in the Exec_Redirection method.", 3);
