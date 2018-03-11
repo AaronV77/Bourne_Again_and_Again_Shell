@@ -10,7 +10,7 @@ Email: valoroso99@gmail.com
 std::string autoComplete(Thursday home, std::string theCommands, bool mySwitch);
 int getche(void);
 
-int main (int argc, char * argv[], char *envp[]) {					
+int main (int argc, char * argv[], char * envp[]) {					
 	/*-------------------------------------------------------------------------------------------------------
 	Note: This program does all the necessary functionality to be able to update the terminal screen and the
     underlying variables to edit incoming input for an application. How this code works, is by first displaying
@@ -37,9 +37,16 @@ int main (int argc, char * argv[], char *envp[]) {
 	int LeftAndRightIterator = 1;																				//Used to keep track of where the cursor is on the screen.
 	int UpAndDownIterator = 0;																					//Used to keep track of where the system is in the commands vector.
 	int size = 0;
-	bool tabPressed = false;
+    int tilda_iterator = 0;
+    bool tabPressed = false;
 	bool quoteFound = false;																					//Used to stop store characters in the "theCommands" variable.
-	std::string theCommands = "";																				//Used to store the whole incoming input from the user besides if there is a quote.
+	bool tilda_found_flag = false;
+    
+    passwd * CurrUser = getpwuid(getuid());
+	std::string user_home_destination = static_cast<std::string>(CurrUser->pw_dir);
+    
+    std::string tilda_theCommands = "";
+    std::string theCommands = "";																				//Used to store the whole incoming input from the user besides if there is a quote.
     std::string input = "";
     std::string lastItem = "";
     std::string storage = "";
@@ -88,14 +95,31 @@ int main (int argc, char * argv[], char *envp[]) {
                 break;
             case 10:																	    //When an enter key was pressed.
                 if (theCommands != "") {																		//Make sure that the char pointer is not empty / NULL.
-                    home.Check_Input_Loop(theCommands, envp);													//Send the commands in the incomingInput vector to the search commands method.
+                    if (tilda_found_flag == true) {
+                        for (int z = 0; z < theCommands.size(); z++) {
+                            if (theCommands[z] == '~') {
+                                tilda_theCommands += theCommands.substr(tilda_iterator, z);
+                                tilda_theCommands += user_home_destination;
+                                tilda_iterator = z;
+                                tilda_iterator++;
+                                if (tilda_iterator <= (theCommands.size() - 1))
+                                    tilda_theCommands += theCommands.substr(tilda_iterator);;
+                            }
+                        }
+                        home.Check_Input_Loop(tilda_theCommands, envp);
+                        tilda_found_flag = false;
+                        tilda_iterator = 0;
+                        tilda_theCommands = "";
+                    } else {  
+                        home.Check_Input_Loop(theCommands, envp);												//Send the commands in the incomingInput vector to the search commands method.
+                    }
                     incomingCommands.push_back(theCommands);													//Store the old commands in this vector.				
                     tabPressed = false;
+                    theCommands = "";																			//Reset the variable.
                 }
                 home.PromptDisplay();																			//Display the prompt.				
                 UpAndDownIterator = incomingCommands.size();													//Set the up and down iterator to zero.
                 LeftAndRightIterator = 1;																		//Reset the iterator for back and forth to zero.
-                theCommands = "";																				//Reset the variable.
                 break;
             case 127:																        //Backspace character.
                 if (LeftAndRightIterator > 1) {																	//Delete the characters in the pointer, but no further than what was typed.
@@ -210,6 +234,9 @@ int main (int argc, char * argv[], char *envp[]) {
                 break;
             default:
                 if (characterNumber < 195 || characterNumber > 204) {
+                    if (characterNumber == 126)
+                        tilda_found_flag = true;
+
                     tabPressed = false;
                     if ((theCommands.size()+1) != LeftAndRightIterator) {										//If the cursor is not at the end of the string.
                         std::string str = utili::convert_number_to_letter(characterNumber);						//Convert the character number into an actual letter.															
@@ -285,6 +312,10 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
     bool backslash_found_flag = false;
     bool absolute_path_flag = false;
     int iteration_counter = 0;
+    
+    passwd * CurrUser = getpwuid(getuid());
+	std::string user_home_destination = static_cast<std::string>(CurrUser->pw_dir);
+    
     std::string token = "";
     std::string storage = "";
     std::string last_item_token = "";
@@ -306,7 +337,7 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
         }	
     }
 
-	if (last_item_token[0] == '/')
+	if (last_item_token[0] == '/' || last_item_token[0] == '~')
 		absolute_path_flag = true;
 
     for (int a = 0; a < last_item_token.size(); a++) {
@@ -352,7 +383,10 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
                 return incomingTypedString;
             }
             backslash_found_flag = false;
-            token += last_item_token[a];
+            if (last_item_token[a] == '~')
+                token = user_home_destination;
+            else
+                token += last_item_token[a];
         }
 
     }
@@ -383,17 +417,24 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
             return incomingTypedString;
         } else if (saved_items.size() == 1) {
 			for (int d = 0; d < saved_items[0].size(); d++) {
-				if (token[d] != saved_items[0][d])
+                if (d <= token.size()) {
+                    if (token[d] != saved_items[0][d]) {
+                        std::cout << saved_items[0][d];
+                        incomingTypedString += saved_items[0][d];
+                    }
+                } else {
                     std::cout << saved_items[0][d];
+                    incomingTypedString += saved_items[0][d]; 
+                }
 			}
 
             constructed_saved_path += saved_items[0];
 
             if (utili::isDirectory(constructed_saved_path) == true) {
                 std::cout << "/";
-                return storage + constructed_saved_path + "/";	
+                return incomingTypedString + "/";	
             } else {
-                return storage + constructed_saved_path;
+                return incomingTypedString;
             }
 		} else if (saved_items.size() > 0) {
 			std::string exampleSearch = saved_items[0];
@@ -445,6 +486,8 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
                 
             }
             std::cout << std::endl << std::endl;
+        } else {
+            std:: cout << std::endl;
         }
 
 		return incomingTypedString;

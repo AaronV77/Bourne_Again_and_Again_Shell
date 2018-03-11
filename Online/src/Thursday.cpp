@@ -997,18 +997,17 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are in the ExecuteFile method.", 3);
 	/*--------------------------------------------------------------------*/
-	int i = 0;
-	size_t arrSize = 100;
-	char ** myArray = new char * [arrSize];
-	for (i = 0; i < arguments.size(); i++) {
-		myArray[i] = new char [arrSize];
-		strcpy(myArray[i], strdup(arguments[i].c_str()));
+	char * myArray[arguments.size() + 1];
+	int a = 0;
+	while(a < arguments.size()) {
+		myArray[a] = (char*)arguments[a].c_str();
+		a++;
 	}
-	myArray[i++] = NULL;
+	myArray[a] = NULL;
 	
     pid_t pid;
 	incomingCommand = FileChecker(incomingCommand, false);
-	
+
 	pid = fork();
 	if (pid == 0) {
 		if (execve(incomingCommand.c_str(), myArray, envp) == -1) {
@@ -1019,12 +1018,6 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 		if (waitSwitch == false)
 			waitpid(pid, NULL, 0);
 	}
-
-	for (i = 0; i < arguments.size(); i++)
-		delete myArray[i];
-
-	delete [] myArray;
-	myArray = NULL;
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are leaving the ExecuteFile method.", 3);
@@ -1129,7 +1122,7 @@ std::string Thursday::FileChecker(std::string argument, int signal) {
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are in the FileChecker method.", 3);
 	/*--------------------------------------------------------------------*/ 
-	if (signal == 0) {		
+	if (signal == 0) {	
 		std::string incomingArgument = "";
 		for (int i = 0; i < PathVector.size(); i++) {
 			incomingArgument = PathVector[i];
@@ -1828,6 +1821,8 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 								if (incomingInput[i] == "-m")
 									DirectoryChange(cpPath);
 							}
+						} else {
+							ColorChange("\t\tThere was a problem with the input for mv.", 2);
 						}
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect-4.", 2);
@@ -1997,6 +1992,8 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 								if (incomingInput[i] == "-m")
 									DirectoryChange(mvPath);
 							}
+						} else {
+							ColorChange("\t\tThere was a problem with the input for mv.", 2);
 						}
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect-11.", 2);
