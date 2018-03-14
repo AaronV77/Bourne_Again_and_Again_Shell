@@ -59,25 +59,25 @@ else
 	then
 		if [ $user_option = 1 ] || [ $user_option = 2 ]; 
 		then
-			if [ $(id -u) = 0 ];
+			cd Online
+			cd src
+			make
+			if [ "$os_system" = "Darwin" ]; 
 			then
-				cd Online
-				cd src
-				make
-				if [ "$os_system" = "Darwin" ]; 
+				mv Thurs /usr/local/bin
+			else
+				if [ $(id -u) = 0 ];
 				then
-					mv Thurs /usr/local/bin
-				else
 					mv Thurs /bin
+				else 
+					echo "Sorry, this script needs root privileges."
+					exit
 				fi
-				rm Thursday.o
-				rm Utilities.o
-				cd ..
-				cp -R Thursday $home/.Thursday
-			else 
-				echo "Sorry, this script needs root privileges."
-				exit
 			fi
+			rm Thursday.o
+			rm Utilities.o
+			cd ..
+			cp -R Thursday $home/.Thursday
 		elif [ $user_option = 3 ];
 		then
 			if [ "$os_system" = "Darwin" ]; 
