@@ -1006,12 +1006,17 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 	for (i = 0; i < arguments.size(); i++) {
 		myArray[i] = new char [arrSize];
 		strcpy(myArray[i], strdup(arguments[i].c_str()));
+		std::cout << myArray[i] << std::endl;
 	}
 	myArray[i++] = NULL;
 	
     pid_t pid;
+	std::cout << incomingCommand << std::endl;
 	incomingCommand = FileChecker(incomingCommand, false);
-	
+	if (incomingCommand.size() == 0)
+		incomingCommand = incomingCommand;
+	std::cout << incomingCommand << std::endl;
+
 	pid = fork();
 	if (pid == 0) {
 		if (execve(incomingCommand.c_str(), myArray, envp) == -1) {
@@ -1089,7 +1094,7 @@ void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_
             }
         }
 		if (execve(pointer_file_path, myArray, envp) == -1) {
-			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);
+			ColorChange("\t\tSomething went wrong with the execution of the command2.", 2);
 		}
         if (standard_in_file == "")
 		    fclose(fp);

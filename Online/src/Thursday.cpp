@@ -1009,7 +1009,10 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 	myArray[a] = NULL;
 	
     pid_t pid;
+
 	incomingCommand = FileChecker(incomingCommand, false);
+	if (incomingCommand.size() == 0) 
+		incomingCommand = arguments[0];
 
 	pid = fork();
 	if (pid == 0) {
