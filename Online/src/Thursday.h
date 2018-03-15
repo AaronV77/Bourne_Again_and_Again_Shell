@@ -40,6 +40,7 @@ public:
 	int Check_Input_Loop(std::string incoming_input, char * envp[]);
 	void ColorChange(std::string sentence, int signal);
 	void ColorSwitch(bool signal);
+	void CloseTheSystem(std::vector<std::string> incomingCommands);
 	void CompressAndDecompress(int Number, std::string argument, char * envp[]);
 	void CopyAndMoveFiles(std::string itemsBeingMoved, std::string destinationPath, bool functionSwitch, char * envp[]);
 	std::string Cryptography(int number, int key, std::string message);
@@ -58,7 +59,7 @@ public:
 	void Recursive_Directory_Search(std::string path, std::string searchWord, bool showDirectories);
 	void Search(std::string argument);
 	int SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]);
-	void SetupAndCloseSystem(int argc, char * envp[], std::vector<std::string> incomingCommands);
+	std::vector<std::string> SetupTheSystem(int argc, char * envp[], std::vector<std::string> incomingCommands);
 
 private:
 

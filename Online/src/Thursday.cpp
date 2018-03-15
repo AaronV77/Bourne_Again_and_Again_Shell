@@ -411,6 +411,89 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
     return 0;
 }
 
+void Thursday::CloseTheSystem(std::vector<std::string> incomingCommands) {
+	/*-------------------------------------------------------------------
+	Note: This method takes in a vector of all the commands that the user
+	has typed while using the shell and print them to a file. I want to 
+	remove the file from the system with the built path because the file
+	will have all the old commands in it from the last time. We  don't want
+	these anymore. So I remove the file, if I can't I print an error. Then
+	I want to make a check to see if the vector is over 50 commands. If so
+	then I delete x commands until I have 50 left. Then I open / re-create
+	the file and print all the commands to that file. This method was 
+	last updated on 3/15/2018.
+	--------------------------------------------------------------------*/
+    if (debugSwitch == true) 
+		ColorChange("\t\tMission - You are in the CompressAndDecompress method.", 3);
+	/*--------------------------------------------------------------------*/ 
+	std::string temp_path = user_home_destination + "/.thursday_history";
+	std::ofstream output_file;
+	if (remove(temp_path.c_str()) != 0) {
+		ColorChange("\t\t There was an error deleting the thursday_history file.", 2);
+	} else {
+		if (incomingCommands.size() > 50) {
+			int number = 50 - incomingCommands.size();
+			number *= -1;
+			incomingCommands.erase(incomingCommands.begin(), incomingCommands.begin()+number);
+		}
+		output_file.open(temp_path);
+		for (int i = 0; i < incomingCommands.size(); ++i) {
+			output_file << incomingCommands[i] << std::endl;
+		}
+		output_file.close();
+	}
+	/*--------------------------------------------------------------------*/ 
+    if (debugSwitch == true) 
+		ColorChange("\t\tMission - You are leaving the CompressAndDecompress method.", 3);
+
+	return;
+}
+
+void Thursday::CompressAndDecompress(int Number, std::string argument, char * envp[]) {
+	/*-------------------------------------------------------------------
+	Note: This method will compress and decompress files that only have the
+	tgz extensions . How this is done is by getting all the required arguments
+	to give to exec to either uncompress or decompress. If it does not have
+	the tgz extensions  then I just ignore and move on. This method was last
+	updated on 2/17/2018.
+	--------------------------------------------------------------------*/
+    if (debugSwitch == true) 
+		ColorChange("\t\tMission - You are in the CompressAndDecompress method.", 3);
+	/*--------------------------------------------------------------------*/ 
+	std::vector<std::string> arguments;														// To store all the arguments that will be sent to the Execution method.
+	std::string fileName = argument;														// Used to store the filename so that we can add .tgz to it.
+	std::size_t stringFind;																	// Used to find a string within a string.
+	std::string path = FileChecker("tar", 0);												// Get the location of the binary for tgz.
+	int fileName_size = fileName.size();
+
+	if (Number == 0) {																		// Store the arguments for compressing.	
+		if (fileName[fileName_size - 1] == '/')
+			fileName.pop_back();
+		fileName += ".tgz";																	// Add .tgz to the file name because this will be the new name for the compressed file.
+		arguments.push_back(path);															// The path is stored first.
+		arguments.push_back("cvzf");														// The compression argument is second.
+		arguments.push_back(fileName);														// The filename with the new extension is third.
+		arguments.push_back(argument);														// The file name that we are compressing is last.
+	} else if (Number == 1) {																// Store the arguments for decompressing.
+		arguments.push_back(path);															// The path is stored first.
+		arguments.push_back("xvzf");														// The decompression argument is second.
+		stringFind = argument.find(".tgz");													// See if we found the .tgz in the argument. We want to see if the filename has it.
+		if (stringFind != std::string::npos) {												// If it does.
+			arguments.push_back(fileName);													// Store the file name third.
+			argument.erase(argument.begin()+(argument.size() - 4), argument.end());			// We want to delete the .tgz extention so that we can save the file without the extension.
+			arguments.push_back(argument);													// Lastly we store the name we want to save the decompressed file too.
+		} else {
+			ColorChange("\t\tSorry can only decompress a file if it has the tgz extentsion.", 2);
+		}
+	}
+	ExecuteFile("tar", arguments, envp);															// Send arguments and path over to be executed.
+	/*--------------------------------------------------------------------*/ 
+    if (debugSwitch == true) 
+		ColorChange("\t\tMission - You are leaving the CompressAndDecompress method.", 3);
+
+	return;
+}
+
 void Thursday::ColorChange(std::string sentence, int signal) {
 	/*-------------------------------------------------------------------
 	Note: This method controls what color to pick for the output. Error 
@@ -507,51 +590,6 @@ void Thursday::ColorSwitch(bool signal) {
     if (debugSwitch == true) 
 		ColorChange("\t\tMission - You are leaving the ColorSwitch method.", 3);
 
-}
-
-void Thursday::CompressAndDecompress(int Number, std::string argument, char * envp[]) {
-	/*-------------------------------------------------------------------
-	Note: This method will compress and decompress files that only have the
-	tgz extensions . How this is done is by getting all the required arguments
-	to give to exec to either uncompress or decompress. If it does not have
-	the tgz extensions  then I just ignore and move on. This method was last
-	updated on 2/17/2018.
-	--------------------------------------------------------------------*/
-    if (debugSwitch == true) 
-		ColorChange("\t\tMission - You are in the CompressAndDecompress method.", 3);
-	/*--------------------------------------------------------------------*/ 
-	std::vector<std::string> arguments;														// To store all the arguments that will be sent to the Execution method.
-	std::string fileName = argument;														// Used to store the filename so that we can add .tgz to it.
-	std::size_t stringFind;																	// Used to find a string within a string.
-	std::string path = FileChecker("tar", 0);												// Get the location of the binary for tgz.
-	int fileName_size = fileName.size();
-
-	if (Number == 0) {																		// Store the arguments for compressing.	
-		if (fileName[fileName_size - 1] == '/')
-			fileName.pop_back();
-		fileName += ".tgz";																	// Add .tgz to the file name because this will be the new name for the compressed file.
-		arguments.push_back(path);															// The path is stored first.
-		arguments.push_back("cvzf");														// The compression argument is second.
-		arguments.push_back(fileName);														// The filename with the new extension is third.
-		arguments.push_back(argument);														// The file name that we are compressing is last.
-	} else if (Number == 1) {																// Store the arguments for decompressing.
-		arguments.push_back(path);															// The path is stored first.
-		arguments.push_back("xvzf");														// The decompression argument is second.
-		stringFind = argument.find(".tgz");													// See if we found the .tgz in the argument. We want to see if the filename has it.
-		if (stringFind != std::string::npos) {												// If it does.
-			arguments.push_back(fileName);													// Store the file name third.
-			argument.erase(argument.begin()+(argument.size() - 4), argument.end());			// We want to delete the .tgz extention so that we can save the file without the extension.
-			arguments.push_back(argument);													// Lastly we store the name we want to save the decompressed file too.
-		} else {
-			ColorChange("\t\tSorry can only decompress a file if it has the tgz extentsion.", 2);
-		}
-	}
-	ExecuteFile("tar", arguments, envp);															// Send arguments and path over to be executed.
-	/*--------------------------------------------------------------------*/ 
-    if (debugSwitch == true) 
-		ColorChange("\t\tMission - You are leaving the CompressAndDecompress method.", 3);
-
-	return;
 }
 
 void Thursday::CopyAndMoveFiles(std::string itemsBeingMoved, std::string destinationPath, bool functionSwitch, char * envp[]) {
@@ -1755,14 +1793,6 @@ int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, 
     int size = incomingInput.size();
 	characterValue = incomingInput[i][0];													//Grab the ascii value of the first chararcter of the current command.
 
-	// user_trying_to_run_code = incomingInput[0][0];
-	// user_trying_to_run_code += incomingInput[0][1];
-	// if (user_trying_to_run_code == "./") {
-	// 	signal = 1;
-	// 	user_trying_to_run_code = incomingInput[0];
-	// 	incomingInput[0] = user_trying_to_run_code.substr(2);
-	// }
-
 	if ( signal == 0 ) { 
 		if (characterValue >= 97 && characterValue <= 108) {								//If the command is within A - L (a - l).
 			if (characterValue >= 97 && characterValue <= 102) {							//If the command is within A - F (a - f).
@@ -1887,8 +1917,8 @@ int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, 
 						ColorChange("\t\tThe number of arguments was incorrect-7.", 2);
 					}
 				} else if (incomingInput[i] == "exit") {
-					arguments.push_back("reset");
-					ExecuteFile("reset", arguments, envp);
+					// arguments.push_back("reset");
+					// ExecuteFile("reset", arguments, envp);
 					return 1;
 				} else if (incomingInput[i] == "find") {
 					if (size == 3) {
@@ -2108,7 +2138,7 @@ int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, 
     return 0;
 }
 
-void Thursday::SetupAndCloseSystem(int argc, char * envp[], std::vector<std::string> incomingCommands) {
+std::vector<std::string> Thursday::SetupTheSystem(int argc, char * envp[], std::vector<std::string> incomingCommands) {
 	/*------------------------------------------------------------------
 	Note: This method gets the system's environment, thursday commands,
 	and path vectors setup correctly. I would do this in the constructor 
@@ -2119,7 +2149,7 @@ void Thursday::SetupAndCloseSystem(int argc, char * envp[], std::vector<std::str
 	on 2/18/2018.
 	--------------------------------------------------------------------*/	
 	if (debugSwitch == 1)
-		ColorChange("\t\tMission - You are in the SetupAndCloseSystem method.", 3);
+		ColorChange("\t\tMission - You are in the SetupTheSystem method.", 3);
  	/*--------------------------------------------------------------------*/
 	std::ofstream output_file;
 	std::ifstream input_file;
@@ -2133,40 +2163,40 @@ void Thursday::SetupAndCloseSystem(int argc, char * envp[], std::vector<std::str
 
 	ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);
 	Environment = utili::get_environment(envp, Environment);
-	
-	std::string input = "";
+
 	for (int i = 0; i < Environment.size(); ++i) {
 		if (Environment[i] == "PATH") {
 			i++;
 			std::istringstream iss (Environment[i]);
-			while(std::getline(iss,input, ':'))
-				PathVector.push_back(input);
+			while(std::getline(iss,temp_input, ':'))
+				PathVector.push_back(temp_input);
 		}
 	}
 
-	temp_path = user_home_destination + ".thursday_profile";
+	temp_path = user_home_destination + "/.thursday_profile";
 	if (utili::isFile(temp_path) == false) {
 		output_file.open(".thursday_profile");
+			// Need to setup the file or just copy and example over. I'm leaning towards just copying the file.
+			// Also have to redirect the input of commands.
 		output_file.close();
 	}
 
-	temp_path = user_home_destination + ".thursday_history";
+	temp_path = user_home_destination + "/.thursday_history";
 	if (utili::isFile(temp_path) == false) {
 		output_file.open(".thursday_history");
 		output_file.close();
 	} else {
 		input_file.open(temp_path);
-		while (input_file.eof()) {
+		while (!input_file.eof()) {
 			std::getline(input_file,temp_input);
-			incomingCommands.push_back();
+			incomingCommands.push_back(temp_input);
 		}
-		if (incomingCommands.size())
 		input_file.close();
+		incomingCommands.erase(incomingCommands.end(), incomingCommands.end()+1);
 	}
-
 	/*--------------------------------------------------------------------*/
 	if (debugSwitch == 1)
-		ColorChange("\t\tMission - You are leaving the SetupAndCloseSystem method.", 3);
+		ColorChange("\t\tMission - You are leaving the SetupTheSystem method.", 3);
 
-	return;
+	return incomingCommands;
 }

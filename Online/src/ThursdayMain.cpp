@@ -69,15 +69,16 @@ int main (int argc, char * argv[], char * envp[]) {
 		}
 	}
 
-	home.SetupAndCloseSystem(argc, envp, incomingCommands);
-	incomingCommands.push_back("reset");																		//Put the reset in the vector to send to the ExecuteFile method.
-	home.ExecuteFile("reset", incomingCommands, envp);															//Reset the screen for the start of the application.
-	incomingCommands.clear();																					//Clear the vector.
-	home.PromptDisplay();																						//Print basic prompt out.																	
+    incomingCommands = home.SetupTheSystem(argc, envp, incomingCommands);
+    UpAndDownIterator = incomingCommands.size();
+    home.Check_Input_Loop("reset", envp);
+    home.PromptDisplay();																						//Print basic prompt out.																	
 
 	while (1) {																									//Loop for indeffinately.
-		if (exit_flag == true)
+		if (exit_flag == true) {
+            home.CloseTheSystem(incomingCommands);
             break;
+        }
         tcgetattr(STDIN_FILENO, &oldattr);																		//Get the terminal setting for standard in.				
 		newattr = oldattr;																						//Save the settings to a different terminal variable.
 		newattr.c_lflag &= ~( ICANON | ECHO );																	//Turn off the echo feature and line editing to still occur.
@@ -276,11 +277,11 @@ int main (int argc, char * argv[], char * envp[]) {
         }
 
 		if (incomingCommands.size() > 100)																		//If there are more than 100 elements in the vector.
-			incomingCommands.erase(incomingCommands.begin()+50);												//Delete the first half of the vector.
+			incomingCommands.erase(incomingCommands.begin(), incomingCommands.begin()+50);					    //Delete the first half of the vector.
 
 		characterNumber = 0;																					//Reset the character number.
 	}
-
+    std::cout << "Good Bye Folks!" << std::endl;
 	return 0;
 }
 
