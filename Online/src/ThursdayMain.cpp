@@ -69,7 +69,7 @@ int main (int argc, char * argv[], char * envp[]) {
 		}
 	}
 
-	home.SetupAndCloseSystem(argc, envp);
+	home.SetupAndCloseSystem(argc, envp, incomingCommands);
 	incomingCommands.push_back("reset");																		//Put the reset in the vector to send to the ExecuteFile method.
 	home.ExecuteFile("reset", incomingCommands, envp);															//Reset the screen for the start of the application.
 	incomingCommands.clear();																					//Clear the vector.

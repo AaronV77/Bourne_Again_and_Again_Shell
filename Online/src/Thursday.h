@@ -58,7 +58,7 @@ public:
 	void Recursive_Directory_Search(std::string path, std::string searchWord, bool showDirectories);
 	void Search(std::string argument);
 	int SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]);
-	void SetupAndCloseSystem(int argc, char * envp[]);
+	void SetupAndCloseSystem(int argc, char * envp[], std::vector<std::string> incomingCommands);
 
 private:
 

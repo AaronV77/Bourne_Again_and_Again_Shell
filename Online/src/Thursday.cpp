@@ -2108,7 +2108,7 @@ int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, 
     return 0;
 }
 
-void Thursday::SetupAndCloseSystem(int argc, char * envp[]) {
+void Thursday::SetupAndCloseSystem(int argc, char * envp[], std::vector<std::string> incomingCommands) {
 	/*------------------------------------------------------------------
 	Note: This method gets the system's environment, thursday commands,
 	and path vectors setup correctly. I would do this in the constructor 
@@ -2121,8 +2121,13 @@ void Thursday::SetupAndCloseSystem(int argc, char * envp[]) {
 	if (debugSwitch == 1)
 		ColorChange("\t\tMission - You are in the SetupAndCloseSystem method.", 3);
  	/*--------------------------------------------------------------------*/
+	std::ofstream output_file;
+	std::ifstream input_file;
 	std::string globalFileName = "";
 	std::string thursdayCommandsFileName = "";
+	std::string Thursday_Histroy_File = ".thursday_history"; 
+	std::string temp_path = "";
+	std::string temp_input = "";
 	thursdayCommandsFileName = informationDestination;
 	thursdayCommandsFileName += "/ThursdayCommands.txt";
 
@@ -2138,6 +2143,27 @@ void Thursday::SetupAndCloseSystem(int argc, char * envp[]) {
 				PathVector.push_back(input);
 		}
 	}
+
+	temp_path = user_home_destination + ".thursday_profile";
+	if (utili::isFile(temp_path) == false) {
+		output_file.open(".thursday_profile");
+		output_file.close();
+	}
+
+	temp_path = user_home_destination + ".thursday_history";
+	if (utili::isFile(temp_path) == false) {
+		output_file.open(".thursday_history");
+		output_file.close();
+	} else {
+		input_file.open(temp_path);
+		while (input_file.eof()) {
+			std::getline(input_file,temp_input);
+			incomingCommands.push_back();
+		}
+		if (incomingCommands.size())
+		input_file.close();
+	}
+
 	/*--------------------------------------------------------------------*/
 	if (debugSwitch == 1)
 		ColorChange("\t\tMission - You are leaving the SetupAndCloseSystem method.", 3);
