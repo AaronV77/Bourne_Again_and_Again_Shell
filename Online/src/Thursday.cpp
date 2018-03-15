@@ -19,6 +19,7 @@ Thursday::Thursday() {
 	--------------------------------------------------------------------*/
 	debugSwitch = false;
 	waitSwitch = false;
+	myCommandSwitch = false;
 	ColorSwitch(true);
 	colorOption = 10;
 	promptNumber = 2;
@@ -34,9 +35,9 @@ Thursday::Thursday() {
 	passwd * CurrUser = getpwuid(getuid());
 	user_home_destination = static_cast<std::string>(CurrUser->pw_dir);
 	DirectoryChange(user_home_destination);
-	homeDestination = user_home_destination + "/.Thursday";
-	dictionaryDestination = homeDestination + "/Dictionary-1.2";
-	informationDestination = homeDestination + "/information";
+
+	dictionaryDestination = "/usr/local/bin/.Thursday/Dictionary-1.2";
+	informationDestination = "/usr/local/bin/.Thursday/information";
 
 }
 
@@ -50,7 +51,7 @@ Thursday::~Thursday() {
 	PathVector.clear();	
 }
 
-void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]) {
+int Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]) {
 	/*------------------------------------------------------------------
 	Note: This method takes the arguments that were put together from the 
 	Check_Input_Loop and see if any of the arguments belong to Thursdays
@@ -94,10 +95,13 @@ void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_comman
 
             sending_commands.push_back(incoming_commands[a]);
 			argument_position = 0;
-			if (thursday_command_flag == true)
-				SearchCommands(sending_commands, 0, envp);
-			else
+
+			if (thursday_command_flag == true) {
+				if (SearchCommands(sending_commands, 0, envp) == 1)
+					return 1;
+			} else {
 				SearchCommands(sending_commands, 1, envp);
+			}
             thursday_command_flag = false;
             sending_commands.clear();
         } else {
@@ -109,10 +113,10 @@ void Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_comman
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are in the Basic_Command_Parse_Loop method.", 3);
 	
-    return;    
+    return 0;    
 }
 
-void Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
+int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
     /*------------------------------------------------------------------
 	Note: This method does a lot for the system and is going to be hard to explain in one short paragraph.
 	The overview for this method is that it takes an incoming string and checks for errors in the input, if
@@ -390,7 +394,10 @@ void Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
     }
     if (error_flag == false) {
         if (which_command_parser == 0) {
-            Basic_Command_Parse_Loop(incoming_commands, envp);
+            if (Basic_Command_Parse_Loop(incoming_commands, envp) == 1) {
+				incoming_commands.clear();
+				return 1;
+			}
         } else {
             Operator_Command_Parse_Loop(incoming_commands, envp);
         }
@@ -401,7 +408,7 @@ void Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are in the ArgumentChecker method.", 3);
 
-    return;
+    return 0;
 }
 
 void Thursday::ColorChange(std::string sentence, int signal) {
@@ -1726,7 +1733,7 @@ void Thursday::Search(std::string argument) {
 	return;
 }
 
-void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]) {
+int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]) {
 	/*------------------------------------------------------------------
 	Note: This method takes in the command and runs it through the big 
 	* if statment. The if statments are categorize by alphanumeric. 
@@ -1737,16 +1744,24 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
  	/*--------------------------------------------------------------------*/
 	std::string fileName = ""; 
 	std::string random = ""; 
+	std::string user_trying_to_run_code = "";
 	std::size_t stringFind; 
 	std::locale loc; 
 	std::vector<std::string> temp; 
 	std::vector<std::string> arguments;
-	
     int characterValue = 0;																	//To grab the ascii value of the first character in the command.
     int i = 0; 
     int key = 0; 
     int size = incomingInput.size();
 	characterValue = incomingInput[i][0];													//Grab the ascii value of the first chararcter of the current command.
+
+	// user_trying_to_run_code = incomingInput[0][0];
+	// user_trying_to_run_code += incomingInput[0][1];
+	// if (user_trying_to_run_code == "./") {
+	// 	signal = 1;
+	// 	user_trying_to_run_code = incomingInput[0];
+	// 	incomingInput[0] = user_trying_to_run_code.substr(2);
+	// }
 
 	if ( signal == 0 ) { 
 		if (characterValue >= 97 && characterValue <= 108) {								//If the command is within A - L (a - l).
@@ -1874,7 +1889,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
 				} else if (incomingInput[i] == "exit") {
 					arguments.push_back("reset");
 					ExecuteFile("reset", arguments, envp);
-					exit(0);				
+					return 1;
 				} else if (incomingInput[i] == "find") {
 					if (size == 3) {
 						i++;
@@ -2090,7 +2105,7 @@ void Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal,
     if (debugSwitch == 1) 
 		ColorChange("\t\tMission - You are leaving the SearchCommands method.", 3);
 
-    return;
+    return 0;
 }
 
 void Thursday::SetupAndCloseSystem(int argc, char * envp[]) {

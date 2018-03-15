@@ -41,7 +41,8 @@ int main (int argc, char * argv[], char * envp[]) {
     bool tabPressed = false;
 	bool quoteFound = false;																					//Used to stop store characters in the "theCommands" variable.
 	bool tilda_found_flag = false;
-    
+    bool exit_flag = false;
+
     passwd * CurrUser = getpwuid(getuid());
 	std::string user_home_destination = static_cast<std::string>(CurrUser->pw_dir);
     
@@ -75,7 +76,9 @@ int main (int argc, char * argv[], char * envp[]) {
 	home.PromptDisplay();																						//Print basic prompt out.																	
 
 	while (1) {																									//Loop for indeffinately.
-		tcgetattr(STDIN_FILENO, &oldattr);																		//Get the terminal setting for standard in.				
+		if (exit_flag == true)
+            break;
+        tcgetattr(STDIN_FILENO, &oldattr);																		//Get the terminal setting for standard in.				
 		newattr = oldattr;																						//Save the settings to a different terminal variable.
 		newattr.c_lflag &= ~( ICANON | ECHO );																	//Turn off the echo feature and line editing to still occur.
 		tcsetattr(STDIN_FILENO, TCSANOW, &newattr);																//Set the new settings to the terminal.
@@ -106,12 +109,18 @@ int main (int argc, char * argv[], char * envp[]) {
                                     tilda_theCommands += theCommands.substr(tilda_iterator);;
                             }
                         }
-                        home.Check_Input_Loop(tilda_theCommands, envp);
+                        if (home.Check_Input_Loop(theCommands, envp) == 1) {
+                            exit_flag = true;
+                            break;
+                        }
                         tilda_found_flag = false;
                         tilda_iterator = 0;
                         tilda_theCommands = "";
                     } else {  
-                        home.Check_Input_Loop(theCommands, envp);												//Send the commands in the incomingInput vector to the search commands method.
+                        if (home.Check_Input_Loop(theCommands, envp) == 1) {
+                            exit_flag = true;   											                    //Send the commands in the incomingInput vector to the search commands method.
+                            break;
+                        }
                     }
                     incomingCommands.push_back(theCommands);													//Store the old commands in this vector.				
                     tabPressed = false;

@@ -36,8 +36,8 @@ class Thursday {
 public:
 	Thursday();
 	~Thursday();
-	void Basic_Command_Parse_Loop(std::vector<std::string>incoming_commands, char * envp[]);
-	void Check_Input_Loop(std::string incoming_input, char * envp[]);
+	int Basic_Command_Parse_Loop(std::vector<std::string>incoming_commands, char * envp[]);
+	int Check_Input_Loop(std::string incoming_input, char * envp[]);
 	void ColorChange(std::string sentence, int signal);
 	void ColorSwitch(bool signal);
 	void CompressAndDecompress(int Number, std::string argument, char * envp[]);
@@ -57,7 +57,7 @@ public:
 	void PromptDisplay();
 	void Recursive_Directory_Search(std::string path, std::string searchWord, bool showDirectories);
 	void Search(std::string argument);
-	void SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]);
+	int SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]);
 	void SetupAndCloseSystem(int argc, char * envp[]);
 
 private:
@@ -94,7 +94,6 @@ private:
 	std::string currentPath;
 	std::string currentPrompt;
 	std::string dictionaryDestination;
-	std::string homeDestination;
 	std::string hostName;
 	std::string informationDestination;
 	std::string previousPath;

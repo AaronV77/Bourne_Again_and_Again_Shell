@@ -28,83 +28,63 @@ then
 else
 	if [ "$system_options" = "Offline" ] || [ "$system_options" = "offline" ]; 
 	then
-		if [ $user_option = 1 ] || [ $user_option = 2 ]; 
+		if [ $(id -u) != 0 ];
 		then
-			if [ ! -d "build" ]; 
+			if [ $user_option = 1 ] || [ $user_option = 2 ]; 
 			then
-				mkdir build
-			fi
-			cd Offline
-			cd src
-			make
-			mv Thurs $build_dir
-			mv Thursday.o $build_dir
-			mv Utilities.o $build_dir
-			cd $dir
-			if [ $(id -u) = 0 ];
+				if [ ! -d "build" ]; 
+				then
+					mkdir build
+				fi
+				cd Offline
+				cd src
+				make
+				mv Thurs $build_dir
+				mv Thursday.o $build_dir
+				mv Utilities.o $build_dir
+				cd $dir
+			elif [ $user_option = 3 ];
 			then
-				echo "Since you are root, you will need to be root in order to remove the build directory."
-			fi
-		elif [ $user_option = 3 ];
-		then
-			if [ -d "build" ]; 
-			then
-				rm -rf build
-			fi
-		else
-			echo "The option you chose is not a valid option."
-			exit
-		fi 
+				if [ -d "build" ]; 
+				then
+					rm -rf build
+				fi
+			else
+				echo "The option you chose is not a valid option."
+				exit
+			fi 
+		else 
+			echo "Sorry, please don't be root while setting up the offline system."
+		fi
 	elif [ "$system_options" = "Online" ] || [ "$system_options" = "online" ];
 	then
-		if [ $user_option = 1 ] || [ $user_option = 2 ]; 
+		# Have to do this as root because, if other users are going to use the directories,
+		# then I have to have them be root owned.
+		if [ $(id -u) = 0 ];
 		then
-			cd Online
-			cd src
-			make
-			if [ "$os_system" = "Darwin" ]; 
+			if [ $user_option = 1 ] || [ $user_option = 2 ]; 
 			then
+				cd Online
+				cd src
+				make
 				mv Thurs /usr/local/bin
-			else
-				if [ $(id -u) = 0 ];
-				then
-					mv Thurs /bin
-				else 
-					echo "Sorry, this script needs root privileges."
-					exit
-				fi
-			fi
-			rm Thursday.o
-			rm Utilities.o
-			cd ..
-			cp -R Thursday $home/.Thursday
-		elif [ $user_option = 3 ];
-		then
-			if [ "$os_system" = "Darwin" ]; 
+				rm Thursday.o
+				rm Utilities.o
+				cd ..
+				cp -R Thursday/ /usr/local/bin/.Thursday
+			elif [ $user_option = 3 ];
 			then
-				if [ -f "/usr/local/bin/Thurs" ];
-				then
-					rm /usr/local/bin/Thurs
-				fi
+				cd $home
+				rm /usr/local/bin/Thurs
+				rm -rf /usr/local/bin/.Thursday
+				cd $dir
+				echo "Everything has been cleaned up!"
 			else
-				if [ $(id -u) = 0 ];
-				then
-					if [ -f "/bin/Thurs" ];
-					then
-						rm /bin/Thurs
-					fi
-				else 
-					echo "Sorry, this script needs root privileges."
-					exit
-				fi
+				echo "The option you chose is not a valid option."
+				exit
 			fi
-			cd $home
-			rm -rf .Thursday
-			cd $dir
-			echo "Everything has been cleaned up!"
 		else
-			echo "The option you chose is not a valid option."
-			exit
+			echo "Sorry you need user priviliges."
 		fi
 	else
 		echo "Sorry, did not understand your input."
