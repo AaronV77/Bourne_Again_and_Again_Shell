@@ -12,7 +12,7 @@ const char* MONTHS[] = {
   "July", "August", "September", "October", "November", "December"
 };
 
-std::string utili::convert_number_to_letter(int incomingNumber) {
+std::string utili::convert_number_to_string(int incomingNumber) {
 	std::string output = "";
 	return (output += incomingNumber);
 }
@@ -128,18 +128,20 @@ std::vector<std::string> utili::get_environment(char * envp[], std::vector<std::
 	value. Then stores each part into the array separately. This method
 	was last updated on 2/18/2018.
 	--------------------------------------------------------------------*/		
-    int i = 0; 
+    int i = 0;
     bool variableFound = false;
     bool equalSignFound = false;
    	std::string str = "";
     std::string command = "";
     std::string value = "";
-
     while(envp[i] != NULL) {
         str = envp[i];
         for (int a = 0; a < str.size(); ++a) {
             if (str[a] == '=') {
-                equalSignFound = true;
+				if (equalSignFound == false)
+                	equalSignFound = true;
+				else 
+					value += str[a];
             } else {
                 if (equalSignFound == false) {
                     command += str[a];

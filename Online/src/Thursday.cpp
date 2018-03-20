@@ -20,14 +20,16 @@ Thursday::Thursday() {
 	debugSwitch = false;
 	waitSwitch = false;
 	myCommandSwitch = false;
-	ColorSwitch(true);
-	colorOption = 10;
-	promptNumber = 2;
+	colorSwitch = false;
+
+	environment_iterator = 0;
+	promptNumber = 0;
+
 	gid = getgid();
 	pid = getpid();
 	ppid = getppid();
 	uid = getuid();
-	currentPrompt = "No custom Prompt has been set: ";
+
 	previousPath = "";				
 	gethostname(path, sizeof(path));
 	hostName = path;
@@ -46,12 +48,13 @@ Thursday::~Thursday() {
 	Note: Clean up the system vectors and that's it. This method was last updated
 	updated on 2/15/2018.
 	--------------------------------------------------------------------*/	
-	ThursdayCommands.clear();
 	Environment.clear();
-	PathVector.clear();	
+	PathVector.clear();
+	ThursdayCommands.clear();
+
 }
 
-int Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]) {
+int Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_commands) {
 	/*------------------------------------------------------------------
 	Note: This method takes the arguments that were put together from the 
 	Check_Input_Loop and see if any of the arguments belong to Thursdays
@@ -97,10 +100,10 @@ int Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_command
 			argument_position = 0;
 
 			if (thursday_command_flag == true) {
-				if (SearchCommands(sending_commands, 0, envp) == 1)
+				if (SearchCommands(sending_commands, 0) == 1)
 					return 1;
 			} else {
-				SearchCommands(sending_commands, 1, envp);
+				SearchCommands(sending_commands, 1);
 			}
             thursday_command_flag = false;
             sending_commands.clear();
@@ -116,7 +119,7 @@ int Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_command
     return 0;    
 }
 
-int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
+int Thursday::Check_Input_Loop(std::string incoming_input) {
     /*------------------------------------------------------------------
 	Note: This method does a lot for the system and is going to be hard to explain in one short paragraph.
 	The overview for this method is that it takes an incoming string and checks for errors in the input, if
@@ -394,12 +397,12 @@ int Thursday::Check_Input_Loop(std::string incoming_input, char * envp[]) {
     }
     if (error_flag == false) {
         if (which_command_parser == 0) {
-            if (Basic_Command_Parse_Loop(incoming_commands, envp) == 1) {
+            if (Basic_Command_Parse_Loop(incoming_commands) == 1) {
 				incoming_commands.clear();
 				return 1;
 			}
         } else {
-            Operator_Command_Parse_Loop(incoming_commands, envp);
+            Operator_Command_Parse_Loop(incoming_commands);
         }
     } else {
         incoming_commands.clear();
@@ -449,7 +452,7 @@ void Thursday::CloseTheSystem(std::vector<std::string> incomingCommands) {
 	return;
 }
 
-void Thursday::CompressAndDecompress(int Number, std::string argument, char * envp[]) {
+void Thursday::CompressAndDecompress(int Number, std::string argument) {
 	/*-------------------------------------------------------------------
 	Note: This method will compress and decompress files that only have the
 	tgz extensions . How this is done is by getting all the required arguments
@@ -486,7 +489,7 @@ void Thursday::CompressAndDecompress(int Number, std::string argument, char * en
 			ColorChange("\t\tSorry can only decompress a file if it has the tgz extentsion.", 2);
 		}
 	}
-	ExecuteFile("tar", arguments, envp);															// Send arguments and path over to be executed.
+	ExecuteFile("tar", arguments);															// Send arguments and path over to be executed.
 	/*--------------------------------------------------------------------*/ 
     if (debugSwitch == true) 
 		ColorChange("\t\tMission - You are leaving the CompressAndDecompress method.", 3);
@@ -592,7 +595,7 @@ void Thursday::ColorSwitch(bool signal) {
 
 }
 
-void Thursday::CopyAndMoveFiles(std::string itemsBeingMoved, std::string destinationPath, bool functionSwitch, char * envp[]) {
+void Thursday::CopyAndMoveFiles(std::string itemsBeingMoved, std::string destinationPath, bool functionSwitch) {
 	/*-------------------------------------------------------------------
 	Note: This method is for the mv and cp commands. How this method 
 	works is by checking to see if the user is trying to move a symbolic
@@ -636,7 +639,7 @@ void Thursday::CopyAndMoveFiles(std::string itemsBeingMoved, std::string destina
 		arguments.push_back(itemsBeingMoved);
 		arguments.push_back(destinationPath);
 	}
-	ExecuteFile(whichCommand, arguments, envp);
+	ExecuteFile(whichCommand, arguments);
 	/*--------------------------------------------------------------------*/ 
 	if (debugSwitch == true) 
 		ColorChange("\t\tMission - You are leaving the CopyAndMoveFiles method.", 3);
@@ -1032,7 +1035,7 @@ void Thursday::EnvironmentUtilites(int Number, std::string variable, std::string
 	return;		
 }
 
-int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> arguments, char * envp[]) {
+int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> arguments) {
 	/*-------------------------------------------------------------------
 	Note: This method is for executing system level commands that Thursday
 	cannot process. How this method work is by looping through the arguments
@@ -1045,15 +1048,31 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are in the ExecuteFile method.", 3);
 	/*--------------------------------------------------------------------*/
-	char * myArray[arguments.size() + 1];
-	int a = 0;
-	while(a < arguments.size()) {
-		myArray[a] = (char*)arguments[a].c_str();
-		a++;
+	std::string temp = "";
+    char ** my_envp;
+	char ** my_array;
+    int a = 0;
+	int b = 0;
+	int i = 0;
+
+	my_array = new char*[arguments.size()+1];
+    my_envp = new char*[(Environment.size() / 2)+1];
+
+	for (a = 0; a < arguments.size(); a++) {
+		my_array[a] = new char [strlen(arguments[a].c_str())+1];
+		strcpy(my_array[a], arguments[a].c_str());
 	}
-	myArray[a] = NULL;
-	
-    pid_t pid;
+	my_array[a] = NULL;
+
+	for (b = 0; b < Environment.size(); b++) {
+		temp = Environment[b] + '=';
+		b++;
+		temp += Environment[b];
+		my_envp[i] = new char[strlen(temp.c_str())+1];
+        strcpy(my_envp[i], temp.c_str());
+		i++;
+	}
+	my_envp[i] = NULL;
 
 	incomingCommand = FileChecker(incomingCommand, false);
 	if (incomingCommand.size() == 0) 
@@ -1061,14 +1080,21 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 
 	pid = fork();
 	if (pid == 0) {
-		if (execve(incomingCommand.c_str(), myArray, envp) == -1) {
+		if (execve(incomingCommand.c_str(), my_array, my_envp) == -1) {
+			perror("");
 			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);
 			return 0;
 		}
 	} else {
 		if (waitSwitch == false)
 			waitpid(pid, NULL, 0);
-	}
+	}	
+	for (a = 0; a < arguments.size(); a++)
+		delete [] my_array[a];
+	delete [] my_array;
+    for (b = 0; b < (Environment.size() / 2); b++) 
+        delete [] my_envp[b];
+    delete [] my_envp;
 	/*--------------------------------------------------------------------*/
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are leaving the ExecuteFile method.", 3);
@@ -1076,7 +1102,7 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
     return 1;
 }
 
-void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_append, std::string standard_out_file, bool standard_error_append, std::string standard_error_file, std::vector<std::string> commands, char * envp[]) {
+void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_append, std::string standard_out_file, bool standard_error_append, std::string standard_error_file, std::vector<std::string> commands) {
 	/*------------------------------------------------------------------
 	Note: This method is for executing system level commands that Thursday
 	cannot process. How this method work is by looping through the arguments
@@ -1092,21 +1118,41 @@ void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_
         ColorChange("\t\tMission - You are in the Exec_Redirection method.", 3); 
 	 /*--------------------------------------------------------------------*/
     std::string file_path = ""; 
+	std::string temp = "";
     pid_t pid;
 	
     FILE *fp;
     FILE *fp2;
     FILE *fp3;
 
-	char * myArray[commands.size() + 1];
-	int a = 0;
-	while(a < commands.size()) {
-		myArray[a] = (char*)commands[a].c_str();
-		a++;
+    char ** my_envp;
+	char ** my_array;
+    int a = 0;
+	int b = 0;
+	int i = 0;
+
+	my_array = new char*[commands.size()+1];
+    my_envp = new char*[(Environment.size() / 2)+1];
+
+	for (a = 0; a < commands.size(); a++) {
+		my_array[a] = new char [strlen(commands[a].c_str())+1];
+		strcpy(my_array[a], commands[a].c_str());
 	}
-	myArray[a] = NULL;
+	my_array[a] = NULL;
+
+	for (b = 0; b < Environment.size(); b++) {
+		temp = Environment[b] + '=';
+		b++;
+		temp += Environment[b];
+		my_envp[i] = new char[strlen(temp.c_str())+1];
+        strcpy(my_envp[i], temp.c_str());
+		i++;
+	}
+	my_envp[i] = NULL;
 
 	file_path = FileChecker(commands[0], 0);
+	if (file_path.size() == 0)
+		file_path = commands[0];
 
     pid = fork();
     if (pid == 0) {
@@ -1126,7 +1172,7 @@ void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_
                 fp3 = freopen(standard_error_file.c_str(), "a", stderr);
             }
         }
-		if (execve(file_path.c_str(), myArray, envp) == -1) {
+		if (execve(file_path.c_str(), my_array, my_envp) == -1) {
 			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);
 		}
         if (standard_in_file == "")
@@ -1141,7 +1187,12 @@ void Thursday::Exec_Redirection(std::string standard_in_file, bool standard_out_
     } else {
 		waitpid(pid, 0, WUNTRACED);
 	}
-
+	for (a = 0; a < commands.size(); a++)
+		delete [] my_array[a];
+	delete [] my_array;
+    for (b = 0; b < (Environment.size() / 2); b++) 
+        delete [] my_envp[b];
+    delete [] my_envp;
    	/*--------------------------------------------------------------------*/	
     if (debugSwitch == 1) 
         ColorChange("\t\tMission - You are in the Exec_Redirection method.", 3);
@@ -1307,7 +1358,7 @@ void Thursday::Help(std::string argument) {
 	return;
 }
 
-void Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_commands, char * envp[]) {
+void Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_commands) {
 	/*------------------------------------------------------------------
 	Note: This method is where I come to process all the incoming operators that are in the vector.
 	There three rules to follow when looking into this method. Rule #1: You cannot have standard out
@@ -1394,30 +1445,30 @@ void Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_com
 						if (pipe_flag == false) {
 							standard_output_file = "temp_output1.txt";
 							temp_file_1_used = true;
-							Exec_Redirection("", false, standard_output_file, false, "", commands, envp);
+							Exec_Redirection("", false, standard_output_file, false, "", commands);
 						} else {
 							standard_output_file = "temp_output2.txt";
 							temp_file_2_used = true;
-							Exec_Redirection(standard_input_file, false, standard_output_file, false, "", commands, envp);
+							Exec_Redirection(standard_input_file, false, standard_output_file, false, "", commands);
 						}
 					} else {
 						for (int g = 0; g < the_operators.size(); g++) {
 							if (pipe_control_flag == false) {
 								if (the_operators[g] == "in") {
 									pipe_control_flag = true;
-									Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+									Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
 								} else if (the_operators[g] == "out") {
 									pipe_control_flag = true;
 									if (pipe_flag == false) {
-										Exec_Redirection("", adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+										Exec_Redirection("", adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
 									} else {
-										Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+										Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
 									}
 								}
 							}
 						}
 						if (pipe_control_flag == false) {
-							Exec_Redirection("", false, "", adding_to_standard_error_file, standard_error_file, commands, envp);
+							Exec_Redirection("", false, "", adding_to_standard_error_file, standard_error_file, commands);
 						}
 					}
 					standard_input_file = standard_output_file;
@@ -1547,26 +1598,26 @@ void Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_com
                 skip_argument_flag = true;
                 commands.push_back(incoming_commands[f]);
                 if (pipe_flag == false)
-                    Exec_Redirection("", false, "", false, "", commands, envp);
+                    Exec_Redirection("", false, "", false, "", commands);
                 else
-                    Exec_Redirection(standard_input_file, false, "", false, "", commands, envp);
+                    Exec_Redirection(standard_input_file, false, "", false, "", commands);
             } else {
                 for (int j = 0; j < the_operators.size(); j++) {
                     if (pipe_control_flag == false) {
                         if (the_operators[j] == "in") {
                             pipe_control_flag = true;
-                            Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+                            Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
                         } else if (the_operators[j] == "out") {
                             pipe_control_flag = true;
                             if (pipe_flag == false)
-                                Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+                                Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
                             else
-                                Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands, envp);
+                                Exec_Redirection(standard_input_file, adding_to_standard_out_file, standard_output_file, adding_to_standard_error_file, standard_error_file, commands);
                         }
                     }
                 }
 				if (pipe_control_flag == false) {
-					Exec_Redirection("", false, "", adding_to_standard_error_file, standard_error_file, commands, envp);
+					Exec_Redirection("", false, "", adding_to_standard_error_file, standard_error_file, commands);
 				}
             }
             standard_error_file = "";
@@ -1771,7 +1822,7 @@ void Thursday::Search(std::string argument) {
 	return;
 }
 
-int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, char * envp[]) {
+int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal) {
 	/*------------------------------------------------------------------
 	Note: This method takes in the command and runs it through the big 
 	* if statment. The if statments are categorize by alphanumeric. 
@@ -1800,7 +1851,7 @@ int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, 
 					DirectoryChange(previousPath);
 				} else if (incomingInput[i] == "bash") { 
 					arguments.push_back(incomingInput[i]); 
-					ExecuteFile(incomingInput[i], arguments, envp); 
+					ExecuteFile(incomingInput[i], arguments); 
 					arguments.clear(); 
 				} else if (incomingInput[i] == "cd") { 
 					if (size == 2) {														// Check to see if we have another argument in the vector.
@@ -1835,7 +1886,7 @@ int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, 
 				} else if (incomingInput[i] == "compress") { 
 					if (size == 2) { 
 						i++; 
-						CompressAndDecompress(0, incomingInput[i], envp);
+						CompressAndDecompress(0, incomingInput[i]);
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect-3.", 2);
 					}
@@ -1859,7 +1910,7 @@ int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, 
 							 cpPath = incomingInput[i];
 						}
 						if (fileSwitch == true && pathSwitch == true) {
-							CopyAndMoveFiles(cpFile, cpPath, false, envp);
+							CopyAndMoveFiles(cpFile, cpPath, false);
 							if (size == 4) {
 								i++;
 								if (incomingInput[i] == "-m")
@@ -1881,7 +1932,7 @@ int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, 
 				} else if (incomingInput[i] == "decompress") { 
 					if (size == 2) { 
 						i++; 
-						CompressAndDecompress(1, incomingInput[i], envp); 
+						CompressAndDecompress(1, incomingInput[i]); 
 					} else {
 						ColorChange("\t\tThe number of arguments was incorrect-5.", 2);
 					}
@@ -1918,7 +1969,7 @@ int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, 
 					}
 				} else if (incomingInput[i] == "exit") {
 					// arguments.push_back("reset");
-					// ExecuteFile("reset", arguments, envp);
+					// ExecuteFile("reset", arguments);
 					return 1;
 				} else if (incomingInput[i] == "find") {
 					if (size == 3) {
@@ -2030,7 +2081,7 @@ int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, 
 							 mvPath = incomingInput[i];
 						}
 						if (fileSwitch == true && pathSwitch == true) {
-							CopyAndMoveFiles(mvFile, mvPath, true, envp);
+							CopyAndMoveFiles(mvFile, mvPath, true);
 							if (size == 4) {
 								i++;
 								if (incomingInput[i] == "-m")
@@ -2103,7 +2154,7 @@ int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, 
 					arguments.push_back("/sbin/shutdown");
 					arguments.push_back("-h");
 					arguments.push_back("now");
-					ExecuteFile(incomingInput[i], arguments, envp); 
+					ExecuteFile(incomingInput[i], arguments); 
 				}
 			} else {																		//If the command is within T - Z (t - z).
 				if (incomingInput[i] == "time") {	
@@ -2128,7 +2179,7 @@ int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal, 
 			}
 		}
 	} else if (signal == 1) {																// If the incoming vector of commands is not associated with this application.
-		ExecuteFile(incomingInput[i], incomingInput, envp); 										// Send the first argument and then send the rest of the vector.
+		ExecuteFile(incomingInput[i], incomingInput); 										// Send the first argument and then send the rest of the vector.
 	}
 	/*--------------------------------------------------------------------*/
 	incomingInput.clear();
@@ -2151,6 +2202,8 @@ std::vector<std::string> Thursday::SetupTheSystem(int argc, char * envp[], std::
 	if (debugSwitch == 1)
 		ColorChange("\t\tMission - You are in the SetupTheSystem method.", 3);
  	/*--------------------------------------------------------------------*/
+	int total = 0;
+	int i = 0;
 	std::ofstream output_file;
 	std::ifstream input_file;
 	std::string globalFileName = "";
@@ -2158,6 +2211,7 @@ std::vector<std::string> Thursday::SetupTheSystem(int argc, char * envp[], std::
 	std::string Thursday_Histroy_File = ".thursday_history"; 
 	std::string temp_path = "";
 	std::string temp_input = "";
+	std::string temp_input2 = "";
 	thursdayCommandsFileName = informationDestination;
 	thursdayCommandsFileName += "/ThursdayCommands.txt";
 
@@ -2175,10 +2229,91 @@ std::vector<std::string> Thursday::SetupTheSystem(int argc, char * envp[], std::
 
 	temp_path = user_home_destination + "/.thursday_profile";
 	if (utili::isFile(temp_path) == false) {
-		output_file.open(".thursday_profile");
-			// Need to setup the file or just copy and example over. I'm leaning towards just copying the file.
-			// Also have to redirect the input of commands.
-		output_file.close();
+		std::vector<std::string> ThursdayCommands = { "bash", "back", "cd", "color", "commands", "compress", "cp", "date", "debug", "decompress", \
+													"decrypt", "disable", "enable", "encrypt", "exit", "find", "getenv", "hd", "help", "info" \
+													"ls", "mv", "pid", "ppid", "printenv", "prompt", "rm", "search", "setenv", "shutdown", \
+													"time", "uid", "unsetenv", "usage", "wd" };
+
+		temp_input = informationDestination + "/.thursday_profile";
+		CopyAndMoveFiles(temp_input, user_home_destination, false);
+		ColorSwitch(true);
+		colorOption = 10;
+		promptNumber = 2;
+		currentPrompt = "No custom Prompt has been set: ";
+	} else {
+		std::vector<std::string> example = { "bash", "back", "cd", "color", "commands", "compress", "cp", "date", "debug", "decompress", \
+													"decrypt", "disable", "enable", "encrypt", "exit", "find", "getenv", "hd", "help", "info" \
+													"ls", "mv", "pid", "ppid", "printenv", "prompt", "rm", "search", "setenv", "shutdown", \
+													"time", "uid", "unsetenv", "usage", "wd" };
+		bool command_flag = false;
+		bool user_settings_flag = false;
+		bool alias_flag = false;
+		bool skip_flag = false;
+
+		std::vector<std::string> ThursdayCommands = { "cd", "color", "debug", "exit" };
+		input_file.open(temp_path);
+		while (!input_file.eof()) {
+			getline(input_file, temp_input, '#');
+
+			if (temp_input.size() > 0) {
+				if (temp_input[0] >= 65 && temp_input[0] <= 122) {
+					if (temp_input == "Commands") {
+						command_flag = true;
+						user_settings_flag = false;
+						skip_flag = true;
+					}
+					if (temp_input == "User-Settings") {
+						user_settings_flag = true;
+						command_flag = false;
+						skip_flag = true;
+					}
+					if (skip_flag == false) {
+						if (command_flag == true) {
+							if (std::find(example.begin(), example.end(), temp_input) != example.end()) {
+								getline(input_file, temp_input2, '#');
+								if (temp_input2 == "ON") {
+									ThursdayCommands.push_back(temp_input);
+								}	
+							}
+						} else if (user_settings_flag == true) {
+							if (temp_input == "Color" ) {
+								getline(input_file, temp_input2, '#');
+								if (temp_input2 == "ON") {
+									ColorSwitch(true);
+								} else {
+									colorSwitch = false;
+								}
+							} else if (temp_input == "Color-Option") {
+								getline(input_file, temp_input2, '#');
+								if (utili::isNumber(temp_input2) == true) {
+									colorOption = std::stoi(temp_input2);
+								} else {
+									colorOption = 10;
+								}
+							} else if (temp_input == "Prompt") {
+								getline(input_file, temp_input2, '#');
+								if (temp_input2.size() < 50) {
+									currentPrompt = temp_input2;
+								} else {
+									ColorChange("\t\tSorry but that default prompt is a little long!", 2);
+									currentPrompt = "No custom Prompt has been set: ";
+								}
+							} else if (temp_input == "Prompt-Option") {
+								getline(input_file, temp_input2, '#');
+								if (utili::isNumber(temp_input2) == true) {
+									promptNumber = std::stoi(temp_input2);
+								} else {
+									colorOption = 2;
+								}
+							}
+						}
+					} else {
+						skip_flag = false;
+					}
+				}
+			}
+		}
+		input_file.close();
 	}
 
 	temp_path = user_home_destination + "/.thursday_history";
@@ -2187,12 +2322,17 @@ std::vector<std::string> Thursday::SetupTheSystem(int argc, char * envp[], std::
 		output_file.close();
 	} else {
 		input_file.open(temp_path);
+		if (!input_file) {
+			perror("");
+			std::cout << "There was an iessue to opening the file" << std::endl;
+		}
 		while (!input_file.eof()) {
 			std::getline(input_file,temp_input);
 			incomingCommands.push_back(temp_input);
 		}
 		input_file.close();
-		incomingCommands.erase(incomingCommands.end(), incomingCommands.end()+1);
+		if (incomingCommands.size() > 0)
+			incomingCommands.erase(incomingCommands.end(), incomingCommands.end()+1);
 	}
 	/*--------------------------------------------------------------------*/
 	if (debugSwitch == 1)

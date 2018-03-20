@@ -71,7 +71,8 @@ int main (int argc, char * argv[], char * envp[]) {
 
     incomingCommands = home.SetupTheSystem(argc, envp, incomingCommands);
     UpAndDownIterator = incomingCommands.size();
-    home.Check_Input_Loop("reset", envp);
+    // UpAndDownIterator = incomingCommands.size();
+    // home.Check_Input_Loop("reset");
     home.PromptDisplay();																						//Print basic prompt out.																	
 
 	while (1) {																									//Loop for indeffinately.
@@ -110,7 +111,7 @@ int main (int argc, char * argv[], char * envp[]) {
                                     tilda_theCommands += theCommands.substr(tilda_iterator);;
                             }
                         }
-                        if (home.Check_Input_Loop(theCommands, envp) == 1) {
+                        if (home.Check_Input_Loop(theCommands) == 1) {
                             exit_flag = true;
                             break;
                         }
@@ -118,7 +119,7 @@ int main (int argc, char * argv[], char * envp[]) {
                         tilda_iterator = 0;
                         tilda_theCommands = "";
                     } else {  
-                        if (home.Check_Input_Loop(theCommands, envp) == 1) {
+                        if (home.Check_Input_Loop(theCommands) == 1) {
                             exit_flag = true;   											                    //Send the commands in the incomingInput vector to the search commands method.
                             break;
                         }
@@ -249,7 +250,7 @@ int main (int argc, char * argv[], char * envp[]) {
 
                     tabPressed = false;
                     if ((theCommands.size()+1) != LeftAndRightIterator) {										//If the cursor is not at the end of the string.
-                        std::string str = utili::convert_number_to_letter(characterNumber);						//Convert the character number into an actual letter.															
+                        std::string str = utili::convert_number_to_string(characterNumber);						//Convert the character number into an actual letter.															
                         theCommands.insert((LeftAndRightIterator - 1), str);									//Insert the letter into our string.
                         int shift = (theCommands.size() - LeftAndRightIterator);								//Get our shift which is just the different from the back of the string to where the cursor is at on the string.
                         int i = 0;																				//Since there are more than one for loop, lets just create one variable.

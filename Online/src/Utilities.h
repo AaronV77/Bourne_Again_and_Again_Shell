@@ -27,7 +27,7 @@ namespace utili {
 	static char path[MAX_SIZE];
     /*Methods*/
     /*-------------------------------------------------------------------------------------------*/
-    std::string convert_number_to_letter(int incomingNumber);
+    std::string convert_number_to_string(int incomingNumber);
     std::string	date(int number);   
     std::vector<std::string> directory_contents(std::string directoryPath, std::vector<std::string> contents);
     std::string fileInformation(std::string pathName);
