@@ -1269,14 +1269,7 @@ std::vector<std::string> Thursday::FileLoader(std::vector<std::string> incomingV
 		ColorChange("\t\tThere was an error opening the file in the FileLoader Method.", 2);
 		return incomingVector;																// Return an empty vector.
 	}
-	if ( signal == 0) {																		// This option will take anything from a file that is # ending and push the contents into an array.
-		while (!InputData.eof()) {															// Loop through the file.
-			std::getline(InputData, input, '#');											// Get a line from within the file.
-			input = utili::remove_special_characters(input);								// Get rid of any special characters from the output.
-			if (input.size() > 0)															// If the output is not empty.
-				incomingVector.push_back(input);											// Store the output from the file.
-		}
-	} else if ( signal == 1) {																// This option will display just the basic contents of a file that is # ending.
+	dif ( signal == 1) {																// This option will display just the basic contents of a file that is # ending.
 		while (!InputData.eof()) {															// Loop through the file.
 			std::getline(InputData, input, '#');											// Get the line from in the file.
 			incomingVector.push_back(input);
@@ -2206,15 +2199,11 @@ std::vector<std::string> Thursday::SetupTheSystem(int argc, char * envp[], std::
 	int i = 0;
 	std::ofstream output_file;
 	std::ifstream input_file;
-	// std::string thursdayCommandsFileName = "";
 	std::string Thursday_Histroy_File = ".thursday_history"; 
 	std::string temp_path = "";
 	std::string temp_input = "";
 	std::string temp_input2 = "";
-	// thursdayCommandsFileName = informationDestination;
-	// thursdayCommandsFileName += "/ThursdayCommands.txt";
 
-	// ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);
 	Environment = utili::get_environment(envp, Environment);
 
 	for (int i = 0; i < Environment.size(); ++i) {
