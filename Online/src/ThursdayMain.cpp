@@ -71,8 +71,8 @@ int main (int argc, char * argv[], char * envp[]) {
 
     incomingCommands = home.SetupTheSystem(argc, envp, incomingCommands);
     UpAndDownIterator = incomingCommands.size();
-    // UpAndDownIterator = incomingCommands.size();
-    // home.Check_Input_Loop("reset");
+    UpAndDownIterator = incomingCommands.size();
+    home.Check_Input_Loop("reset");
     home.PromptDisplay();																						//Print basic prompt out.																	
 
 	while (1) {																									//Loop for indeffinately.
