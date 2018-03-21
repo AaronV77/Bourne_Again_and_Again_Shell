@@ -86,8 +86,9 @@ int Thursday::Basic_Command_Parse_Loop(std::vector<std::string> incoming_command
 
 			if (myCommandSwitch == false) {
 				for (int b = 0; b < ThursdayCommands.size(); b++) {
-					if (ThursdayCommands[b] == incoming_commands[a])
+					if (ThursdayCommands[b] == incoming_commands[a]) {
 						thursday_command_flag = true;
+					}
 				}
 			}
 		}
@@ -1081,7 +1082,6 @@ int Thursday::ExecuteFile(std::string incomingCommand, std::vector<std::string> 
 	pid = fork();
 	if (pid == 0) {
 		if (execve(incomingCommand.c_str(), my_array, my_envp) == -1) {
-			perror("");
 			ColorChange("\t\tSomething went wrong with the execution of the command.", 2);
 			return 0;
 		}
@@ -2206,16 +2206,15 @@ std::vector<std::string> Thursday::SetupTheSystem(int argc, char * envp[], std::
 	int i = 0;
 	std::ofstream output_file;
 	std::ifstream input_file;
-	std::string globalFileName = "";
-	std::string thursdayCommandsFileName = "";
+	// std::string thursdayCommandsFileName = "";
 	std::string Thursday_Histroy_File = ".thursday_history"; 
 	std::string temp_path = "";
 	std::string temp_input = "";
 	std::string temp_input2 = "";
-	thursdayCommandsFileName = informationDestination;
-	thursdayCommandsFileName += "/ThursdayCommands.txt";
+	// thursdayCommandsFileName = informationDestination;
+	// thursdayCommandsFileName += "/ThursdayCommands.txt";
 
-	ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);
+	// ThursdayCommands = FileLoader(ThursdayCommands, thursdayCommandsFileName, 0);
 	Environment = utili::get_environment(envp, Environment);
 
 	for (int i = 0; i < Environment.size(); ++i) {

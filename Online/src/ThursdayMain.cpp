@@ -462,7 +462,7 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
 				if (searchTest == true) {
 					break;
 				} else {
-					if (e <= incomingTypedString.size()) {
+					if (e <= token.size()) {
 						if (exampleSearch[e] != token[e]) {
 							foundSearch += exampleSearch[e];
                         }
