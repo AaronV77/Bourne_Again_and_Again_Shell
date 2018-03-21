@@ -64,16 +64,14 @@ int main (int argc, char * argv[], char * envp[]) {
 
 			if (!strcmp(argv[i], "color=on"))																	//If color is found off then turn off the color in the application.
 				home.ColorSwitch(true);																			//Turn off the switch for the color in the application.
-
 			i++;																								//Increment the iterator for the loop.
 		}
 	}
 
     incomingCommands = home.SetupTheSystem(argc, envp, incomingCommands);
     UpAndDownIterator = incomingCommands.size();
-    UpAndDownIterator = incomingCommands.size();
     home.Check_Input_Loop("reset");
-    home.PromptDisplay();																						//Print basic prompt out.																	
+    home.PromptDisplay(false);																						//Print basic prompt out.																	
 
 	while (1) {																									//Loop for indeffinately.
 		if (exit_flag == true) {
@@ -94,7 +92,7 @@ int main (int argc, char * argv[], char * envp[]) {
                     LeftAndRightIterator = theCommands.size() + 1;
                 } else {
                     autoComplete(home, theCommands, true);
-                    home.PromptDisplay();
+                    home.PromptDisplay(false);
                     std::cout << theCommands;
                 }
                 break;
@@ -128,7 +126,7 @@ int main (int argc, char * argv[], char * envp[]) {
                     tabPressed = false;
                     theCommands = "";																			//Reset the variable.
                 }
-                home.PromptDisplay();																			//Display the prompt.				
+                home.PromptDisplay(false);																		//Display the prompt.				
                 UpAndDownIterator = incomingCommands.size();													//Set the up and down iterator to zero.
                 LeftAndRightIterator = 1;																		//Reset the iterator for back and forth to zero.
                 break;
@@ -182,7 +180,7 @@ int main (int argc, char * argv[], char * envp[]) {
                     tabPressed = false;
                     printf("%c[2K", 27);																		//Clear the current terminal line.
                     std::cout << "\r";																		//This carriage return will keep the prompt from shifting over.
-                    home.PromptDisplay();																		//print the normal prompt.
+                    home.PromptDisplay(false);																	//print the normal prompt.
                     std::cout  << incomingCommands[UpAndDownIterator]; 											//Reset the output and pring the colored prompt and print out the previous command.
                     theCommands = incomingCommands[UpAndDownIterator];											//Reset the input string with the previous command.
                     LeftAndRightIterator = theCommands.size() + 1;												//Reset the left and right iterator so that the cursor doesn't move past the commmand.
@@ -196,7 +194,7 @@ int main (int argc, char * argv[], char * envp[]) {
                     tabPressed = false;
                     printf("%c[2K", 27);																		//Clear the printed terminal line.
                     std::cout << "\r";																			//This carriage return will keep the prompt from shifting over.
-                    home.PromptDisplay();																		//print the normal prompt.
+                    home.PromptDisplay(false);																	//print the normal prompt.
                     std::cout  << incomingCommands[UpAndDownIterator]; 											//Reset the output and pring the colored prompt and print out the previous command.
                     theCommands = incomingCommands[UpAndDownIterator];											//Reset the input string with the previous command.
                     LeftAndRightIterator = theCommands.size() + 1;												//Reset the left and right iterator so that the cursor doesn't move past the commmand.
@@ -360,7 +358,7 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
                 backslash_found_flag = true;
             } else {
                 std::cout <<  std::endl << "\t\t The path is inccorect." << std::endl;
-                home.PromptDisplay();
+                home.PromptDisplay(false);
                 std::cout << incomingTypedString;
                 return incomingTypedString;
             }
@@ -381,7 +379,7 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
                     warning_flag = true;
                 } else {
                     std::cout <<  std::endl << "\t\t The path is inccorect." << std::endl;
-                    home.PromptDisplay();
+                    home.PromptDisplay(false);
                     std::cout << incomingTypedString;
                     return incomingTypedString;
                 }
@@ -389,7 +387,7 @@ std::string autoComplete(Thursday home, std::string incomingTypedString, bool my
         } else {
             if (warning_flag == true) {
                 std::cout <<  std::endl << "\t\t The path is inccorect." << std::endl;
-                home.PromptDisplay();
+                home.PromptDisplay(false);
                 std::cout << incomingTypedString;
                 return incomingTypedString;
             }

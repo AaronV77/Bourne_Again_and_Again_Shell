@@ -55,7 +55,7 @@ public:
 	std::vector<std::string> FileLoader(std::vector<std::string> incomingVector, std::string fileName, int signal);
 	void Help(std::string argument);
 	void Operator_Command_Parse_Loop(std::vector<std::string> incoming_commands);
-	void PromptDisplay();
+	void PromptDisplay(bool display_flag);
 	void Recursive_Directory_Search(std::string path, std::string searchWord, bool showDirectories);
 	void Search(std::string argument);
 	int SearchCommands(std::vector<std::string>incomingInput, int signal);

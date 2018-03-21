@@ -533,6 +533,22 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 		} else if ( signal == 3 ) {
 			std::cout << colorYellow << sentence << colorDEF << std::endl;
 			return;
+		} else if ( signal == 4) {
+			std::cout << colorLightRed << argument << std::cout << endl;
+			std::cout << colorRed << argument << std::cout << endl;
+			std::cout << colorLightYellow << argument << std::cout << endl;
+			std::cout << colorYellow << argument << std::cout << endl;
+			std::cout << colorLightGreen << argument << std::cout << endl;
+			std::cout << colorGreen << argument << std::cout << endl;
+			std::cout << colorLightCyan << argument << std::cout << endl;
+			std::cout << colorCyan << argument << std::cout << endl;
+			std::cout << colorLightBlue << argument << std::cout << endl;
+			std::cout << colorBlue << argument << std::cout << endl;
+			std::cout << colorLightMagenta << argument << std::cout << endl;
+			std::cout << colorMagenta << argument << std::cout << endl;
+			std::cout << colorLightGray << argument << std::cout << endl;
+			std::cout << colorGray << argument << std::cout << endl;
+			std::cout << colorBlack << argument << std::cout << endl;
 		}
 	} else {
 		if (signal == 1) {
@@ -1401,7 +1417,7 @@ void Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_com
 	This method was last updated on 2/19/2018.
 	--------------------------------------------------------------------*/	
     if (debugSwitch == 1)
-        ColorChange("\t\tMission - You are in the PromptDisplay method.", 3); 
+        ColorChange("\t\tMission - You are in the Operator_Command_Parse_Loop method.", 3); 
 	 /*--------------------------------------------------------------------*/
     std::string standard_error_file = "";
     std::string standard_input_file = "";
@@ -1647,7 +1663,7 @@ void Thursday::Operator_Command_Parse_Loop(std::vector<std::string> incoming_com
 
 }
 
-void Thursday::PromptDisplay() {
+void Thursday::PromptDisplay(bool display_flag) {
 	/*------------------------------------------------------------------
 	Note: This method builds the prompt to be displayed onto the screen
 	for the user. Every option has a different prompt setup. This method
@@ -1656,24 +1672,32 @@ void Thursday::PromptDisplay() {
     if (debugSwitch == 1)
         ColorChange("\t\tMission - You are in the PromptDisplay method.", 3); 
 	 /*--------------------------------------------------------------------*/
-	std::string thePrompt = "";
-	if (promptNumber == 0) {
-		thePrompt = "?: ";
-	} else if (promptNumber == 1) {
-		thePrompt = hostName;
-		thePrompt += ": ";
-	} else if (promptNumber == 2) {
-		thePrompt = currentPath;
-		thePrompt += ": ";
-	} else if (promptNumber == 3) {
-		thePrompt = hostName;
-		thePrompt += ":";
-		thePrompt += currentPath;
-		thePrompt += ": ";
-	} else if (promptNumber == 4) {
-		thePrompt = currentPrompt;
-	}
-	ColorChange(thePrompt, 1);
+	 if (display_flag == true) {
+		 std::cout << "\t\t?: " << std::endl;
+		 std::cout << "\t\t" << hostName << ": " << std::endl;
+		 std::cout << "\t\t" << currentPath << ": " << std::endl;
+		 std::cout << "\t\t" << hostName << ":" << currentPath << ": " << std::endl;
+		 std::cout << "\t\t" << currentPrompt << std::endl;
+	 } else {
+		std::string thePrompt = "";
+		if (promptNumber == 0) {
+			thePrompt = "?: ";
+		} else if (promptNumber == 1) {
+			thePrompt = hostName;
+			thePrompt += ": ";
+		} else if (promptNumber == 2) {
+			thePrompt = currentPath;
+			thePrompt += ": ";
+		} else if (promptNumber == 3) {
+			thePrompt = hostName;
+			thePrompt += ":";
+			thePrompt += currentPath;
+			thePrompt += ": ";
+		} else if (promptNumber == 4) {
+			thePrompt = currentPrompt;
+		}
+		ColorChange(thePrompt, 1);
+	 }
 
     return;
 }
@@ -1946,6 +1970,16 @@ int Thursday::SearchCommands(std::vector<std::string>incomingInput, int signal) 
 					if (myCommandSwitch == false) {
 						myCommandSwitch = true;
 						ColorChange("\t\tThursday's commands have been disabled.", 3);
+					}
+				} else if (incomingInput[i] == "display") {
+					i++;
+					if (incomingInput[i] == "color") {
+						if (colorSwitch == true)
+							ColorChange("\t\tTesting...", 4);
+						else
+							ColorChange("\t\tThe color switch is turned off, turn it on to see the colors!", 3);
+					} else if (incomingInput[i] == "prompt") {
+						PromptDisplay(true);
 					}
 				} else if (incomingInput[i] == "encrypt") {
 					if (size == 3) {
