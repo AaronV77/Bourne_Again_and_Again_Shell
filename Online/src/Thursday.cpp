@@ -2252,9 +2252,9 @@ std::vector<std::string> Thursday::SetupTheSystem(int argc, char * envp[], std::
 	temp_path = user_home_destination + "/.thursday_profile";
 	if (utili::isFile(temp_path) == false) {
 		 ThursdayCommands = { "bash", "back", "cd", "color", "commands", "compress", "cp", "date", "debug", "decompress", \
-													"decrypt", "disable", "enable", "encrypt", "exit", "find", "getenv", "hd", "help", "info" \
-													"ls", "mv", "pid", "ppid", "printenv", "prompt", "rm", "search", "setenv", "shutdown", \
-													"time", "uid", "unsetenv", "usage", "wd", "diplay" };
+							"decrypt", "disable", "enable", "encrypt", "exit", "find", "getenv", "hd", "help", "info" \
+							"ls", "mv", "pid", "ppid", "printenv", "prompt", "rm", "search", "setenv", "shutdown", \
+							"time", "uid", "unsetenv", "usage", "wd", "diplay" };
 
 		temp_input = informationDestination + "/.thursday_profile";
 		CopyAndMoveFiles(temp_input, user_home_destination, false);
