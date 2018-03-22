@@ -289,6 +289,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input) {
             } else if (incoming_input[a] == '&') {
                 if (ampersand_flag == false) {
                     ampersand_flag = true;
+					skip_this_char = true;
 					which_command_parser = 1;
                 } else {
 					ColorChange("\t\tThere was an ampersand error-1.", 2);
@@ -317,7 +318,9 @@ int Thursday::Check_Input_Loop(std::string incoming_input) {
                             error_flag = true;
                             break;
                         } else {
+							waitSwitch = true;
                             ampersand_flag = false;
+
                         }
                     }
                     if (token.size() > 0) {
@@ -404,6 +407,7 @@ int Thursday::Check_Input_Loop(std::string incoming_input) {
 			}
         } else {
             Operator_Command_Parse_Loop(incoming_commands);
+			waitSwitch = false;
         }
     } else {
         incoming_commands.clear();
@@ -2264,7 +2268,7 @@ std::vector<std::string> Thursday::SetupTheSystem(int argc, char * envp[], std::
 		currentPrompt = "No custom Prompt has been set: ";
 	} else {
 		std::vector<std::string> example = { "bash", "back", "cd", "color", "commands", "compress", "cp", "date", "debug", "decompress", \
-											"decrypt", "disable", "enable", "encrypt", "exit", "find", "getenv", "hd", "help", "info" \
+											"decrypt", "disable", "enable", "encrypt", "exit", "find", "getenv", "hd", "help", "info", \
 											"ls", "mv", "pid", "ppid", "printenv", "prompt", "rm", "search", "setenv", "shutdown", \
 											"time", "uid", "unsetenv", "usage", "wd", "display" };
 		bool command_flag = false;
@@ -2273,6 +2277,9 @@ std::vector<std::string> Thursday::SetupTheSystem(int argc, char * envp[], std::
 		bool skip_flag = false;
 
 		ThursdayCommands = { "cd", "color", "debug", "exit" };
+		for (int i = 0; i < ThursdayCommands.size(); i++)
+			std::cout << "Here: " << ThursdayCommands[i] << std::endl;
+
 		input_file.open(temp_path);
 		while (!input_file.eof()) {
 			getline(input_file, temp_input, '#');
@@ -2336,6 +2343,9 @@ std::vector<std::string> Thursday::SetupTheSystem(int argc, char * envp[], std::
 		}
 		input_file.close();
 	}
+
+	for (int i = 0; i < ThursdayCommands.size(); i++)
+		std::cout << "Here2: " << ThursdayCommands[i] << std::endl;
 
 	temp_path = user_home_destination + "/.thursday_history";
 	if (utili::isFile(temp_path) == false) {
