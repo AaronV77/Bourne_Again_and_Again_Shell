@@ -534,21 +534,21 @@ void Thursday::ColorChange(std::string sentence, int signal) {
 			std::cout << colorYellow << sentence << colorDEF << std::endl;
 			return;
 		} else if ( signal == 4) {
-			std::cout << colorLightRed << argument << std::cout << endl;
-			std::cout << colorRed << argument << std::cout << endl;
-			std::cout << colorLightYellow << argument << std::cout << endl;
-			std::cout << colorYellow << argument << std::cout << endl;
-			std::cout << colorLightGreen << argument << std::cout << endl;
-			std::cout << colorGreen << argument << std::cout << endl;
-			std::cout << colorLightCyan << argument << std::cout << endl;
-			std::cout << colorCyan << argument << std::cout << endl;
-			std::cout << colorLightBlue << argument << std::cout << endl;
-			std::cout << colorBlue << argument << std::cout << endl;
-			std::cout << colorLightMagenta << argument << std::cout << endl;
-			std::cout << colorMagenta << argument << std::cout << endl;
-			std::cout << colorLightGray << argument << std::cout << endl;
-			std::cout << colorGray << argument << std::cout << endl;
-			std::cout << colorBlack << argument << std::cout << endl;
+			std::cout << colorLightRed << sentence << std::endl;
+			std::cout << colorRed << sentence << std::endl;
+			std::cout << colorLightYellow << sentence << std::endl;
+			std::cout << colorYellow << sentence << std::endl;
+			std::cout << colorLightGreen << sentence << std::endl;
+			std::cout << colorGreen << sentence << std::endl;
+			std::cout << colorLightCyan << sentence << std::endl;
+			std::cout << colorCyan << sentence << std::endl;
+			std::cout << colorLightBlue << sentence << std::endl;
+			std::cout << colorBlue << sentence << std::endl;
+			std::cout << colorLightMagenta << sentence << std::endl;
+			std::cout << colorMagenta << sentence << std::endl;
+			std::cout << colorLightGray << sentence << std::endl;
+			std::cout << colorGray << sentence << std::endl;
+			std::cout << colorBlack << sentence << std::endl;
 		}
 	} else {
 		if (signal == 1) {
@@ -1285,7 +1285,7 @@ std::vector<std::string> Thursday::FileLoader(std::vector<std::string> incomingV
 		ColorChange("\t\tThere was an error opening the file in the FileLoader Method.", 2);
 		return incomingVector;																// Return an empty vector.
 	}
-	dif ( signal == 1) {																// This option will display just the basic contents of a file that is # ending.
+	if ( signal == 1) {																		// This option will display just the basic contents of a file that is # ending.
 		while (!InputData.eof()) {															// Loop through the file.
 			std::getline(InputData, input, '#');											// Get the line from in the file.
 			incomingVector.push_back(input);
@@ -2251,10 +2251,10 @@ std::vector<std::string> Thursday::SetupTheSystem(int argc, char * envp[], std::
 
 	temp_path = user_home_destination + "/.thursday_profile";
 	if (utili::isFile(temp_path) == false) {
-		std::vector<std::string> ThursdayCommands = { "bash", "back", "cd", "color", "commands", "compress", "cp", "date", "debug", "decompress", \
+		 ThursdayCommands = { "bash", "back", "cd", "color", "commands", "compress", "cp", "date", "debug", "decompress", \
 													"decrypt", "disable", "enable", "encrypt", "exit", "find", "getenv", "hd", "help", "info" \
 													"ls", "mv", "pid", "ppid", "printenv", "prompt", "rm", "search", "setenv", "shutdown", \
-													"time", "uid", "unsetenv", "usage", "wd" };
+													"time", "uid", "unsetenv", "usage", "wd", "diplay" };
 
 		temp_input = informationDestination + "/.thursday_profile";
 		CopyAndMoveFiles(temp_input, user_home_destination, false);
@@ -2264,19 +2264,18 @@ std::vector<std::string> Thursday::SetupTheSystem(int argc, char * envp[], std::
 		currentPrompt = "No custom Prompt has been set: ";
 	} else {
 		std::vector<std::string> example = { "bash", "back", "cd", "color", "commands", "compress", "cp", "date", "debug", "decompress", \
-													"decrypt", "disable", "enable", "encrypt", "exit", "find", "getenv", "hd", "help", "info" \
-													"ls", "mv", "pid", "ppid", "printenv", "prompt", "rm", "search", "setenv", "shutdown", \
-													"time", "uid", "unsetenv", "usage", "wd" };
+											"decrypt", "disable", "enable", "encrypt", "exit", "find", "getenv", "hd", "help", "info" \
+											"ls", "mv", "pid", "ppid", "printenv", "prompt", "rm", "search", "setenv", "shutdown", \
+											"time", "uid", "unsetenv", "usage", "wd", "display" };
 		bool command_flag = false;
 		bool user_settings_flag = false;
 		bool alias_flag = false;
 		bool skip_flag = false;
 
-		std::vector<std::string> ThursdayCommands = { "cd", "color", "debug", "exit" };
+		ThursdayCommands = { "cd", "color", "debug", "exit" };
 		input_file.open(temp_path);
 		while (!input_file.eof()) {
 			getline(input_file, temp_input, '#');
-
 			if (temp_input.size() > 0) {
 				if (temp_input[0] >= 65 && temp_input[0] <= 122) {
 					if (temp_input == "Commands") {

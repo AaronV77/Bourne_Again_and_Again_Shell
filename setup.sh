@@ -77,6 +77,7 @@ else
 				cd $home
 				rm /usr/local/bin/Thurs
 				rm -rf /usr/local/bin/.Thursday
+				rm -rf ~/.thursday_profile
 				cd $dir
 				echo "Everything has been cleaned up!"
 			else
