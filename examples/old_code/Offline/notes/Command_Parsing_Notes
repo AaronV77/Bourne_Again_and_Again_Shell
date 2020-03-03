@@ -1,0 +1,11 @@
+
+
+
+Rules:
+    - We cannot have standard in, standard out, and pipe out next to each other in any combination. (usage > < | output.txt)
+    - Cannot have a weird number of spaces before, in the middle, or at the end of incoming string.
+    - With a standard in or standard out, we can only have one argument.
+    - Cannot have an odd number of single or double quotes, parentheses, and brackets.
+    - The first command of the input section can be the only to have an &.
+
+

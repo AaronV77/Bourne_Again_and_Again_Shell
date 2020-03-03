@@ -1,0 +1,13 @@
+./a.out < input.txt | head -3 | tail -1 > output.txt
+usage > output.txt
+ls > output.txt
+ls -al | head -3
+ls | head -3
+ls -al | head -3
+ls -al | head -3 > output.txt
+ls -al | head -3 < input.txt
+ls -al | head -3 >> output.txtusage
+usage
+usage
+ls
+penis

@@ -4,3 +4,6 @@ all:
 
 run:
 	./main
+
+clean:
+	rm *.o
