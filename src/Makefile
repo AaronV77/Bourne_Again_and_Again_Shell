@@ -6,4 +6,4 @@ run:
 	./main
 
 clean:
-	rm *.o
+	rm *.o main

@@ -6,11 +6,11 @@
 #include <string.h> // strcmp
 #include <stdio.h>  // printf
 
-char ** TD_Char_Row_Reallocation(char ** ptr, int number_of_rows, int new_row_size, int number_of_columns);
+void TD_Char_Row_Reallocation(int number_of_rows, int new_row_size, int number_of_columns, const char * format, ...);
 
-char ** TD_Char_Column_Reallocation(char ** ptr, int number_of_rows, int new_column_size);
+void TD_Char_Column_Reallocation(int number_of_rows, int new_column_size, const char * format, ...);
 
-char ** TD_Char_Allocation(int number_of_rows, int number_of_columns);
+void TD_Char_Allocation(int number_of_rows, int number_of_columns, const char * format, ...);
 
 void TD_Free(int number_of_rows, const char * format, ...);
 
