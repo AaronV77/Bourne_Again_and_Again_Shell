@@ -1,5 +1,5 @@
-#ifndef S_VECTOR
-#define S_VECTOR
+#ifndef LINKED_L
+#define LINKED_L
 
 #include <stdio.h>      // printf
 #include <stdlib.h>     // calloc

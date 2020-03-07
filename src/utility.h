@@ -3,7 +3,9 @@
 
 #include <string.h>
 
-void parse_env_path(char * path, char ** storage);
+#include "linked_list.h"
+
+void parse_env_path(Linked_List ** list, char * path);
 
 void utility_debugger();
 

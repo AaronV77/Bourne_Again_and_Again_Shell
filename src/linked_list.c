@@ -1,6 +1,6 @@
-#include "simple_vector.h"
+#include "linked_list.h"
 
-int sm_debugger_flag = 1;
+int sm_debugger_flag = 0;
 
 void vec_pop(Linked_List ** list, int position) {
     if (sm_debugger_flag) printf("Entering the vec_pop function\n");
@@ -56,7 +56,7 @@ void vec_push(Linked_List ** list, char * string) {
     strcpy(temp->string, string);
     temp->string_size = strlen(string);
     temp->next = NULL;
-
+    
     if (!*list) {
         *list = calloc(1, sizeof(Linked_List));
         (*list)->front = (*list)->rear = temp;
