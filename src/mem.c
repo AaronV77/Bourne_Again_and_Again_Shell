@@ -99,6 +99,8 @@ void TD_Char_Allocation(int number_of_rows, int number_of_columns, const char * 
 	va_list arguments;
 	va_start(arguments, format);
 
+	// I am not going to just call realloc, because it undefined behavior if I pass a NULL pointer.
+
 	if (!strcmp(format, "char")) {
 		char *** ptr = va_arg(arguments, char***);
 		*ptr = calloc(number_of_rows, sizeof(char*));

@@ -9,8 +9,12 @@ int main(int argc, char * argv[], char * envp[]) {
 
 	struct environment env;
 	env.env_column_size = 256;	
-	env.env_total_row_size = 30;		
+	env.env_total_row_size = 30;
+	env.path.path_column_size = 256;
+	env.path.path_total_row_size = 15;		
 	env.env_current_row_size = env.env_total_row_size;
+	env.path.path_current_row_size = env.path.path_total_row_size;
+
 	TD_Char_Allocation(env.env_total_row_size, env.env_column_size, "char", &env.env); 
 	
 	// Looping through the environment and store the environment.	
@@ -31,7 +35,11 @@ int main(int argc, char * argv[], char * envp[]) {
 				// Update the env struct column size;
 				env.env_column_size = temp_size;
 			}
-			strcpy(env.env[env_storage_iterator], envp[env_iterator]);
+			if (strstr(env[env_iterator], "PATH")) 
+				parse_env_path(envp[env_iterator]);
+			else 
+				strcpy(env.env[env_storage_iterator], envp[env_iterator]);
+
 			env_storage_iterator++;	
 		}
 		env_iterator++;	
