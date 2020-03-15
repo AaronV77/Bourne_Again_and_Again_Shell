@@ -11,13 +11,10 @@ struct Linked_List_Node {
     struct Linked_List_Node * next;
 };
 
-struct Linked_List {
+typedef struct Linked_List {
     int list_length;
     struct Linked_List_Node * front, * rear;
-};
-
-typedef struct Linked_List Linked_List;
-typedef struct Linked_List_Node Linked_List_Node;
+}Linked_List;
 
 void vec_pop(Linked_List ** list, int position);
 void vec_push(Linked_List ** list, char * string);
