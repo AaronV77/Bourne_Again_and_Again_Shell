@@ -27,7 +27,12 @@ void setup_environment(User ** user, char ** envp) {
 	
 	if (uu_debugger_flag) printf("Entering the setup_environment function.\n");
 	
-	int env_iterator = 0, env_storage_iterator = 0;
+	(*user)->env = calloc(1, sizeof(td_array));
+	(*user)->env->array = NULL;
+
+	td_allocation(&((*user)->env), "char", 5, 5, 0);
+
+	int env_iterator = 0;
 	while(envp[env_iterator] != NULL) {
 		if (!strstr(envp[env_iterator], "BASH")) {
 			char * temp = calloc(5, sizeof(char));	
@@ -36,7 +41,7 @@ void setup_environment(User ** user, char ** envp) {
 				parse_env_path(user, envp[env_iterator]);	
 			free(temp);
 			
-			vec_push(&((*user)->env), envp[env_iterator]);
+			td_push(&((*user)->env), "char", &envp[env_iterator]);
 		}
 		env_iterator++;	
 	}
@@ -59,7 +64,6 @@ int setup_user(User ** user, char ** envp) {
 		return 1;
 	}
 
-	(*user)->env = NULL;
 	(*user)->path = NULL;
 
 	(*user)->eff_user_id = geteuid();
@@ -80,7 +84,7 @@ int setup_user(User ** user, char ** envp) {
 		if (!create_file(thurs_file, NULL, "0700")) {
 			if (uu_debugger_flag) printf("Creatinig the .thurs file...\n");
 			free((*user)->home_path);
-			return 0;
+			return 1;
 		}
 	} else {
 		// Will have to read the file and do something with the contents here...
@@ -116,16 +120,19 @@ int setup_user(User ** user, char ** envp) {
 
 	if (uu_debugger_flag) printf("Leaving setup_user function.\n");
 
-	return 1;
+	return 0;
 }
 
 void user_cleanup(User ** user) {
 
 	if (uu_debugger_flag) printf("Entering user_cleanup function.\n");
 
-	vec_cleanup(&((*user)->env));
+	td_free(&((*user)->env));
+	free((*user)->env);
+
 	vec_cleanup(&((*user)->path));
 	vec_cleanup(&((*user)->user_groups));
+	
 	free((*user)->user_prompt);
 	free((*user)->user_name);
 	free((*user)->home_path);
