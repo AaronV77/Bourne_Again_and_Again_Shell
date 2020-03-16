@@ -11,8 +11,8 @@ void vec_pop(Linked_List ** list, int position) {
     }
 
     int list_iterator = 0;
-    struct Linked_List_Node * past;
-    struct Linked_List_Node * current = (*list)->front;
+    Linked_List_Node * past;
+    Linked_List_Node * current = (*list)->front;
 
     while (current) {
         
@@ -51,7 +51,7 @@ void vec_pop(Linked_List ** list, int position) {
 void vec_push(Linked_List ** list, char * string) {
     if (sm_debugger_flag) printf("Entering the vec_push function\n");
 
-    struct Linked_List_Node * temp = calloc(1, sizeof(struct Linked_List_Node));
+    Linked_List_Node * temp = calloc(1, sizeof(Linked_List_Node));
     temp->string = calloc((strlen(string) + 1), sizeof(char));
     strcpy(temp->string, string);
     temp->string_size = strlen(string);
@@ -73,7 +73,7 @@ void vec_push(Linked_List ** list, char * string) {
 void vec_cleanup(Linked_List ** list) {
     if (sm_debugger_flag) printf("Entering the vec_cleanup function\n");
 
-    struct Linked_List_Node * temp;
+    Linked_List_Node * temp;
     while ((*list)->front) {
         temp = (*list)->front->next;
         free((*list)->front->string);
@@ -94,7 +94,7 @@ void vec_listall(Linked_List * list) {
         return;
     }
 
-    struct Linked_List_Node * temp = list->front;
+    Linked_List_Node * temp = list->front;
     while (temp) {
         printf("%s\n", temp->string);
         temp = temp->next;

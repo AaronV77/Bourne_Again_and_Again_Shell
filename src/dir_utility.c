@@ -1,6 +1,6 @@
 #include "dir_utility.h"
 
-int du_debugger_flag = 1;
+int du_debugger_flag = 0;
 
 int is_dir(char * path) {
 
@@ -44,12 +44,12 @@ int change_permissions(char * path, char * permissions) {
     if (chmod(path,i) < 0) {
         printf("ERROR: There was an issue with changing '%s' permissions...\n", path);
         if (du_debugger_flag) printf("Leaving change_permissions function.\n");
-        return 0;
+        return 1;
     }
 
     if (du_debugger_flag) printf("Leaving change_permissions function.\n");
 
-    return 1;
+    return 0;
 }
 
 int create_file(char * path, char * contents, char * permissions) {
@@ -59,7 +59,7 @@ int create_file(char * path, char * contents, char * permissions) {
     if (is_file(path) || is_dir(path)) {
         printf("ERROR: The file to be created '%s', already exists...\n", path);
         if (du_debugger_flag) printf("Leaving create_file function.\n");
-        return 0;
+        return 1;
     }
 
     FILE *fp;
@@ -67,7 +67,7 @@ int create_file(char * path, char * contents, char * permissions) {
     if (!fp) {
         printf("ERROR: The file '%s' could not be created...\n", path);
         if (du_debugger_flag) printf("Leaving create_file function.\n");
-        return 0;
+        return 1;
     }
 
     if (contents) {
@@ -81,7 +81,7 @@ int create_file(char * path, char * contents, char * permissions) {
 
     if (du_debugger_flag) printf("Leaving create_file function.\n");
     
-    return 1;
+    return 0;
 }
 
 int create_dir() {

@@ -5,18 +5,20 @@
 #include <pwd.h>		// getpwuid()
 #include <unistd.h>		// getuid(), geteuid(), getegid(), getgid()
 
+#include "td_array.h"
 #include "dir_utility.h"
 #include "linked_list.h"
 
-typedef struct {
-	Linked_List * env;
+typedef struct User{
+	td_array * env;
+	
 	Linked_List * path;
 	Linked_List * user_groups;
 
 	char * home_path;
 	char * user_name;
 	char * user_prompt;
-	
+
 	uid_t eff_user_id;
 	uid_t real_user_id;
 	gid_t eff_group_id;
