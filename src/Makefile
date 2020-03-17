@@ -1,14 +1,29 @@
-all:
-	gcc -c td_array.c
-	gcc -c linked_list.c	
-	gcc -c user_utility.c
-	gcc -c dir_utility.c
-	gcc -c builtin_commands.c
-	gcc -c exec_utility.c
-	gcc main.c -o main td_array.o linked_list.o user_utility.o dir_utility.o builtin_commands.o exec_utility.o
+CC = gcc
+MFLAGS = 
+CFLAGS = -I$(INC_DIR)
+INC_DIR = include
+
+HEADER_FILES = $(wildcard include/*.h)
+SOURCE_FILES = $(wildcard *.c)
+OBJECT_FILES = $(SOURCE_FILES:.c=.o)
+
+all: main
+
+debug: CFLAGS = -I$(INC_DIR) -g
+debug: MFLAGS = -g
+debug: main
+
+%.o: %.c $(HEADER_FILES)
+	$(CC) $(CFLAGS) $(CCFLAGS) -c $<
+
+main: $(OBJECT_FILES)
+	$(CC) $(MFLAGS) -o $@ $^ 
 
 run:
 	./main
 
+run_debug:
+	valgrind --leak-check=full ./main
+	
 clean:
 	rm *.o main
