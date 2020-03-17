@@ -1,0 +1,43 @@
+{
+   Ignore dlopen bug.
+   Memcheck:Leak
+   ...
+   fun:_dl_open
+   ...
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:tls_get_addr_tail.isra.0
+   fun:__tls_get_addr
+   obj:/usr/lib64/libnss_systemd.so.2
+   obj:/usr/lib64/libnss_systemd.so.2
+   obj:/usr/lib64/libnss_systemd.so.2
+   obj:/usr/lib64/libnss_systemd.so.2
+   obj:/usr/lib64/libnss_systemd.so.2
+   obj:/usr/lib64/libnss_systemd.so.2
+   obj:/usr/lib64/libnss_systemd.so.2
+   fun:compat_call.constprop.0
+   fun:internal_getgrouplist
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib64/libnss_systemd.so.2
+   obj:/usr/lib64/libnss_systemd.so.2
+   obj:/usr/lib64/libnss_systemd.so.2
+   obj:/usr/lib64/libnss_systemd.so.2
+   obj:/usr/lib64/libnss_systemd.so.2
+   obj:/usr/lib64/libnss_systemd.so.2
+   obj:/usr/lib64/libnss_systemd.so.2
+   obj:/usr/lib64/libnss_systemd.so.2
+   fun:compat_call.constprop.0
+   fun:internal_getgrouplist
+   fun:getgrouplist
+}

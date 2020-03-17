@@ -23,7 +23,7 @@ run:
 	./main
 
 run_debug:
-	valgrind --leak-check=full ./main
-	
+	valgrind --leak-check=full --suppressions=../docs/valgrind_suppress_file.supp ./main
+
 clean:
 	rm *.o main
